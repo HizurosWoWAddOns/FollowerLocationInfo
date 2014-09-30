@@ -1,0 +1,11 @@
+
+package-as: FollowerLocationInfo
+
+ignore:
+	- .pkgmeta
+	- notes.txt
+	- changes.txt
+
+manual-changelog: changelog.txt
+license-output: license.txt
+
