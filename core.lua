@@ -27,12 +27,11 @@ local function IsQuestCompleted(QuestID)
 	return (questsCompleted.ids[QuestID]==true);
 end
 
-local function GetQuestInfo(QuestID)
-	assert(type(tonumber(QuestID))=="number","Usage: GetQuestInfo( <QuestId[number]> )");
+local function CollectTooltipData(hLink)
 	local tt, reg, line, data = FollowerLocationInfo_ScannerTooltip,nil,1,{};
 	tt:SetOwner(UIParent,"ANCHOR_NONE");
 	tt:ClearLines();
-	tt:SetHyperlink("quest:"..QuestID);
+	tt:SetHyperlink(hLink);
 	tt:Show();
 	reg = {tt:GetRegions()}
 	for k, v in ipairs(reg) do
@@ -46,6 +45,15 @@ local function GetQuestInfo(QuestID)
 	end
 	tt:Hide();
 	return unpack(data);
+end
+
+local function GetQuestInfo(QuestID)
+	assert(type(tonumber(QuestID))=="number","Usage: GetQuestInfo( <QuestId[number]> )");
+	return CollectTooltipData("quest:"..QuestID);
+end
+
+local function GetUnitInfo(UnitID)
+	return CollectTooltipData("unit:"..UnitID);
 end
 
 local function ScrollFrameHook_OnHide(self)
@@ -147,8 +155,10 @@ local function FollowerLocationInfoButton_OnShow(self)
 	self:SetFrameLevel(self._parent:GetFrameLevel()+2);
 end
 
-local function FollowerLocationInfo_AddInfo(self, count, objType, obj)
+local function FollowerLocationInfo_AddInfo(self, count, objType, ...)
 	local p = self.Scroll.Child;
+	local objs,_ = {...};
+
 	local addLine = function(title, text, img)
 		local l = nil
 		count = count + 1;
@@ -179,14 +189,20 @@ local function FollowerLocationInfo_AddInfo(self, count, objType, obj)
 		l:Show();
 	end
 
+	local obj = objs[1];
+
 	if (objType=="pos") then
-		addLine(L["Zone"], GetMapNameByID(obj[1]));
-		if (#obj>1) then
-			addLine(L["Coords"], obj[2]..", "..obj[3]);
-			-- link / button for tomtom and co...
+		local title = "Location";
+		for i,v in ipairs(objs) do
+			if (#v>1) then
+				addLine(title, ("%s, %1.1f, %1.1f"):format(GetMapNameByID(v[1]), v[2], v[3]));
+			else
+				addLine(title, ("%s"):format(GetMapNameByID(v[1])));
+			end
+			title = "";
 		end
 	elseif (objType=="quest") or (objType=="questrow") or (objType=="event") then
-		local title, qState, qTitle, qText, qGiver, qZone, qCoord, str;
+		local title, qState, qTitle, qText, qGiver, qZone, qCoord, str, qGiverData;
 		if objType=="quest" then
 			title = "Quests";
 		elseif objType=="questrow" then
@@ -194,48 +210,72 @@ local function FollowerLocationInfo_AddInfo(self, count, objType, obj)
 		elseif objType=="event" then
 			title = "Event";
 		end
-		for i,v in ipairs(obj) do
-			qState, qGiver, qZone, qCoord, str = 0, "name?", "zone?", "?.?, ?.?", "%s|n    %s|n    (%s @ %s)"
-			qTitle, qText = GetQuestInfo(v);
+		for i,v in ipairs(objs) do
+			qState, qGiver, qZone, qCoord, str = 0, "name?", "zone?", "?.?, ?.?", "%s|n    (%s @ %s)" --"%s|n    %s|n    (%s @ %s)"
+			qTitle, qText = GetQuestInfo(v[1]);
 			if (qTitle) then
-				if (GetQuestLogIndexByID(v)~=0) then
+				if (GetQuestLogIndexByID(v[1])~=0) then
 					qTitle = qTitle .. " |cffeeee00"..L["(In questlog)"].."|r"
-				elseif (IsQuestCompleted(v)) then
+				elseif (IsQuestCompleted(v[1])) then
 					qTitle = qTitle .. " |cff888888"..L["(Completed)"].."|r"
 				end
-				-- ns.questnpc
 
-				addLine(title, str:format(qTitle,qGiver,qZone, qCoord))
-			elseif v==0 then
-				addLine(title, "Mission quest...");
+				-- npc name v[2]
+				if (v[2]) and (v[2]~=0) then
+					--qGiver = "";
+				end
+
+				if (v[3]) and (v[3]~=0) then
+					qZone = GetMapNameByID(v[3]);
+				end
+
+				if (v[4]) and (v[5]) then
+					qCoord = ("%1.1f, %1.1f"):format(v[4],v[5]);
+				end
+
+				addLine(title, str:format(qTitle,--[[qGiver,]]qZone, qCoord))
+			elseif v[1]==0 then
+				addLine(title, "Missing quest...");
 			else
-				addLine(title, "Error. Missing quest data for questid "..v);
+				addLine(title, "Waiting for quest data from realm... (questid "..v[1]..")");
 				-- ctimer um die liste zu aktuallisieren?
 				refresh = true;
 			end
 			title = "";
 		end
 	elseif (objType=="mission") then
-		addLine(L["Mission"], obj);
+		addLine(L["Mission"], C_Garrison.GetMissionName(obj));
 	elseif (objType=="desc") then
-		addLine(L["Description"], L["Desc-"..obj]);
+		if L["Desc-"..obj] == "Desc-"..obj then
+			addLine(L["Description"], L["Description not found..."]);
+		else
+			addLine(L["Description"], L["Desc-"..obj]);
+		end
 	elseif (objType=="img") then
-		for i,v in ipairs(obj) do
-			addLine(L["Image"] .. ((#obj>1) and " "..i or ""), nil, v);
+		for i,v in ipairs(objs) do
+			addLine(L["Image"] .. ((#objs>1) and " "..i or ""), nil, v);
 		end
 	elseif (objType=="currency") then
-		addLine(L["Payment"], obj[2].." "..GetCurrencyLink(obj[1]));
-	elseif (objType=="gold") then
-		addLine(L["Payment"], GetCoinTextureString(obj));
+		local str = "";
+		for i,v in ipairs(objs) do
+			if (strlen(str)>0) then str = str .. "|n"; end
+			if v[1] == "gold" then
+				str = str .. GetCoinTextureString(v[2]);
+			elseif (GetCurrencyLink(obj[1])) then
+				str = str .. obj[2] .. " " .. GetCurrencyLink(obj[1]);
+			else
+				str = str .. obj[2] .. " ?";
+			end
+		end
+		addLine(L["Payment"], str);
 	elseif (objType=="type") then
 		addLine(L["Type"],L[obj]);
 	elseif (objType=="requirements") then
-		local req = "";
-		for i,v in ipairs(obj) do
-			if (strlen(req)>0) then req = req .. "|n"; end
-			req = L[v];
+		local req = {};
+		for i,v in ipairs(objs) do
+			tinsert(req,L[v]);
 		end
-		addLine(L["Requirements"], req);
+		addLine(L["Requirements"], table.concat(req,"|n"));
 	else
 		--addLine(L["?"], "?");
 	end
@@ -266,7 +306,7 @@ local function FollowerLocationInfo_OnShow(self)
 			l.img:Hide();
 		end
 		for i,v in ipairs(self.info) do
-			count = FollowerLocationInfo_AddInfo(self,count,v[1],v[2]);
+			count = FollowerLocationInfo_AddInfo(self,count,unpack(v));
 		end
 		if (refresh) then
 			refresh=false;

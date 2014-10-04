@@ -2,7 +2,6 @@
 ..\..\FrameXML\UI.xsd">
 
 	<Include file="localizations\core.xml" />
-	<Script file="questnpc.lua" />
 	<Script file="followers.lua" />
 	<Script file="core.lua" />
 
@@ -21,7 +20,7 @@
 	<Frame name="FollowerLocationInfoLine" hidden="false" virtual="true">
 		<Layers>
 			<Layer level="ARTWORK">
-				<FontString parentKey="title" inherits="GameFontNormal" justifyH="RIGHT">
+				<FontString parentKey="title" inherits="GameFontNormal" justifyH="RIGHT" nonspacewrap="true">
 					<Size x="120" y="12" />
 					<Anchors>
 						<Anchor point="TOPLEFT" />

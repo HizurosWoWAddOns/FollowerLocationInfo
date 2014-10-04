@@ -34,3 +34,6 @@ L["Desc-194"] = "Beim fällen von Bäumen wird man von ihm angegriffen. Verschwi
 -- Weldon Barov
 L["Desc-195"] = "Barov liegt an einer zufälligen Position in ganz Draenor unter einem gefällten Baum. Durch die Fähigkeit des Sägewerks befreit man Barov, woraufhin er einem die Gefolgschaft anbietet.";
 
+-- Dagg
+L["Desc-32"] = "Dagg muss zweimal aus Gefangenschaft befreit werden in der Reihenfolge der angegeben Koordinaten.";
+
