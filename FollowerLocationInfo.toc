@@ -2,5 +2,6 @@
 ## Title: Follower Location Info
 ## Notes: Extend the follower list with some informations to find them...
 ## SavedVariables:
+## Version: 
 
 core.xml

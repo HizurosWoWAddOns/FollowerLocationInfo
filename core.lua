@@ -7,6 +7,7 @@ local _print, pairs, type = print, pairs, type;
 local currentSelection = nil;
 local questsCompleted;
 local refresh = false;
+local lang = GetLocale().."-";
 
 local function print(...) _print("|cffff4444"..addon.."|r:",...) end
 
@@ -156,8 +157,8 @@ local function FollowerLocationInfoButton_OnShow(self)
 end
 
 local function FollowerLocationInfo_AddInfo(self, count, objType, ...)
-	local p = self.Scroll.Child;
-	local objs,_ = {...};
+	local p,objs,_ = self.Scroll.Child,{...};
+	local obj = objs[1];
 
 	local addLine = function(title, text, img)
 		local l = nil
@@ -188,8 +189,6 @@ local function FollowerLocationInfo_AddInfo(self, count, objType, ...)
 		l:SetPoint("RIGHT");
 		l:Show();
 	end
-
-	local obj = objs[1];
 
 	if (objType=="pos") then
 		local title = "Location";
@@ -243,19 +242,13 @@ local function FollowerLocationInfo_AddInfo(self, count, objType, ...)
 			end
 			title = "";
 		end
-	elseif (objType=="mission") then
-		addLine(L["Mission"], C_Garrison.GetMissionName(obj));
 	elseif (objType=="desc") then
-		if L["Desc-"..obj] == "Desc-"..obj then
-			addLine(L["Description"], L["Description not found..."]);
-		else
-			addLine(L["Description"], L["Desc-"..obj]);
-		end
+		addLine(L["Description"]:format(), obj);
 	elseif (objType=="img") then
 		for i,v in ipairs(objs) do
 			addLine(L["Image"] .. ((#objs>1) and " "..i or ""), nil, v);
 		end
-	elseif (objType=="currency") then
+	elseif (objType=="payment") then -- removed?
 		local str = "";
 		for i,v in ipairs(objs) do
 			if (strlen(str)>0) then str = str .. "|n"; end
@@ -305,6 +298,10 @@ local function FollowerLocationInfo_OnShow(self)
 			l.text:Hide();
 			l.img:Hide();
 		end
+		local desc = "Desc-"..self.followerID;
+		if (L[desc]~=desc) then
+			FollowerLocationInfo_AddInfo(self,count,"desc",L[desc]);
+		end
 		for i,v in ipairs(self.info) do
 			count = FollowerLocationInfo_AddInfo(self,count,unpack(v));
 		end
@@ -318,7 +315,7 @@ local function FollowerLocationInfo_OnShow(self)
 			end)
 		end
 	else
-		FollowerLocationInfo_AddInfo(self,"error","No data found...");
+		FollowerLocationInfo_AddInfo(self,count,"error","No data found...");
 	end
 end
 

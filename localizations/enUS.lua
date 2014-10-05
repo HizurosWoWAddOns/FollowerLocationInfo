@@ -1,8 +1,8 @@
 
 local addon, ns = ...;
+local L = ns.L;
 
 
 --[[ follower descriptions ]]
 
-ns.L["Desc-194"] = "Needs: Timbermill (3)|n|nHe attacks you on <baum fällen>.|nDisapears with low health.|nSome tries later he <aufgeben>."
-
+L["Desc-194"] = "%1$s attacks you on cases of trees.|nDisappears with low health.|nAfter a few try, he gives up and offers his followers.";
