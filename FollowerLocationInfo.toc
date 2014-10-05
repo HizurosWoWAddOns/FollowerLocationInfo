@@ -1,7 +1,8 @@
 ## Interface: 60000
 ## Title: Follower Location Info
 ## Notes: Extend the follower list with some informations to find them...
+## Author: Hizuro @ Der Mithrilorden EU
 ## SavedVariables:
-## Version: 
+
 
 core.xml

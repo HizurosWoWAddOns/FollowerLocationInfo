@@ -1,8 +1,6 @@
-
 package-as: FollowerLocationInfo
 
 ignore:
 	- .pkgmeta
 
 enable-nolib-creation: no
-
