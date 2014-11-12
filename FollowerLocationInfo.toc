@@ -1,8 +1,8 @@
 ## Interface: 60000
 ## Title: Follower Location Info
-## Notes: Extend the follower list with some informations to find them...
+## Version: 0.2-beta1
 ## Author: Hizuro @ Der Mithrilorden EU
-## SavedVariables:
+## SavedVariables: FollowerLocationInfoDB
 
+FollowerLocationInfo.xml
 
-core.xml

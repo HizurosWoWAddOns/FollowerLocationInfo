@@ -1,0 +1,370 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\..\FrameXML\UI.xsd">
+
+	<Include file="libs\load.xml" />
+	<Include file="locale\load.xml" />
+	<Script  file="FollowerLocationInfo.lua" />
+	<Include file="followers\load.xml" />
+
+	<Button name="FollowerLocationInfoListButtonTemplate" virtual="true" hidden="true">
+		<Size x="0" y="32" />
+		<Anchors><Anchor point="LEFT" /><Anchor point="RIGHT" x="-10"/></Anchors>
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="0">
+				<Texture file="Interface\Garrison\GarrisonToast" parentKey="quality3" setAllPoints="true" hidden="false" alpha="1">
+					<TexCoords left="0.486328125" right="0.76171875" top="0.65625" bottom="0.765625"/>
+					<Color r=".57" g=".49" b=".39" />
+				</Texture>
+				<Texture file="Interface\Garrison\GarrisonToast" parentKey="quality4" setAllPoints="true" hidden="true" alpha="1">
+					<TexCoords left="0.0546875" right="0.330078125" top="0.65625" bottom="0.765625"/>
+					<Color r=".57" g=".49" b=".39" />
+				</Texture>
+				<Texture file="Interface\Garrison\GarrisonToast" parentKey="quality2" setAllPoints="true" hidden="true" alpha="1">
+					<TexCoords left="0.0546875" right="0.330078125" top="0.765625" bottom="0.875"/>
+					<Color r=".57" g=".49" b=".39" />
+				</Texture>
+			</Layer>
+
+			<Layer level="BORDER">
+				<Texture parentKey="selectedTex" file="Interface\ClassTrainerFrame\TrainerTextures" hidden="true" alphaMode="BLEND" alpha="0.35" desaturated="TRUE">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" x="0" y="1"/>
+					</Anchors>
+					<TexCoords left="0.00195313" right="0.57421875" top="0.84960938" bottom="0.94140625"/>
+				</Texture>
+			</Layer>
+
+			<Layer level="ARTWORK">
+				<Texture parentKey="Portrait" tile="false">
+					<Size x="24" y="24" />
+					<Anchors>
+						<Anchor point="LEFT" x="2"/>
+					</Anchors>
+				</Texture>
+
+				<FontString parentKey="Level" text="000" justifyH="RIGHT" inherits="GameFontNormal">
+					<Size x="27" />
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.Portrait" relativePoint="RIGHT" x="2" />
+					</Anchors>
+				</FontString>
+
+				<FontString parentKey="Name" text="Name" justifyH="LEFT" inherits="GameFontNormal">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.Level" relativePoint="RIGHT" x="4" />
+						<Anchor point="RIGHT" x="-1" />
+					</Anchors>
+				</FontString>
+
+				<FontString parentKey="ZoneName" text="Zone" hidden="true" inherits="GameFontNormal">
+					<Anchors>
+						<Anchor point="LEFT" x="4" y="-6"/>
+					</Anchors>
+				</FontString>
+
+				<FontString parentKey="followerID" inherits="GameFontWhiteTiny" alpha="0.3">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" />
+					</Anchors>
+				</FontString>
+
+			</Layer>
+		</Layers>
+		<HighlightTexture name="$parentHighlight" parentKey="highlightTex" file="Interface\ClassTrainerFrame\TrainerTextures" alphaMode="BLEND" alpha="0.3">
+			<Anchors>
+				<Anchor point="TOPLEFT" x="0" y="0"/>
+				<Anchor point="BOTTOMRIGHT" x="0" y="1"/>
+			</Anchors>
+			<TexCoords left="0.00195313" right="0.57421875" top="0.75390625" bottom="0.84570313"/>
+		</HighlightTexture>
+	</Button>
+
+	<Frame name="FollowerLocationInfoDescLineTemplate" hidden="false" virtual="true">
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString parentKey="title" inherits="GameFontNormal" justifyH="RIGHT" nonspacewrap="true">
+					<Size x="120" y="12" />
+					<Anchors>
+						<Anchor point="TOPLEFT" />
+					</Anchors>
+				</FontString>
+				<FontString parentKey="text" inherits="GameFontHighlight" justifyH="LEFT" nonspacewrap="true" hidden="true">
+					<Size x="320" />
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.title" relativePoint="TOPRIGHT" x="6" />
+						<!-- <Anchor point="RIGHT" /> -->
+					</Anchors>
+				</FontString>
+				<Texture parentKey="img" hidden="true">
+					<Size x="256" y="256" />
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.title" relativePoint="TOPRIGHT" x="6" />
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Frame>
+
+	<Frame name="FollowerLocationInfoFrame" parent="UIParent" enableMouse="true" toplevel="true" hidden="true">
+		<Size x="538" y="538"/>
+		<Anchors>
+			<Anchor point="LEFT" x="300"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="0">
+				<Texture parentKey="BG" atlas="GarrLanding-MiddleTile" horizTile="true" vertTile="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="25" y="-25"/>
+						<Anchor point="BOTTOMRIGHT" x="-25" y="25"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="2">
+				<Texture parentKey="TL" atlas="GarrLanding-upperleft" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-2" y="1"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="TR" atlas="GarrLanding-upperright" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPRIGHT" y="1"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BL" atlas="GarrLanding-lowerleft" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="-2" y="-2"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BR" atlas="GarrLanding-lowerright" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" y="-2"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="TOP" atlas="GarrLanding-Top" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.TL" relativePoint="TOPRIGHT" y="-1"/> 
+						<Anchor point="TOPRIGHT" relativeKey="$parent.TR" relativePoint="TOPLEFT" y="-1"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BOTTOM" atlas="GarLanding-Bottom" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent.BL" relativePoint="BOTTOMRIGHT" y="2"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BR" relativePoint="BOTTOMLEFT" y="2"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="LEFT" atlas="GarLanding-Left" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.TL" relativePoint="BOTTOMLEFT" x="2"/>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent.BL" relativePoint="TOPLEFT" x="2"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="RIGHT" atlas="GarLanding-Right" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeKey="$parent.TR" relativePoint="BOTTOMRIGHT" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BR" relativePoint="TOPRIGHT" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="4">
+				<Texture parentKey="HeaderBar" atlas="GarrLanding-HeaderBar" useAtlasSize="false">
+					<Size y="68" />
+					<Anchors>
+						<Anchor point="LEFT" x="31" />
+						<Anchor point="RIGHT" x="-31"/>
+						<Anchor point="TOP" x="0" y="-35"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="CloseButton" inherits="UIPanelCloseButton">
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="-10" y="-10"/>
+				</Anchors>
+			</Button>
+
+			<!-- config button ? -->
+
+			<Frame parentKey="DescHeader" hidden="TRUE">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.HeaderBar" />
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.HeaderBar" />
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+
+						<Texture parentKey="Portrait" file="Interface\Garrison\Portraits\FollowerPortrait_NoPortrait">
+							<Size x="56" y="56" />
+							<Anchors>
+								<Anchor point="LEFT" x="16" y="0"/>
+							</Anchors>
+						</Texture>
+
+						<FontString parentKey="Name" inherits="GameFontNormalLarge">
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.Portrait" relativePoint="RIGHT" x="12" y="16" />
+							</Anchors>
+						</FontString>
+
+						<FontString parentKey="Misc" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.Portrait" relativePoint="RIGHT" x="12" y="-1" />
+							</Anchors>
+						</FontString>
+						<FontString parentKey="Class" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.Portrait" relativePoint="RIGHT" x="12" y="-17" />
+							</Anchors>
+						</FontString>
+
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<Frame parentKey="InfoHeader" hidden="TRUE">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.HeaderBar" />
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.HeaderBar" />
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+
+						<FontString parentKey="Name" inherits="GameFontNormalHuge3" text="Follower Location Info">
+							<Anchors>
+								<Anchor point="LEFT" x="20" y="0" />
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<Frame parentKey="ListBG">
+				<Size x="280" y="438"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="10" y="20"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="0">
+						<Texture parentKey="BG" atlas="GarrLanding-MiddleTile" horizTile="true" vertTile="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="25" y="-25"/>
+								<Anchor point="BOTTOMRIGHT" x="0" y="25"/>
+							</Anchors>
+							<Color r=".57" g=".49" b=".39" />
+						</Texture>
+					</Layer>
+					<Layer level="BACKGROUND" textureSubLevel="2">
+						<Texture parentKey="TL" atlas="GarrLanding-upperleft" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="-2" y="1"/>
+							</Anchors>
+							<Color r=".57" g=".49" b=".39" />
+						</Texture>
+						<Texture parentKey="BL" atlas="GarrLanding-lowerleft" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" x="-2" y="-2"/>
+							</Anchors>
+							<Color r=".57" g=".49" b=".39" />
+						</Texture>
+						<Texture parentKey="TOP" atlas="GarrLanding-Top" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.TL" relativePoint="TOPRIGHT" y="-1"/> 
+								<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" y="-1"/>
+							</Anchors>
+							<Color r=".57" g=".49" b=".39" />
+						</Texture>
+						<Texture parentKey="BOTTOM" atlas="GarLanding-Bottom" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent.BL" relativePoint="BOTTOMRIGHT" y="2"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" y="2"/>
+							</Anchors>
+							<Color r=".57" g=".49" b=".39" />
+						</Texture>
+						<Texture parentKey="LEFT" atlas="GarLanding-Left" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.TL" relativePoint="BOTTOMLEFT" x="2"/>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent.BL" relativePoint="TOPLEFT" x="2"/>
+							</Anchors>
+							<Color r=".57" g=".49" b=".39" />
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+				</Frames>
+			</Frame>
+
+			<EditBox parentKey="Search" inherits="SearchBoxTemplate" letters="40" hidden="true">
+				<Size x="0" y="20"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.ListBG" x="58" y="-18" />
+					<Anchor point="TOPRIGHT" relativeKey="$parent.ListBG" x="-12" y="-18" />
+				</Anchors>
+				<Scripts>
+					<OnTextChanged function="$parent.SearchTextChanged"/>
+					<OnLoad>
+						self:SetScale(.95);
+						SearchBoxTemplate_OnLoad(self);
+					</OnLoad>
+				</Scripts>
+			</EditBox>
+
+			<ScrollFrame name="$parentList" parentKey="List" inherits="HybridScrollFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.ListBG" x="37" y="-37" />
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ListBG" x="-4" y="34" />
+				</Anchors>
+				<Frames>
+					<Slider name="$parentScrollBar" parentKey="Bar" inherits="MinimalHybridScrollBarTemplate" hidden="false">
+						<Anchors>
+							<Anchor point="TOPRIGHT" y="-15"/>
+							<Anchor point="BOTTOMRIGHT" y="15" />
+						</Anchors>
+						<Size x="12" y="0" />
+						<Backdrop bgFile="Interface\Buttons\UI-SliderBar-Background" edgeFile="Interface\Buttons\UI-SliderBar-Border" tile="true">
+							<EdgeSize val="8" />
+							<TileSize val="8" />
+							<BackgroundInsets left="3" right="3" top="3" bottom="3" />
+						</Backdrop>
+						<ThumbTexture parentKey="thumbTexture" file="Interface\Buttons\UI-SliderBar-Button-Vertical" />
+					</Slider>
+				</Frames>
+			</ScrollFrame>
+
+			<ScrollFrame name="$parentDesc" parentKey="Desc" enableMouse="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.HeaderBar" relativePoint="BOTTOMLEFT" x="2" y="0" />
+					<Anchor point="BOTTOMRIGHT" x="-38" y="34"/>
+				</Anchors>
+				<Frames>
+					<Slider name="$parentScrollBar" parentKey="Bar">
+						<Size x="12" y="0" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="4" y="-12" />
+							<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="4" y="12" />
+						</Anchors>
+						<Backdrop bgFile="Interface\Buttons\UI-SliderBar-Background" edgeFile="Interface\Buttons\UI-SliderBar-Border" tile="true">
+							<EdgeSize val="8" />
+							<TileSize val="8" />
+							<BackgroundInsets left="3" right="3" top="3" bottom="3" />
+						</Backdrop>
+						<ThumbTexture parentKey="Thumb" file="Interface\Buttons\UI-SliderBar-Button-Vertical" />
+						<Scripts>
+							<OnValueChanged>
+								self:GetParent():SetVerticalScroll(value);
+							</OnValueChanged>
+						</Scripts>
+					</Slider>
+				</Frames>
+				<ScrollChild>
+					<Frame name="$parentChild" parentKey="Child" >
+						<Size x="1" y="1" />
+					</Frame>
+				</ScrollChild>
+			</ScrollFrame>
+		</Frames>
+		<Scripts>
+			<OnLoad function="FollowerLocationInfoFrame_OnLoad"/>
+		</Scripts>
+	</Frame>
+</Ui>

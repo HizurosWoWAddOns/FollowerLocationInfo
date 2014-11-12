@@ -203,11 +203,11 @@ local function FollowerLocationInfo_AddInfo(self, count, objType, ...)
 	elseif (objType=="quest") or (objType=="questrow") or (objType=="event") then
 		local title, qState, qTitle, qText, qGiver, qZone, qCoord, str, qGiverData;
 		if objType=="quest" then
-			title = "Quests";
+			title = L["Quests"];
 		elseif objType=="questrow" then
-			title = "Quest row";
+			title = L["Quest row"];
 		elseif objType=="event" then
-			title = "Event";
+			title = L["Event"];
 		end
 		for i,v in ipairs(objs) do
 			qState, qGiver, qZone, qCoord, str = 0, "name?", "zone?", "?.?, ?.?", "%s|n    (%s @ %s)" --"%s|n    %s|n    (%s @ %s)"
@@ -341,6 +341,7 @@ local function FollowerLocationInfo_OnEvent(self,event,arg1,...)
 	end
 end
 
+--[[
 function FollowerLocationInfo_OnLoad(self)
 	self:SetScript("OnEvent", FollowerLocationInfo_OnEvent);
 	self:SetScript("OnShow", FollowerLocationInfo_OnShow);
@@ -357,6 +358,121 @@ function FollowerLocationInfo_OnLoad(self)
 	self:RegisterEvent("ADDON_LOADED");
 	--self:RegisterEvent("PLAYER_ENTERING_WORLD");
 end
+]]
+
+
+local frame;
+
+
+--[=[ Followers tables stuff ]=]
+local list = { };
+list.pending=true;
+
+function list.update()
+	if (list.pending) then
+		list.followers = C_Garrison.GetFollowers();
+		list.pending=nil;
+	end
+	
+	-- search stuff
+	--local searchText = frame.SearchBox:GetText();
+
+	-- filter stuff
+	--local filterValue = frame.Filter.?
+
+	-- sort stuff
+	--local sortValue = frame.Sort.?
+end
+
+
+
+--[=[ FollowerList stuff ]=]
+
+local function FollowerList_Update()
+end
+
+local function FollowerList_OnClick()
+end
+
+local function FollowerList_Menu()
+end
+
+
+
+
+
+--[=[ FollowerInfo stuff ]=]
+
+function FollowerLocationInfo_FollowerInfo_Update()
+end
+
+function FollowerLocationInfo_FollowerInfo_Scroll()
+end
+
+
+
+
+
+
+
+--[=[ Main Frame Stuff ]=]
+
+local function SearchTextChanged(self)
+	print("bla");
+end
+
+function FollowerLocationInfo_FilterTooltip(self)
+	local currentFilter = AchievementFrameFilterDropDown.value;
+	GameTooltip:SetOwner(AchievementFrameFilterDropDown, "ANCHOR_RIGHT", -18, 0);
+	GameTooltip:AddLine(FilterStrings[currentFilter]);
+	GameTooltip:Show();
+end
+
+
+function FollowerLocationInfo_OnShow(self)
+	List.pending=true;
+	List.update();
+	
+end
+
+--function FollowerLocationInfo_OnHide(self) end
+
+function FollowerLocationInfo_OnEvent(self,event,...)
+	if (event == "GARRISON_FOLLOWER_LIST_UPDATE" or event == "GARRISON_FOLLOWER_XP_CHANGED") then
+		List.pending=true;
+		List.update();
+	end
+end
+
+function FollowerLocationInfo_OnLoad(self)
+	frame = self;
+
+
+	--self.SearchBox:SetScript("OnTextChanged",SearchTextChanged);
+	self.SearchTextChanged = SearchTextChanged;
+
+
+
+
+
+
+	--self:RegisterEvent("GARRISON_FOLLOWER_LIST_UPDATE");
+	--self:RegisterEvent("GARRISON_FOLLOWER_XP_CHANGED");
+	self:Show();
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --[[
 

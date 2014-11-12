@@ -1,0 +1,46 @@
+
+-- ID: 176, Name: Pitfighter Vaandaam (A) / Bruto (H)
+
+local _, ns = ...;
+local L = ns.locale;
+local data,zone = {},nil;
+
+local id = nil;
+local neutral = false;
+
+if (ns.faction:lower()=="alliance") or (neutral) then
+
+	zone = 949;
+	data = {
+		{"quest row",
+			{34704, 0, 949, 0, 0},
+			{34699, 0, 949, 0, 0},
+			{34703, 0, 949, 0, 0},
+			{35137, 0, 949, 0, 0}
+		}
+	};
+
+	if LOCALE_deDE then
+		--tinsert(data,{"desc", "");
+	else -- if LOCALE_enUS then [english as fallback]
+		--tinsert(data,{"desc", "");
+	end
+
+else
+
+	zone = 0;
+	data = {};
+
+	if LOCALE_deDE then
+		--tinsert(data,{"desc", "");
+	else -- if LOCALE_enUS then [english as fallback]
+		--tinsert(data,{"desc", "");
+	end
+
+end
+
+
+if (id) and (#data>0) then
+	ns.followers[id] = data;
+	ns.followers_zones[id] = zone;
+end

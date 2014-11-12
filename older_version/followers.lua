@@ -1,7 +1,7 @@
 
 local addon,ns = ...;
 local faction = UnitFactionGroup("player");
-ns.followers = false;
+ns.followers = {};
 
 
 
@@ -49,15 +49,16 @@ if (faction:lower()=="alliance") then
 
 	--[[ Tormmok ]]
 	ns.followers[193] = { {"pos", {949, 44.9, 86.6}} };
+	-- helft ihm sich zu verteidigen. danach wird er freundlich und lässt sich rekrutieren.
 
 	--[[ Blook ]]
-	ns.followers[189] = false;
+	ns.followers[189] = { {"quest", {34279, 78030, 949, 41.2, 91.4}} };
 
-	--[[ Glirin ]]
-	ns.followers[211] = false;
+	--[[ Glirin ]] --[=[ questrow? ]=]
+	ns.followers[211] = { {"quest", {36828, 85119, 949, 53, 59.4}} };
 
 	--[[ Pitfighter Vaandaam ]]
-	ns.followers[176] = false;
+	ns.followers[176] = { {"quest row", {34704, 0, 949, 0, 0}, {34699, 0, 949, 0, 0}, {34703, }, {35137, 0, 949, 0, 0}}};
 
 	--[[ Rangari Erdanii ]]
 	ns.followers[212] = false;
@@ -105,7 +106,7 @@ if (faction:lower()=="alliance") then
 	ns.followers[453] = false;
 
 	--[[ Kimzee Pinchwhistle ]]
-	ns.followers[192] = false;
+	ns.followers[192] = { {"quest", {36062, 0, 948, 61.6, 72.8}} };
 
 	--[[ Ziri'ak ]]
 	ns.followers[168] = false;
@@ -141,19 +142,31 @@ if (faction:lower()=="alliance") then
 elseif (faction:lower()=="horde") then
 
 
-	-- Frostfire Ridge / 941
+	-- Frostfire Ridge / 941 // Frostwall / 976
 
 	--[[ Dagg ]]
 	ns.followers[32] = { {"pos", {941, 65.9, 60.8}, {941, 39.6, 28.0}}, {"quest", {34733, 79492, 976, 48.8, 17.2}} };
 
 	--[[ Olin Umberhide ]]
-	ns.followers[34] = false;
+	ns.followers[34] = { {"pos", {941}--[=[frostwall id?]=]}, {
+		"questrow",
+		{33868, 0, 976, 0, 0}, --[=[ unknown npc ]=]
+		{33815, 76411, 976, 49.2, 50}, -- Farseeker Drek'Thar
+		{34402, 78272, 941, 41.8, 69.6}, -- Durotan
+		{34364, 70859, 941, 48.6, 65.2}, -- Thrall
+		{34375, 78466, 976, 42, 55}, -- Gazlowe
+		{34378, 78466, 976, 42, 55}, -- Gazlowe
+		{34822, 78466, 976, 42, 55}, -- Gazlowe
+		{34461, 78466, 976, 42, 55}, -- Gazlowe
+		{34861, 78466, 976, 42, 55}, -- Gazlowe
+		{34462, 79740, 976, 53.8, 54.2}, -- Warmaster Zog
+	} };
 
 	--[[ Weaponsmith Na'Shral ]]
-	ns.followers[179] = false;
+	ns.followers[179] = { {"quest", {34729, 74977, 941, 65, 39.4}} };
 
 	--[[ Shadow Hunter Rala ]]
-	ns.followers[180] = false;
+	ns.followers[180] = { {"questrow", {34736, 78487, 976, 45.6, 43.2}, {34344, 78487, 976, 45.6, 43.2}, {34731, 78487, 976, 45.6, 43.2}, {34345, 78487, 976, 45.6, 43.2}, {34348, 78487, 976, 45.6, 43.2} } };
 
 	--[[ Mulverick ]]
 	ns.followers[182] = false;
@@ -177,7 +190,7 @@ elseif (faction:lower()=="horde") then
 	ns.followers[193] = false;
 
 	--[[ Blook ]]
-	ns.followers[189] = false;
+	ns.followers[189] = { {"quest", 78030, 949, 41.2, 91.4} };
 
 	--[[ Bruto ]]
 	ns.followers[176] = false;
@@ -272,3 +285,29 @@ end
 	http://wod.wowhead.com/guide=2533
 ]]
 
+--[[
+
+ns.followers[<followerid>] = {
+	{"pos",
+		{ <zoneid>, <posX>,<posY> },
+		...
+	}
+
+	{"quest|questrow",
+		{<questid>, <npcid>, <zoneid>, <posX>, <posY>},
+		...
+	}
+
+	{"img",
+		"<last part of the image name>",
+		...
+	}
+
+	{"payment",
+		{<currencyid>|"gold", <amount>},
+		...
+	}
+
+};
+
+]]
