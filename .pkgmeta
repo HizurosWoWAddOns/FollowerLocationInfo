@@ -2,7 +2,6 @@ package-as: FollowerLocationInfo
 
 ignore:
 	- .pkgmeta
-	- older_version
 
 externals:
     libs/LibStub:
