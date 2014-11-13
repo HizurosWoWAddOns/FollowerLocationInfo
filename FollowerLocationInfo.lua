@@ -402,6 +402,7 @@ local function ListEntry_Setup(self,isHeader)
 	self.quality3:Hide();
 	self.quality4:Hide();
 	self.selectedTex:Hide();
+	self.followerID:Hide();
 	self:SetScript("OnClick",nil);
 	self:Disable();
 end
@@ -426,7 +427,6 @@ function List_Update()
 			ListEntry_Setup(button,(obj.ZoneName~=nil));
 			if (obj.ZoneName) then
 				button.ZoneName:SetText(obj.ZoneName);
-				button.followerID:Hide();
 			else
 				local _,className = strsplit("-",obj.info.classAtlas);
 				local class = classes[className:upper()];
@@ -449,8 +449,10 @@ function List_Update()
 						button.selectedTex:Show();
 					end
 				end
-				button.followerID:SetText("ID: "..obj.info.followerID);
-				button.followerID:Show();
+				if (FollowerLocationInfoDB.ShowFollowerID) then
+					button.followerID:SetText("ID: "..obj.info.followerID);
+					button.followerID:Show();
+				end
 			end
 
 			button:Show();
@@ -473,6 +475,10 @@ local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 		if (FollowerLocationInfoDB.Minimap==nil) then
 			FollowerLocationInfoDB.Minimap={enabled=true};
 		end
+		if (FollowerLocationInfoDB.ShowFollowerID==nil) then
+			FollowerLocationInfoDB.ShowFollowerID=true;
+		end
+		self.List.showFollowerID:SetChecked(FollowerLocationInfoDB.ShowFollowerID);
 		dataBrokerInit();
 		classes = _G.CUSTOM_CLASS_COLORS or _G.RAID_CLASS_COLORS;
 	elseif (event=="PLAYER_ENTERING_WORLD") then
@@ -498,6 +504,16 @@ function FollowerLocationInfoFrame_OnLoad(self)
 		self.List.buttons[2]:SetPoint("TOPLEFT",self.List.buttons[1],"BOTTOMLEFT",1, (-ListButtonOffsetY) - 1)
 	end
 	self.List.ButtonHeight = self.List.buttons[1]:GetHeight();
+	self.List.showFollowerID.Text:SetText(L["Show FollowerID"]);
+	self.List.showFollowerID:SetScript("OnClick",function(self)
+		if ( self:GetChecked() ) then
+			PlaySound("igMainMenuOptionCheckBoxOn");
+		else
+			PlaySound("igMainMenuOptionCheckBoxOff");
+		end
+		FollowerLocationInfoDB.ShowFollowerID = (self:GetChecked());
+		self:GetParent().update();
+	end);
 
 	-- FLI.Desc
 	self.Desc.Bar:SetScale(0.7);
