@@ -332,6 +332,9 @@ local ListEntries = {};
 local function ListEntries_Update(filter)
 	local zones2follower = {[0]={}};
 	for i,v in ipairs(C_Garrison.GetFollowers()) do
+		if (v.garrFollowerID~=nil) then
+			v.followerID,v.garrFollowerID = tonumber(v.garrFollowerID),v.followerID; -- blizzard's stupid order change...
+		end
 		local id = v.followerID;
 		local data = ns.followers[id];
 		followers[id]={info=v,data=data};
