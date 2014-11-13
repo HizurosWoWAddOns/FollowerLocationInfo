@@ -436,7 +436,9 @@ function List_Update()
 				if (obj.info.quality) and (button["quality"..obj.info.quality]) then
 					button["quality"..obj.info.quality]:Show();
 				end
-
+				if (obj.info.garrFollowerID) then
+					button.owned:Show();
+				end
 				button.info = obj.info;
 				if (obj.data) then
 					button.data = obj.data;

@@ -63,9 +63,17 @@
 					</Anchors>
 				</FontString>
 
-				<FontString parentKey="followerID" inherits="GameFontWhiteTiny" alpha="0.3">
+				<Texture parentKey="owned" file="Interface\QuestFrame\ObjectiveTracker" hidden="true">
+					<Size x="14" y="14"/>
 					<Anchors>
 						<Anchor point="BOTTOMRIGHT" />
+					</Anchors>
+					<TexCoords left="0.619140625" right="0.654296875" top="0.25390625" bottom="0.32421875" />
+				</Texture>
+
+				<FontString parentKey="followerID" inherits="GameFontWhiteTiny" alpha="0.3">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.owned" relativePoint="BOTTOMLEFT" x="-3" />
 					</Anchors>
 				</FontString>
 
