@@ -7,6 +7,7 @@ local L = ns.locale;
 ns.addFollower(211,false,{
 	Alliance = {
 		zone = 949,
+		ModelPosition = {1.5,0,-0.62},
 		{"quest", {36828, 85119, 949, 53, 59.4}}
 	},
 	Horde = {},

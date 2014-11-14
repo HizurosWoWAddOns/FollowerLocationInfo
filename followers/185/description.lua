@@ -8,6 +8,7 @@ ns.addFollower(185,false,{
 	Alliance = {
 		zone = 947,
 		--{"pos", {947}},
+		ModelPosition = {2,0,-0.7},
 		{"questrow",
 			{34787, 80078, 947, 56.5, 23.5},
 			{35552, 80073, 947, 62.4, 26.2 },

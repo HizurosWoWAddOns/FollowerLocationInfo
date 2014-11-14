@@ -7,7 +7,8 @@ local L = ns.locale;
 ns.addFollower(182,false,{
 	Alliance = {
 		zone = 947,
-		{"pos", {947}},
+		--{"pos", {947}},
+		ModelPosition = {2,0,0},
 		{"questrow",
 			{34820, 80163, 971, 43.8, 53.4},
 			{33263, 79966, 947, 39.6, 29.6},
