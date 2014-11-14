@@ -15,6 +15,7 @@ if (ns.faction:lower()=="alliance") or (neutral) then
 		{"pos", {962}},
 		{"requirements", "Lumber mill"},
 		{"img", "1"},
+		ModelPosition = {1.5,0,-0.59}
 	};
 
 	if LOCALE_deDE then
