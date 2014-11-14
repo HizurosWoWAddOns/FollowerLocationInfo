@@ -196,6 +196,15 @@
 
 			<!-- config button ? -->
 
+			<PlayerModel parentKey="Model" inherits="MouseDisabledModelTemplate">
+				<Size x="230" y="0" />
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.HeaderBar" y="-6" />
+					<Anchor point="BOTTOM" relativeKey="$parent.HeaderBar" y="7" />
+					<Anchor point="LEFT" relativeKey="$parent.HeaderBar" x="0" />
+				</Anchors>
+			</PlayerModel>
+
 			<Frame parentKey="DescHeader" hidden="TRUE">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.HeaderBar" />
@@ -203,31 +212,21 @@
 				</Anchors>
 				<Layers>
 					<Layer level="ARTWORK">
-
-						<Texture parentKey="Portrait" file="Interface\Garrison\Portraits\FollowerPortrait_NoPortrait">
-							<Size x="56" y="56" />
-							<Anchors>
-								<Anchor point="LEFT" x="16" y="0"/>
-							</Anchors>
-						</Texture>
-
 						<FontString parentKey="Name" inherits="GameFontNormalLarge">
 							<Anchors>
-								<Anchor point="LEFT" relativeKey="$parent.Portrait" relativePoint="RIGHT" x="12" y="16" />
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-10" y="16" />
 							</Anchors>
 						</FontString>
-
 						<FontString parentKey="Misc" inherits="GameFontNormal">
 							<Anchors>
-								<Anchor point="LEFT" relativeKey="$parent.Portrait" relativePoint="RIGHT" x="12" y="-1" />
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-10" y="-1" />
 							</Anchors>
 						</FontString>
 						<FontString parentKey="Class" inherits="GameFontNormal">
 							<Anchors>
-								<Anchor point="LEFT" relativeKey="$parent.Portrait" relativePoint="RIGHT" x="12" y="-17" />
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-10" y="-17" />
 							</Anchors>
 						</FontString>
-
 					</Layer>
 				</Layers>
 			</Frame>

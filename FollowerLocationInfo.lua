@@ -256,6 +256,7 @@ local function Desc_Update()
 	local self = FollowerLocationInfoFrame.Desc;
 	local DescHead = FollowerLocationInfoFrame.DescHeader;
 	local InfoHead = FollowerLocationInfoFrame.InfoHeader;
+	local Model = FollowerLocationInfoFrame.Model;
 	local line,count = nil,0;
 
 	if (not self.lines) then
@@ -292,7 +293,8 @@ local function Desc_Update()
 		-- DescHead data
 		local _,className = strsplit("-",self.info.classAtlas);
 		local class = classes[className:upper()];
-		GarrisonFollowerPortrait_Set(DescHead.Portrait,self.info.portraitIconID);
+		Model:SetDisplayInfo(self.info.displayID);
+		Model:SetPosition(unpack(self.data.ModelPosition or {2,0,-0.62}));
 		DescHead.Name:SetText("|c" .. class.colorStr .. self.info.name .. "|r");
 		DescHead.Class:SetText("|cffffffff" .. self.info.className .. "|r");
 		DescHead.Misc:SetText(("%s: %d, %s: %s%s|r"):format(LEVEL,self.info.level,QUALITY,qualities[self.info.quality].color.hex,qualities[self.info.quality].text));
