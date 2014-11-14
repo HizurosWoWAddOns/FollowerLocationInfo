@@ -299,6 +299,7 @@ local function Desc_Update()
 		line.img:Hide();
 	end
 
+	Model:Hide();
 	--FollowerLocationInfoDescLineTemplate
 	if (DescSelected) then
 		self.info,self.data=DescSelected.info,DescSelected.data;
@@ -329,7 +330,6 @@ local function Desc_Update()
 		InfoHead:Hide();
 	else
 		Desc_AddInfo(self,count,"custom",{"Welcome","Select a follower to see the description..."});
-		Model:Hide();
 		DescHead:Hide();
 		InfoHead:Show();
 	end
