@@ -6,6 +6,8 @@
 	<Script  file="FollowerLocationInfo.lua" />
 	<Include file="followers\load.xml" />
 
+	<GameTooltip name="FollowerLocationInfoTooltip" inherits="GameTooltipTemplate" alpha="0" />
+
 	<Button name="FollowerLocationInfoListButtonTemplate" virtual="true" hidden="true">
 		<Size x="0" y="32" />
 		<Anchors><Anchor point="LEFT" /><Anchor point="RIGHT" x="-10"/></Anchors>

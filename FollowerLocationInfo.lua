@@ -59,44 +59,71 @@ local function IsQuestCompleted(QuestID)
 	return (questsCompleted.ids[QuestID]==true);
 end
 
-local scanTT = nil;
-local function CollectTooltipData(hLink)
-	local reg, str, line, data = nil,nil,0,{};
-
-	if (not scanTT) then
-		scanTT = CreateFrame("GameTooltip",addon.."_ScanTooltip",FollowerLocationInfoFrame,"GameTooltipTemplate");
-		scanTT:SetOwner(FollowerLocationInfoFrame,"ANCHOR_RIGHT");
-	end
-
-	scanTT:Show();
-	scanTT:SetHyperlink(hLink);
-
-	reg = {scanTT:GetRegions()}
-	for k, v in ipairs(reg) do
-		if (v~=nil) and (v:GetObjectType()=="FontString") then
-			str = v:GetText();
-			if (str~=nil) and (strtrim(str)~="") then
-				tinsert(data,str);
-				line = line + 1;
+local Collector = {data={},hLink=false};
+do
+	local this,tt = Collector;
+	local tryouts = {};
+	this.GetData = function(self)
+		self:Show();
+		local reg,data,line = {self:GetRegions()},{},0;
+		for k, v in ipairs(reg) do
+			if (v~=nil) and (v:GetObjectType()=="FontString") then
+				str = v:GetText();
+				if (str~=nil) and (strtrim(str)~="") then
+					tinsert(data,str);
+					line = line + 1;
+				end
 			end
 		end
+		self:Hide();
+		if (this.hLink) then
+			if (#data>0) then
+				this.data[this.hLink] = data;
+				this.hLink=false;
+			elseif (tryouts[this.hLink]>4) then
+				this.data[this.hLink] = false;
+			end
+		end
+		return nil;
 	end
 
-	scanTT:ClearLines();
---	scanTT:Hide();
-
---	print(hLink,#reg,line)
-
-	return unpack(data);
+	this.QueryHyperlinkData = function(hLink)
+		if (not tt) then
+			tt = _G.FollowerLocationInfoTooltip;
+			tt:SetScript("OnTooltipSetQuest",this.GetData);
+			tt:SetScript("OnTooltipSetSpell",this.GetData);
+			tt:SetScript("OnTooltipSetItem",this.GetData);
+		end
+		if (this.hLink~=false) then
+			return nil; -- single request per time...
+		elseif (this.data[hLink]==false) then
+			return false; -- data not collectable... maybe removed...
+		elseif (this.data[hLink]==nil) then
+			tt:SetOwner(UIParent,"ANCHOR_NONE");
+			tt:SetPoint("RIGHT");
+			tt:ClearLines();
+			this.hLink = hLink;
+			if (not tryouts[hLink]) then
+				tryouts[hLink] = 1;
+			else
+				tryouts[hLink] = tryouts[hLink] + 1;
+			end
+			tt:SetHyperlink(hLink); -- try to request data... > gathered by Collector.GetData...
+			return nil;
+		else
+			return unpack(this.data[hLink]);
+		end
+		return nil;
+	end
 end
 
 local function GetQuestInfo(QuestID)
 	assert(type(tonumber(QuestID))=="number","Usage: GetQuestInfo( <QuestId[number]> )");
-	return CollectTooltipData("quest:"..QuestID);
+	return Collector.QueryHyperlinkData("quest:"..QuestID);
 end
 
 local function GetUnitInfo(UnitID)
-	return CollectTooltipData("unit:"..UnitID);
+	return Collector.QueryHyperlinkData("unit:"..UnitID);
 end
 
 
@@ -182,15 +209,12 @@ local function Desc_AddInfo(self, count, objType, ...)
 
 				addLine(title, str:format(qTitle,--[[qGiver,]]qZone, qCoord))
 			elseif v[1]==0 then
-				addLine(title, "Missing quest...");
+				addLine(title, L["Missing quest..."]);
+			elseif (qTitle==false) then
+				addLine(title, L["Error: quest name not found..."]);
 			else
-				-- ctimer um die liste zu aktuallisieren?
-				if (time()>=1415833200) then
-					addLine(title, "Waiting for quest data from realm... (questid "..v[1]..")");
-					doRefresh = true;
-				else
-					addLine(title, L["Currently it's not possible to get quest data from realm... I hope it works after 11/13/14."]);
-				end
+				addLine(title, L["Waiting for quest data..."]); -- from realm... (questid "..v[1]..")");
+				doRefresh = true;
 			end
 			title = "";
 		end
