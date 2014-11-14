@@ -3,37 +3,11 @@
 
 local _, ns = ...;
 local L = ns.locale;
-local data,zone = {},nil;
 
-local id = nil;
-local neutral = false;
+ns.addFollower(157,false,{
+	Alliance = {},
+	Horde = {},
+	Neutral = {}
+});
 
-if (ns.faction:lower()=="alliance") or (neutral) then
-
-	zone = 0;
-	data = {};
-
-	if LOCALE_deDE then
-		--tinsert(data,{"desc", "");
-	else -- if LOCALE_enUS then [english as fallback]
-		--tinsert(data,{"desc", "");
-	end
-
-else
-
-	zone = 0;
-	data = {};
-
-	if LOCALE_deDE then
-		--tinsert(data,{"desc", "");
-	else -- if LOCALE_enUS then [english as fallback]
-		--tinsert(data,{"desc", "");
-	end
-
-end
-
-
-if (id) and (#data>0) then
-	ns.followers[id] = data;
-	ns.followers_zones[id] = zone;
-end
+--local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};

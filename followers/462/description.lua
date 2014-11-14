@@ -3,39 +3,21 @@
 
 local _, ns = ...;
 local L = ns.locale;
-local data,zone = {},nil;
 
-local id = 462;
-local neutral = false;
-
-if (ns.faction:lower()=="alliance") or (neutral) then
-
-	zone = 0;
-	data = {{"pos", {1009, 49.9, 61.4}}, {"payment", {823,5000}, {"gold", 50000000} } };
-
-	if LOCALE_deDE then
-		--tinsert(data,{"desc", "");
-	else -- if LOCALE_enUS then [english as fallback]
-		--tinsert(data,{"desc", "");
-	end
-
-else
-
-	zone = 0;
-	data = {};
-
-	if LOCALE_deDE then
-		--tinsert(data,{"desc", "");
-	else -- if LOCALE_enUS then [english as fallback]
-		--tinsert(data,{"desc", "");
-	end
-
-end
-
-
-if (id) and (#data>0) then
-	ns.followers[id] = data;
-	ns.followers_zones[id] = zone;
-end
+ns.addFollower(462,false,{
+	Alliance = {
+		zone = 1009,
+		{"pos", {1009, 49.9, 61.4}},
+		{"payment", {823,5000}, {"gold", 50000000}}
+	},
+	Horde = {
+--		zone = 0,
+--		{"pos", {1009, 49.9, 61.4}},
+--		{"payment", {823,5000}, {"gold", 50000000}}
+	},
+	Neutral = {}
+});
 
 --[=[ TODO :: missing data... ]=]
+
+--local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};

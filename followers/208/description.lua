@@ -3,39 +3,21 @@
 
 local _, ns = ...;
 local L = ns.locale;
-local data,zone = {},nil;
 
-local id = 208;
-local neutral = true;
+ns.addFollower(208,true,{
+	Alliance = {},
+	Horde = {},
+	Neutral = {
+		zone = 946,
+		ModelPosition = {2,0,-0.62},
+		--{"pos", {946, 56.7, 26.0}},
+		{"quest", {33973, 77031, 946, 56.7, 26}},
+		{"desc", {
+			enUS = "Gained after an optional quest started by Ahm in Archenon Siegeyard. On your next visit to your garrison, Ahm will be waiting for you near the graveyard. (Tritox/WoWHead)"
+		}}
+	}
+});
 
-if (ns.faction:lower()=="alliance") or (neutral) then
-
-	zone = 946;
-	data = {{"pos", {946, 56.7, 26.0}}, {"quest", {36027, 78638, 946, 84.6, 31.6}}};
-
-	if LOCALE_deDE then
-		--tinsert(data,{"desc", "");
-	else -- if LOCALE_enUS then [english as fallback]
-		--tinsert(data,{"desc", "");
-	end
-
-else
-
-	zone = 0;
-	data = {};
-
-	if LOCALE_deDE then
-		--tinsert(data,{"desc", "");
-	else -- if LOCALE_enUS then [english as fallback]
-		--tinsert(data,{"desc", "");
-	end
-
-end
-
-
-if (id) and (#data>0) then
-	ns.followers[id] = data;
-	ns.followers_zones[id] = zone;
-end
+--local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};
 
 --[=[ TODO :: missing data... ]=]

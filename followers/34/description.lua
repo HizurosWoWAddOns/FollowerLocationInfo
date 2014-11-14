@@ -4,26 +4,14 @@
 local _, ns = ...;
 local L = ns.locale;
 
-local id,data,zone = 34,{},nil;
-
-if (ns.faction:lower()=="alliance") then
-
-	zone = 947;
-	data = {
+ns.addFollower(34,false,{
+	Alliance = {
+		zone = 947,
 		{"pos", {947}},
 		{"quest", {34646, 79457, 971, 44, 52.8}}
-	};
-
-	if LOCALE_deDE then
-		--data.desc = "";
-	else -- if LOCALE_enUS then [english as fallback]
-		--data.desc = "";
-	end
-
-else
-
-	zone = 941;
-	data = {
+	},
+	Horde = {
+		zone = 941,
 		{"pos", {976}--[=[frostwall id?]=]},
 		{"questrow",
 			{33868, 0, 976, 0, 0}, --[=[ unknown npc ]=]
@@ -37,18 +25,8 @@ else
 			{34861, 78466, 976, 42, 55}, -- Gazlowe
 			{34462, 79740, 976, 53.8, 54.2}, -- Warmaster Zog
 		}
-	};
+	},
+	Neutral = {}
+});
 
-	if LOCALE_deDE then
-		--data.desc = "";
-	else -- if LOCALE_enUS then [english as fallback]
-		--data.desc = "";
-	end
-
-end
-
-
-if (id) and (#data>0) then
-	ns.followers[id] = data;
-	ns.followers_zones[id] = zone;
-end
+--local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};

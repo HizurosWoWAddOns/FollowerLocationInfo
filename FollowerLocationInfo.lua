@@ -59,6 +59,14 @@ local function IsQuestCompleted(QuestID)
 	return (questsCompleted.ids[QuestID]==true);
 end
 
+ns.addFollower = function(id,neutral,data)
+	local Data = data[(neutral) and "Neutral" or ns.faction];
+	if (#Data>0) and (Data.zone~=0) and (not Data.ignore) then
+		ns.followers[id] = Data;
+		ns.followers_zones[id] = Data.zone;
+	end
+end
+
 local Collector = {data={},hLink=false};
 do
 	local this,tt = Collector;
@@ -219,7 +227,24 @@ local function Desc_AddInfo(self, count, objType, ...)
 			title = "";
 		end
 	elseif (objType=="desc") then
-		addLine(L["Description"]:format(), obj);
+		local desc = false;
+		local lang = GetLocale();
+
+		if (obj[lang]) then
+			desc = obj[lang];
+		end
+
+		if (not desc) and ((lang=="zhCN") or (lang=="zhTW")) then
+			-- ?
+		end
+
+		if (not desc) and (obj.enUS) then -- fallback if possible?
+			desc = obj.enUS;
+		end
+
+		if (desc) then
+			addLine(L["Description"], desc:format(self.info.name));
+		end
 	elseif (objType=="img") then
 		for i,v in ipairs(objs) do
 			addLine(L["Image"] .. ((#objs>1) and " "..i or ""), nil, v);
@@ -299,10 +324,12 @@ local function Desc_Update()
 		DescHead.Class:SetText("|cffffffff" .. self.info.className .. "|r");
 		DescHead.Misc:SetText(("%s: %d, %s: %s%s|r"):format(LEVEL,self.info.level,QUALITY,qualities[self.info.quality].color.hex,qualities[self.info.quality].text));
 
+		Model:Show();
 		DescHead:Show();
 		InfoHead:Hide();
 	else
 		Desc_AddInfo(self,count,"custom",{"Welcome","Select a follower to see the description..."});
+		Model:Hide();
 		DescHead:Hide();
 		InfoHead:Show();
 	end

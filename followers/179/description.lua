@@ -3,39 +3,26 @@
 
 local _, ns = ...;
 local L = ns.locale;
-local data,zone = {},nil;
 
-local id = 179;
-local neutral = false;
-
-if (ns.faction:lower()=="alliance") or (neutral) then
-
-	zone = 947;
-	data = {{"pos", {947}}, {"event", {33038, 74741, 947, 42.8, 40.4}}};
-
-	if LOCALE_deDE then
-		tinsert(data,{"desc", "Romuul startet ein Ereignis, bei dem man ihn beschützen muss bis er seine Arbeit erledigt hat."});
-	else -- if LOCALE_enUS then [english as fallback
-		tinsert(data,{"desc", "Romuul starts an event where you have to protect him until he does his work."});
-	end
-
-else
-
-	zone = 941;
-	data = {{"quest", {34729, 74977, 941, 65, 39.4}}};
-
-	if LOCALE_deDE then
-		--tinsert(data,{"desc", "");
-	else -- if LOCALE_enUS then [english as fallback]
-		--tinsert(data,{"desc", "");
-	end
-
-end
-
-
-if (id) and (#data>0) then
-	ns.followers[id] = data;
-	ns.followers_zones[id] = zone;
-end
+ns.addFollower(179,false,{
+	Alliance = {
+		zone = 947,
+		ModelPosition = {1.5,0,-0.62},
+		{"pos", {947}},
+		{"event", {33038, 74741, 947, 42.8, 40.4}},
+		{"desc",
+			--deDE = "Romuul startet ein Ereignis, bei dem man ihn beschützen muss bis er seine Arbeit erledigt hat.",
+			--enUS = "Romuul starts an event where you have to protect him until he does his work.",
+		}
+	},
+	Horde = {
+		zone = 941,
+		ModelPosition = {1.5,0,-0.62},
+		{"quest", {34729, 74977, 941, 65, 39.4}}
+	},
+	Neutral = {}
+});
 
 --[=[ TODO :: image ? ]=]
+
+--local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};
