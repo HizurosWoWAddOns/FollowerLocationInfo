@@ -451,6 +451,7 @@ local function ListEntry_Setup(self,isHeader)
 		self.ZoneName:Hide();
 		self.highlightTex:Show();
 	end
+	self.owned:Hide();
 	self.quality2:Hide();
 	self.quality3:Hide();
 	self.quality4:Hide();
