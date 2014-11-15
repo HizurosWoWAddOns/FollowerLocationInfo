@@ -10,9 +10,8 @@ local zoneNames = {};
 local classes={};
 local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButtons.ITEM_QUALITY3_DESC,_G.UnitPopupButtons.ITEM_QUALITY4_DESC};
 local doRefresh = false;
-local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,949,946,948,950,941,978,1009} or {962,941,949,946,948,950,947.978,1011};
-
-for i,v in ipairs({941,946,947,948,949,950,962,978,1009,1011}) do zoneNames[v] = GetMapNameByID(v); end
+local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,971,949,946,948,950,941,978,1009} or {962,941,976,949,946,948,950,947.978,1011};
+for i,v in ipairs(factionZoneOrder) do zoneNames[v] = GetMapNameByID(v); end
 
 
 
@@ -173,8 +172,13 @@ local function Desc_AddInfo(self, count, objType, ...)
 		l:Show();
 	end
 
-	if (objType=="pos") then
-		local title = "Location";
+	if (objType=="pos") or (objType=="vendor") then
+		local title
+		if (objType=="pos") then
+			title = L["Location"];
+		elseif (objType=="vendor") then
+			title = L["Vendor"];
+		end
 		for i,v in ipairs(objs) do
 			if (#v>1) then
 				addLine(title, ("%s, %1.1f, %1.1f"):format(GetMapNameByID(v[1]), v[2], v[3]));
