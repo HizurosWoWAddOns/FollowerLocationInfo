@@ -7,7 +7,7 @@ local L = ns.locale;
 ns.addFollower(34,false,{
 	Alliance = {
 		zone = 971,
-		{"pos", {971}},
+		--{"pos", {971}},
 		{"quest", {34646, 79457, 971, 44, 52.8}}
 	},
 	Horde = {
