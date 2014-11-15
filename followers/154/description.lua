@@ -5,8 +5,14 @@ local _, ns = ...;
 local L = ns.locale;
 
 ns.addFollower(154,false,{
-	Alliance = {},
-	Horde = {},
+	Alliance = {
+		zone = 946,
+		{"quest", {34993, 80672, 946, 69.6, 20.8}}
+	},
+	Horde = {
+		zone = 946,
+		{"quest", {34949, 80553, 946, 71.2, 29.8}}
+	},
 	Neutral = {}
 });
 
