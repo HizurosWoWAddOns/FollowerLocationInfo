@@ -6,13 +6,13 @@ local L = ns.locale;
 
 ns.addFollower(34,false,{
 	Alliance = {
-		zone = 947,
-		{"pos", {947}},
+		zone = 971,
+		{"pos", {971}},
 		{"quest", {34646, 79457, 971, 44, 52.8}}
 	},
 	Horde = {
-		zone = 941,
-		{"pos", {976}--[=[frostwall id?]=]},
+		zone = 976,
+		--{"pos", {976}--[=[frostwall id?]=]},
 		{"questrow",
 			{33868, 0, 976, 0, 0}, --[=[ unknown npc ]=]
 			{33815, 76411, 976, 49.2, 50}, -- Farseeker Drek'Thar
