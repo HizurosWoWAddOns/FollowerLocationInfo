@@ -317,7 +317,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 		end
 
 		if (not desc) and ((lang=="zhCN") or (lang=="zhTW")) then
-			-- ?
+			desc = ( (obj.zhCN) and obj.zhCN ) or ( (obj.zhTW) and obj.zhTW ) or false;
 		end
 
 		if (not desc) and (obj.enUS) then -- fallback if possible?
