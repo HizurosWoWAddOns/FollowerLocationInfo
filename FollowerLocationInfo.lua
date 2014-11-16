@@ -88,48 +88,46 @@ local function IsQuestCompleted(QuestID)
 	return (questsCompleted.ids[QuestID]==true);
 end
 
-local IsMissing = {npcs={},coords={},zones={},quests={},completed={},descs={},modelRaces={}};
-do
-	local s = IsMissing;
-	IsMissing.chk=function(id,data)
-		if (data.ignore==true) or (data.complete==true) then return; end
+local IsMissing = {npcs={},coords={},zones={},quests={},completed={},descs={},modelRaces={},x=0};
+IsMissing.chk=function(id,data)
+	--if (data.ignore==true) or (data.complete==true) then return; end
 
-		local hasQuests,hasNpcs,hasDesc = false,false,false;
-		if (data.zone==nil) or (data.zone==0) then
-			tinsert(s.zones,id);
-		end
-		if (data.complete~=true) then
-			tinsert(s.completed,id);
-		end
-		if (data.modelRace==nil) then
-			tinsert(s.modelRaces,id);
-		end
+	local hasQuests,hasNpcs,hasDesc = false,false,false;
+	if (data.zone==nil) or (data.zone==0) then
+		tinsert(IsMissing.zones,id);
+	end
+	if (data.complete~=true) then
+		tinsert(IsMissing.completed,id);
+	end
+	if (data.modelRace==nil) then
+		tinsert(IsMissing.modelRaces,id);
+	end
 
-		for i,v in ipairs(data) do
-			if (v[1]=="quest") or (v[1]=="questrow") or (v[1]=="event") then
-				hasQuests = true;
-				for I,V in ipairs(v) do
-					if (I>1) and (type(V[2])=="number") and (ns.npcs[V[2]]==nil) then
-						tinsert(s.npcs,V[2]);
-					end
+	for i,v in ipairs(data) do
+		if (v[1]=="quest") or (v[1]=="questrow") or (v[1]=="event") then
+			hasQuests = true;
+			for I,V in ipairs(v) do
+				if (I>1) and (type(V[2])=="number") and (V[2]~=0) and (ns.npcs[V[2]]==nil) then
+					tinsert(IsMissing.npcs,V[2]);
 				end
-			elseif (v[1]=="vendor") then
-				for I,V in ipairs(v) do
-					if (I>1) and (type(V[1])=="number") and (ns.npcs[V[1]]==nil) then
-						tinsert(s.npcs,V[1]);
-					end
-				end
-			elseif (v[1]=="desc") then
-				hasDesc=true;
 			end
+		elseif (v[1]=="vendor") then
+			IsMissing.x = IsMissing.x + 1;
+			for I,V in ipairs(v) do
+				if (I>1) and (type(V[1])=="number") and (V[1]~=0) and (ns.npcs[V[1]]==nil) then
+					tinsert(IsMissing.npcs,V[1]);
+				end
+			end
+		elseif (v[1]=="desc") then
+			hasDesc=true;
 		end
+	end
 
-		if (not hasQuests) then
-			tinsert(s.quests,id);
-		end
-		if (not hasDesc) then
-			tinsert(s.descs,id);
-		end
+	if (not hasQuests) then
+		tinsert(IsMissing.quests,id);
+	end
+	if (not hasDesc) then
+		tinsert(IsMissing.descs,id);
 	end
 end
 
@@ -141,6 +139,7 @@ function FollowerLocationInfo_PrintMissingData()
 			print("|cffff4444"..addon.."|r","|cffffff00Missing "..i.." data:|r", "|cff4488ff"..table.concat(v,"|r, |cff4488ff").."|r");
 		end
 	end
+	print(IsMissing.x);
 end
 
 ns.addFollower = function(id,neutral,data)
@@ -287,7 +286,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 					qTitle = qTitle .. " |cff888888"..L["(Completed)"].."|r"
 				end
 
-				if (type(v[2])=="number") and (v[2]>0) and (ns.npcs[v[2]]) then
+				if ((type(v[2])=="number") and (v[2]>0) and (ns.npcs[v[2]])) or ((type(v[2])=="string") and (v[2]:find("^o[0-9]+$")) and (ns.npcs[v[2]])) then
 					qGiver = ns.npcs[v[2]].."|n    ";
 				end
 
