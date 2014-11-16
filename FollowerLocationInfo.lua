@@ -316,8 +316,16 @@ local function Desc_AddInfo(self, count, objType, ...)
 			desc = obj[lang];
 		end
 
+		if (not desc) and ((lang=="esES") or (lang=="esMX") then
+			desc = ( (obj.esES) and obj.esES ) or ( (obj.esMX) and obj.esMX ) or false;
+		end
+
 		if (not desc) and ((lang=="zhCN") or (lang=="zhTW")) then
 			desc = ( (obj.zhCN) and obj.zhCN ) or ( (obj.zhTW) and obj.zhTW ) or false;
+		end
+
+		if (not desc) and ((lang=="enUS") or (lang=="enGB") then
+			desc = ( (obj.enUS) and obj.enUS ) or ( (obj.enGB) and obj.enGB ) or false;
 		end
 
 		if (not desc) and (obj.enUS) then -- fallback if possible?
