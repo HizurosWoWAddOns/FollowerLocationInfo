@@ -336,8 +336,10 @@ local function Desc_AddInfo(self, count, objType, ...)
 		for i,v in ipairs(objs) do
 			if (#v==1) then
 				addLine(title, GetMapNameByID(v[1]));
+			elseif (type(v[3])=="string") then
+				addLine(title, GetMapNameByID(v[1]) .. ", " .. L[v[3]]);
 			elseif (v[3]==false) then
-				addLine(title, GetMapNameByID(v[1]) .. " " .. L["Wandering around..."]);
+				addLine(title, GetMapNameByID(v[1]) .. " (" .. L["Wandering around..."]..")");
 			elseif (v[2]>0) then
 				addLine(title, ("%s|n    %s @ %1.1f, %1.1f"):format("[name unknown]", GetMapNameByID(v[1]), v[3], v[4]));
 			else
