@@ -5,7 +5,6 @@ ns.faction, ns.factionLocale = UnitFactionGroup("player"); L[ns.faction] = ns.fa
 ns.factionID = ((ns.faction=="Alliance") and 1) or ((ns.faction=="Horde") and 2) or 0;
 ns.followers = {};
 ns.followers_zones = {};
-ns.npc = {};
 local followers = {};
 local zoneNames = {};
 local classes={};
@@ -108,14 +107,17 @@ do
 		for i,v in ipairs(data) do
 			if (v[1]=="quest") or (v[1]=="questrow") or (v[1]=="event") then
 				hasQuests = true;
-			elseif (v[1]=="vendor") then
-				--[[
 				for I,V in ipairs(v) do
-					if (I>1) then
-						
+					if (I>1) and (type(V[2])=="number") and (V[2]>0) and (not ns.npcs[V[2]]) then
+						tinsert(s.npcs,V[2]);
 					end
 				end
-				]]
+			elseif (v[1]=="vendor") then
+				for I,V in ipairs(v) do
+					if (I>1) and (type(V[2])=="number") and (V[2]>0) and (not ns.npcs[V[2]]) then
+						tinsert(s.npcs,V[2]);
+					end
+				end
 			elseif (v[1]=="desc") then
 				hasDesc=true;
 			end
@@ -275,7 +277,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 			title = L["Event"];
 		end
 		for i,v in ipairs(objs) do
-			qState, qGiver, qZone, qCoord, str = 0, "name?", "zone?", "?.?, ?.?", "%s|n    (%s @ %s)" --"%s|n    %s|n    (%s @ %s)"
+			qState, qGiver, qZone, qCoord, str = 0, "", "zone?", "?.?, ?.?", "%s|n  » %s(%s @ %s)" --"%s|n    %s|n    (%s @ %s)"
 			qTitle, qText = GetQuestInfo(v[1]);
 			if (qTitle) then
 				if (GetQuestLogIndexByID(v[1])~=0) then
@@ -284,12 +286,11 @@ local function Desc_AddInfo(self, count, objType, ...)
 					qTitle = qTitle .. " |cff888888"..L["(Completed)"].."|r"
 				end
 
-				-- npc name v[2]
-				if (v[2]) and (v[2]~=0) then
-					--qGiver = "";
+				if (type(v[2])=="number") and (v[2]>0) and (ns.npcs[v[2]]) then
+					qGiver = ns.npcs[v[2]].."|n    ";
 				end
 
-				if (v[3]) and (v[3]~=0) then
+				if (type(v[3])=="number") and (v[3]~=0) then
 					qZone = GetMapNameByID(v[3]);
 				end
 
@@ -297,7 +298,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 					qCoord = ("%1.1f, %1.1f"):format(v[4],v[5]);
 				end
 
-				addLine(title, str:format(qTitle,--[[qGiver,]]qZone, qCoord))
+				addLine(title, str:format(qTitle, qGiver, qZone, qCoord))
 			elseif v[1]==0 then
 				addLine(title, L["Missing quest..."]);
 			elseif (qTitle==false) then
@@ -316,7 +317,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 			desc = obj[lang];
 		end
 
-		if (not desc) and ((lang=="esES") or (lang=="esMX") then
+		if (not desc) and ((lang=="esES") or (lang=="esMX")) then
 			desc = ( (obj.esES) and obj.esES ) or ( (obj.esMX) and obj.esMX ) or false;
 		end
 
@@ -324,7 +325,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 			desc = ( (obj.zhCN) and obj.zhCN ) or ( (obj.zhTW) and obj.zhTW ) or false;
 		end
 
-		if (not desc) and ((lang=="enUS") or (lang=="enGB") then
+		if (not desc) and ((lang=="enUS") or (lang=="enGB")) then
 			desc = ( (obj.enUS) and obj.enUS ) or ( (obj.enGB) and obj.enGB ) or false;
 		end
 
@@ -349,7 +350,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 			elseif (v[3]==false) then
 				addLine(title, GetMapNameByID(v[1]) .. " (" .. L["Wandering around..."]..")");
 			elseif (v[2]>0) then
-				addLine(title, ("%s|n    %s @ %1.1f, %1.1f"):format("[name unknown]", GetMapNameByID(v[1]), v[3], v[4]));
+				addLine(title, ("%s|n    %s @ %1.1f, %1.1f"):format( (type(v[2])=="number") and (ns.npcs[v[2]]) and ns.npcs[v[2]] or "[name unknown]", GetMapNameByID(v[1]), v[3], v[4]));
 			else
 				addLine(title, ("%s @ %1.1f, %1.1f"):format(GetMapNameByID(v[1]), v[3], v[4]));
 			end
