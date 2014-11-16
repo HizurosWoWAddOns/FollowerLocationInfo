@@ -647,11 +647,16 @@ local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 		if (FollowerLocationInfoDB==nil) then
 			FollowerLocationInfoDB={Minimap={enabled=true}};
 		end
-		if (FollowerLocationInfoDB.Minimap==nil) then
-			FollowerLocationInfoDB.Minimap={enabled=true};
-		end
-		if (FollowerLocationInfoDB.ShowFollowerID==nil) then
-			FollowerLocationInfoDB.ShowFollowerID=true;
+		for i,v in pairs({
+			Minimap = {enabled=true},
+			ShowFollowerID = true,
+			ShowCoordsFrame = true,
+			BrokerTitle_Coords = false,
+			BrokerTitle_NumFollowers = true,
+		}) do 
+			if (FollowerLocationInfoDB[i]==nil) then
+				FollowerLocationInfoDB[i] = v;
+			end
 		end
 		self.List.showFollowerID:SetChecked(FollowerLocationInfoDB.ShowFollowerID);
 		dataBrokerInit();
