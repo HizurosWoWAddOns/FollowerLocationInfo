@@ -8,8 +8,9 @@ ns.addFollower(193,true,{
 	Alliance = {},
 	Horde = {},
 	Neutral = {
+		complete=true,
 		zone = 949,
-		ModelPosition = {1,0,-0.7},
+		modelRace = "OrgeM",
 		{"pos", {949, 44.9, 86.6}},
 		{"desc", {
 			enUS = "Help him to defend himself. Then he is friendly and can be recruited.",

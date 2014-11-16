@@ -1,6 +1,10 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\..\FrameXML\UI.xsd">
 
+	<!-- missions -->
+	<Script file="153\description.lua" />
+	<Script file="463\description.lua" />
+	
 	<!-- shadowmoon valley / 947 -->
 	<Script file="34\description.lua" />
 	<Script file="179\description.lua" />
@@ -44,7 +48,9 @@
 	<!-- frostfire ridge / 941 -->
 	<Script file="32\description.lua" />
 
-	<!-- ashran, 978 // stormshield(alliance), 1009 // Warspear(horde), 1011 -->
+	<!-- stormshield(alliance), 1009 // Warspear(horde), 1011 -->
+	<Script file="459\description.lua" />
+	<Script file="460\description.lua" />
 	<Script file="462\description.lua" />
 	<Script file="216\description.lua" />
 

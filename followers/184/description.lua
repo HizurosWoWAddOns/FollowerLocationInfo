@@ -6,8 +6,9 @@ local L = ns.locale;
 
 ns.addFollower(184,false,{
 	Alliance = {
+		complete=-1,
 		zone = 947,
-		--{"pos", {947}},
+		modelRace = "DraeneiM",
 		{"questrow",
 			{34787, 80078, 947, 56.5, 23.5},
 			{35552, 80073, 947, 62.4, 26.2 },
@@ -18,7 +19,7 @@ ns.addFollower(184,false,{
 		},
 		{"desc", {
 			enUS = "Gained afte completing the Elodor questline. You have to choose between Andren, Chel and Onaala. (Tritox/WoWHead)",
-		}}
+		}},
 	},
 	Horde = {},
 	Neutral = {}

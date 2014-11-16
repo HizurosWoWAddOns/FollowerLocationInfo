@@ -6,15 +6,17 @@ local L = ns.locale;
 
 ns.addFollower(216,false,{
 	Alliance = {
-		zone = 971,
-		ModelPosition = {1.5,0,-0.45},
-		{"pos", {971}},
+		complete=-2,
+		zone = 1009,
+		modelRace = "DwarfM",
 		{"questrow",
-			{36624, 00000, 000, nil, nil},
-			{36630, 00000, 000, nil, nil}
+			{36624, 00000, 971, nil, nil},
+			{36630, 00000, 1009, nil, nil}
 		}
 	},
-	Horde = {},
+	Horde = {
+		ignore=true
+	},
 	Neutral = {}
 });
 

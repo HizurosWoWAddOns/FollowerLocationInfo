@@ -3,6 +3,7 @@
 
 	<Include file="libs\load.xml" />
 	<Include file="locale\load.xml" />
+	<Script  file="db_factions.lua" />
 	<Script  file="FollowerLocationInfo.lua" />
 	<Include file="followers\load.xml" />
 

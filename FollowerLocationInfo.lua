@@ -5,6 +5,7 @@ ns.faction, ns.factionLocale = UnitFactionGroup("player"); L[ns.faction] = ns.fa
 ns.factionID = ((ns.faction=="Alliance") and 1) or ((ns.faction=="Horde") and 2) or 0;
 ns.followers = {};
 ns.followers_zones = {};
+ns.npc = {};
 local followers = {};
 local zoneNames = {};
 local classes={};
@@ -12,7 +13,36 @@ local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButton
 local doRefresh = false;
 local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,971,949,946,948,950,941,978,1009} or {962,941,976,949,946,948,950,947.978,1011};
 for i,v in ipairs(factionZoneOrder) do zoneNames[v] = GetMapNameByID(v); end
-
+local modelPositions={
+--	BloodElfF = {2,0,-0.62},
+--	BloodElfM = {2,0,-0.62},
+--	   DawrfF = {2,0,-0.62},
+	   DwarfM = {1.5,0,-0.45},
+	 DraeneiF = {1.9,0,-0.7},
+	 DraeneiM = {1.5,0,-0.62},
+--	   GnomeF = {2,0,-0.62},
+--	   GnomeM = {2,0,-0.62},
+--	  GoblinF = {2,0,-0.62},
+--	  GoblinM = {2,0,-0.62},
+	   HumanF = {1.2,0,-0.52},
+	   HumanM = {1.5,0,-0.59},
+--	NightElfF = {2,0,-0.62},
+--	NightElfM = {2,0,-0.62},
+		 OrcF = {1.25,0,-0.5},
+--		 OrcM = {2,0,-0.62},
+--	PandarenF = {2,0,-0.62},
+--	PandarenM = {2,0,-0.62},
+--	 ScourgeF = {2,0,-0.62},
+--	 ScourgeM = {2,0,-0.62},
+--	  TaurenF = {2,0,-0.62},
+--	  TaurenM = {2,0,-0.62},
+--	   TrollF = {2,0,-0.62},
+--	   TrollM = {2,0,-0.62},
+--	  WorgenF = {2,0,-0.62},
+--	  WorgenM = {2,0,-0.62},
+	     Mech = {2,0,-2.5},
+	    OrgeM = {1.4,0,-0.67}, -- {1,0,-0.7} ?
+};
 
 
 --[=[ Broker & Minimap ]=]
@@ -58,12 +88,65 @@ local function IsQuestCompleted(QuestID)
 	return (questsCompleted.ids[QuestID]==true);
 end
 
+local IsMissing = {npcs={},coords={},zones={},quests={},completed={},descs={},modelRaces={}};
+do
+	local s = IsMissing;
+	IsMissing.chk=function(id,data)
+		if (data.ignore==true) or (data.complete==true) then return; end
+
+		local hasQuests,hasNpcs,hasDesc = false,false,false;
+		if (data.zone==nil) or (data.zone==0) then
+			tinsert(s.zones,id);
+		end
+		if (data.complete~=true) then
+			tinsert(s.completed,id);
+		end
+		if (data.modelRace==nil) then
+			tinsert(s.modelRaces,id);
+		end
+
+		for i,v in ipairs(data) do
+			if (v[1]=="quest") or (v[1]=="questrow") or (v[1]=="event") then
+				hasQuests = true;
+			elseif (v[1]=="vendor") then
+				--[[
+				for I,V in ipairs(v) do
+					if (I>1) then
+						
+					end
+				end
+				]]
+			elseif (v[1]=="desc") then
+				hasDesc=true;
+			end
+		end
+
+		if (not hasQuests) then
+			tinsert(s.quests,id);
+		end
+		if (not hasDesc) then
+			tinsert(s.descs,id);
+		end
+	end
+end
+
+function FollowerLocationInfo_PrintMissingData()
+	local tmp;
+	for i,v in pairs(IsMissing) do
+		if (type(v)=="table") and (#v>0) then
+			table.sort(v);
+			print("|cffff4444"..addon.."|r","|cffffff00Missing "..i.." data:|r", "|cff4488ff"..table.concat(v,"|r, |cff4488ff").."|r");
+		end
+	end
+end
+
 ns.addFollower = function(id,neutral,data)
 	local Data = data[(neutral) and "Neutral" or ns.faction];
 	if (#Data>0) and (Data.zone~=0) and (not Data.ignore) then
 		ns.followers[id] = Data;
 		ns.followers_zones[id] = Data.zone;
 	end
+	IsMissing.chk(id,Data);
 end
 
 local Collector = {data={},hLink=false};
@@ -172,16 +255,11 @@ local function Desc_AddInfo(self, count, objType, ...)
 		l:Show();
 	end
 
-	if (objType=="pos") or (objType=="vendor") then
-		local title
-		if (objType=="pos") then
-			title = L["Location"];
-		elseif (objType=="vendor") then
-			title = L["Vendor"];
-		end
+	if (objType=="pos") then
+		local title = L["Location"];
 		for i,v in ipairs(objs) do
 			if (#v>1) then
-				addLine(title, ("%s, %1.1f, %1.1f"):format(GetMapNameByID(v[1]), v[2], v[3]));
+				addLine(title, ("%s @ %1.1f, %1.1f"):format(GetMapNameByID(v[1]), v[2], v[3]));
 			else
 				addLine(title, ("%s"):format(GetMapNameByID(v[1])));
 			end
@@ -253,7 +331,29 @@ local function Desc_AddInfo(self, count, objType, ...)
 		for i,v in ipairs(objs) do
 			addLine(L["Image"] .. ((#objs>1) and " "..i or ""), nil, v);
 		end
-	elseif (objType=="payment") then -- removed?
+	elseif (objType=="vendor") then
+		local title = L["Vendor"];
+		for i,v in ipairs(objs) do
+			if (#v==1) then
+				addLine(title, GetMapNameByID(v[1]));
+			elseif (v[3]==false) then
+				addLine(title, GetMapNameByID(v[1]) .. " " .. L["Wandering around..."]);
+			elseif (v[2]>0) then
+				addLine(title, ("%s|n    %s @ %1.1f, %1.1f"):format("[name unknown]", GetMapNameByID(v[1]), v[3], v[4]));
+			else
+				addLine(title, ("%s @ %1.1f, %1.1f"):format(GetMapNameByID(v[1]), v[3], v[4]));
+			end
+			title = "";
+		end
+	elseif (objType=="mission") then
+		local title = L["Mission"];
+		for i,v in ipairs(objs) do
+			if (type(v)=="number") then
+				--C_Garrison.GetMissionInfo(v);
+				addLine(title, C_Garrison.GetMissionName(v).."  |cff888888(MissionID: "..v..")|r");
+			end
+		end
+	elseif (objType=="payment") then
 		local str = "";
 		for i,v in ipairs(objs) do
 			if (strlen(str)>0) then str = str .. "|n"; end
@@ -266,6 +366,8 @@ local function Desc_AddInfo(self, count, objType, ...)
 			end
 		end
 		addLine(L["Payment"], str);
+	elseif (objType=="reputation") then
+		addLine(L["Reputation"], _G["FACTION_STANDING_LABEL"..obj[2]].." @ "..(ns.factions[obj[1]] or "(Oops, faction not found...)"));
 	elseif (objType=="type") then
 		addLine(L["Type"],L[obj]);
 	elseif (objType=="requirements") then
@@ -320,11 +422,19 @@ local function Desc_Update()
 			end);
 		end
 
+		-- Header-Model
+		local pos = {2,0,-0.62};
+		if (self.data.modelRace) and (modelPositions[self.data.modelRace]) then
+			pos = modelPositions[self.data.modelRace];
+		elseif (self.data.modelPosition) then
+			pos = self.data.modelPosition;
+		end
+		Model:SetDisplayInfo(self.info.displayID);
+		Model:SetPosition(unpack(pos));
+
 		-- DescHead data
 		local _,className = strsplit("-",self.info.classAtlas);
 		local class = classes[className:upper()];
-		Model:SetDisplayInfo(self.info.displayID);
-		Model:SetPosition(unpack(self.data.ModelPosition or {2,0,-0.62}));
 		DescHead.Name:SetText("|c" .. class.colorStr .. self.info.name .. "|r");
 		DescHead.Class:SetText("|cffffffff" .. self.info.className .. "|r");
 		DescHead.Misc:SetText(("%s: %d, %s: %s%s|r"):format(LEVEL,self.info.level,QUALITY,qualities[self.info.quality].color.hex,qualities[self.info.quality].text));
@@ -333,7 +443,14 @@ local function Desc_Update()
 		DescHead:Show();
 		InfoHead:Hide();
 	else
-		Desc_AddInfo(self,count,"custom",{"Welcome","Select a follower to see the description..."});
+		local count = 0;
+		for i,v in ipairs({
+			{"Usage","Select a follower to see the description..."}
+		--	{"Greetings","Welcome to use this addon. Currently it is still incomplete.
+		--	{"Followers",#C_Garrison.GetFollowers().." added by Blizzard into the game."}
+		}) do
+			count = Desc_AddInfo(self, count, "custom", v);
+		end
 		DescHead:Hide();
 		InfoHead:Show();
 	end

@@ -8,6 +8,7 @@ ns.addFollower(194,true,{
 	Alliance = {},
 	Horde = {},
 	Neutral = {
+		complete=true,
 		zone = 962,
 		{"pos", {962}},
 		{"requirements", "Lumber mill (Level 3)"},

@@ -1,19 +1,21 @@
 
--- ID: 218, Name: Talonpriest Ishaal
+-- ID: 0, Name: ? (A) / ? (H)
 
 local _, ns = ...;
 local L = ns.locale;
 
-ns.addFollower(218,true,{
+ns.addFollower(0,false,{
 	Alliance = {
-		complete=-2,
-		zone=0,
+		complete=true,
+		zone = 0,
 	},
 	Horde = {
-		complete=-2,
-		zone=0,
+		complete=true,
+		zone = 0,
 	},
 	Neutral = {}
 });
+
+--[=[ TODO :: missing data... ]=]
 
 --local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};

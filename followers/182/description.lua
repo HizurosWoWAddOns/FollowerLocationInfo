@@ -6,9 +6,9 @@ local L = ns.locale;
 
 ns.addFollower(182,false,{
 	Alliance = {
+		complete=-1,
 		zone = 947,
-		--{"pos", {947}},
-		ModelPosition = {1.2,0,-0.52},
+		modelRace = "HumanF",
 		{"questrow",
 			{34820, 80163, 971, 43.8, 53.4},
 			{33263, 79966, 947, 39.6, 29.6},
@@ -16,7 +16,10 @@ ns.addFollower(182,false,{
 			{35625, 76748, 947, 36.4, 19.2}
 		}
 	},
-	Horde = {},
+	Horde = {
+		complete=-2,
+		zone = 0,
+	},
 	Neutral = {}
 });
 

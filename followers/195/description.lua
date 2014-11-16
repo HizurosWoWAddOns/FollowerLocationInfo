@@ -8,8 +8,9 @@ ns.addFollower(195,true,{
 	Alliance = {},
 	Horde = {},
 	Neutral = {
+		complete=true,
 		zone = 962,
-		ModelPosition = {1.5,0,-0.59},
+		modelRace = "HumanM",
 		{"pos", {962}},
 		{"requirements", "Lumber mill"},
 		{"img", "1"},

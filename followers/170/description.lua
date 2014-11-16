@@ -5,8 +5,14 @@ local _, ns = ...;
 local L = ns.locale;
 
 ns.addFollower(170,false,{
-	Alliance = {},
-	Horde = {},
+	Alliance = {
+		complete=-2,
+		zone = 950,
+	},
+	Horde = {
+		complete=-2,
+		zone = 950,
+	},
 	Neutral = {}
 });
 

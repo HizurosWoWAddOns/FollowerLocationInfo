@@ -6,12 +6,15 @@ local L = ns.locale;
 
 ns.addFollower(183,false,{
 	Alliance = {
+		complete=-1,
 		zone = 947,
-		ModelPosition = {1.25,0,-0.5},
-		{"pos", {947}},
+		modelRace = "OrcF",
 		{"quest", {35631, 75884, 947, 45.6, 26.2}}
 	},
-	Horde = {},
+	Horde = {
+		complete=-2,
+		zone = 0,
+	},
 	Neutral = {}
 });
 

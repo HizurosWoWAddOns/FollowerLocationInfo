@@ -6,7 +6,9 @@ local L = ns.locale;
 
 ns.addFollower(176,false,{
 	Alliance = {
-		zone = 0, --949,
+		complete=-1,
+		zone = 949,
+		modelRace = "DraeneiM",
 		{"questrow",
 			{34704, 81076, 949, 53.0, 59.6},
 			{34699, 79322, 949, 42.8, 63},
@@ -16,6 +18,8 @@ ns.addFollower(176,false,{
 		}
 	},
 	Horde = {
+		complete=-2,
+		zone = 949,
 	},
 	Neutral = {
 	}
