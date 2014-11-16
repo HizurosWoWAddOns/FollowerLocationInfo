@@ -109,14 +109,14 @@ do
 			if (v[1]=="quest") or (v[1]=="questrow") or (v[1]=="event") then
 				hasQuests = true;
 				for I,V in ipairs(v) do
-					if (I>1) and (type(V[2])=="number") and (V[2]>0) and (not ns.npcs[V[2]]) then
+					if (I>1) and (type(V[2])=="number") and (ns.npcs[V[2]]==nil) then
 						tinsert(s.npcs,V[2]);
 					end
 				end
 			elseif (v[1]=="vendor") then
 				for I,V in ipairs(v) do
-					if (I>1) and (type(V[2])=="number") and (V[2]>0) and (not ns.npcs[V[2]]) then
-						tinsert(s.npcs,V[2]);
+					if (I>1) and (type(V[1])=="number") and (ns.npcs[V[1]]==nil) then
+						tinsert(s.npcs,V[1]);
 					end
 				end
 			elseif (v[1]=="desc") then
@@ -345,11 +345,11 @@ local function Desc_AddInfo(self, count, objType, ...)
 		local title = L["Vendor"];
 		for i,v in ipairs(objs) do
 			local location, npc;
-			if (type(v[2])=="number") and (ns.npcs[v[2]]~=nil) then
-				npc = ns.npcs[v[2]];
+			if (type(v[1])=="number") and (ns.npcs[v[1]]~=nil) then
+				npc = ns.npcs[v[1]];
 			end
-			if (type(v[1])=="number") then 
-				location = GetMapNameByID(v[1])
+			if (type(v[2])=="number") then 
+				location = GetMapNameByID(v[2])
 			end
 			if (type(v[3])=="number") and (type(v[4])=="number") then
 				location = ("(%s%1.1f, %1.1f)"):format((location) and location.." @ " or "",v[3],v[4]); -- merge zone name with coordinations
