@@ -41,6 +41,7 @@ local modelPositions={
 --	  WorgenM = {2,0,-0.62},
 	     Mech = {2,0,-2.5},
 	    OrgeM = {1.4,0,-0.67}, -- {1,0,-0.7} ?
+	 SaberonM = {1.45,0,-0.37},
 };
 
 
