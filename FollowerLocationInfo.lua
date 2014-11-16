@@ -344,16 +344,25 @@ local function Desc_AddInfo(self, count, objType, ...)
 	elseif (objType=="vendor") then
 		local title = L["Vendor"];
 		for i,v in ipairs(objs) do
-			if (#v==1) then
-				addLine(title, GetMapNameByID(v[1]));
-			elseif (type(v[3])=="string") then
-				addLine(title, GetMapNameByID(v[1]) .. ", " .. L[v[3]]);
-			elseif (v[3]==false) then
-				addLine(title, GetMapNameByID(v[1]) .. " (" .. L["Wandering around..."]..")");
-			elseif (v[2]>0) then
-				addLine(title, ("%s|n    %s @ %1.1f, %1.1f"):format( (type(v[2])=="number") and (ns.npcs[v[2]]) and ns.npcs[v[2]] or "[name unknown]", GetMapNameByID(v[1]), v[3], v[4]));
-			else
-				addLine(title, ("%s @ %1.1f, %1.1f"):format(GetMapNameByID(v[1]), v[3], v[4]));
+			local location, npc;
+			if (type(v[2])=="number") and (ns.npcs[v[2]]~=nil) then
+				npc = ns.npcs[v[2]];
+			end
+			if (type(v[1])=="number") then 
+				location = GetMapNameByID(v[1])
+			end
+			if (type(v[3])=="number") and (type(v[4])=="number") then
+				location = ("(%s%1.1f, %1.1f)"):format((location) and location.." @ " or "",v[3],v[4]); -- merge zone name with coordinations
+			elseif (type(v[3])) then
+				location = ("(%s @ %s)"):format(location,L[v[3]]); -- merge zone name with named location like buildings in garrison...
+			end
+
+			if (npc) and (location) then
+				addLine(title,("%s|n    %s"):format(npc,location));
+			elseif (npc) then
+				addLine(title,npc);
+			elseif (location) then
+				addLine(title,location);
 			end
 			title = "";
 		end
