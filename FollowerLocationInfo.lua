@@ -261,7 +261,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 		local title = L["Location"];
 		for i,v in ipairs(objs) do
 			if (#v>1) then
-				addLine(title, ("%s @ %1.1f, %1.1f"):format(GetMapNameByID(v[1]), v[2], v[3]));
+				addLine(title, ("%s @ %1.1f, %1.1f%s"):format(GetMapNameByID(v[1]), v[2], v[3], (v[4]) and "|n("..L[v[4]]..")" or ""));
 			else
 				addLine(title, ("%s"):format(GetMapNameByID(v[1])));
 			end
