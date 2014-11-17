@@ -10,24 +10,30 @@ local self = ns.MenuGenerator;
 self.menu = {};
 self.controlGroups = {};
 local cvarTypeFunc = {
-	bool = function(D)
-		if (type(D.cvar)=="table") then
+	bool = function(d)
+		if (type(d.cvar)=="table") then
 			--?
-		elseif (type(D.cvar)=="string") then
-			D.checked = function() return (GetCVar(D.cvar)=="1") end;
-			D.func = function() SetCVar(D.cvar,GetCVar(D.cvar)=="1" and "0" or "1"); end;
+		elseif (type(d.cvar)=="string") then
+			d.checked = function() return (GetCVar(d.cvar)=="1") end;
+			d.func = function() SetCVar(d.cvar,GetCVar(d.cvar)=="1" and "0" or "1"); end;
 		end
+		return d;
 	end,
-	slider = function(...)
-	end,
-	num = function(...)
+	slider = function(d)
 		
+		return d;
 	end,
-	str = function(...)
+	num = function(d)
+		
+		return d;
+	end,
+	str = function(d)
+		
+		return d;
 	end
 };
 
-local beTypeFunc = {
+local dbTypeFunc = {
 	bool = function(d)
 		if (d.subName) then
 			d.checked = function() return (FollowerLocationInfoDB[d.keyName]) end;
@@ -36,16 +42,16 @@ local beTypeFunc = {
 			d.checked = function() return (FollowerLocationInfoDB[d.keyName]) end;
 			d.func = function() FollowerLocationInfoDB[d.keyName] = not FollowerLocationInfoDB[d.keyName]; end;
 		end
+		return d;
 	end,
-	slider = function(...)
+	slider = function(d)
+		return d;
 	end,
-	num = function(D)
-		if (D.cvarKey) then
-		elseif (D.cvars) and (type(cvars)=="table") then
-			
-		end
+	num = function(d)
+		return d;
 	end,
-	str = function(...)
+	str = function(d)
+		return d;
 	end
 };
 
@@ -97,15 +103,15 @@ self.addEntry = function(D,P)
 		entry.isNotRadio   = not D.radio;
 
 		if (D.cvarType) and (D.cvar) and (type(D.cvarType)=="string") and (cvarTypeFunc[D.cvarType]) then
-			cvarTypeFunc[D.cvarType](D);
+			D=cvarTypeFunc[D.cvarType](D);
 		end
 
-		if (D.beType) and (D.keyName) and (type(D.beType)=="string") and (beTypeFunc[D.beType]) then
-			beTypeFunc[D.beType](D);
+		if (D.dbType) and (D.keyName) and (type(D.dbType)=="string") and (dbTypeFunc[D.dbType]) then
+			D=dbTypeFunc[D.dbType](D);
 		end
 
 		if (D.checked~=nil) then
-			entry.checked      = D.checked;
+			entry.checked = D.checked;
 			entry.keepShownOnClick = 1;
 		else
 			entry.notCheckable = true;
@@ -144,7 +150,7 @@ self.addEntry = function(D,P)
 				if (type(D.event)=="function") then
 					D.event();
 				end
-				if (P) then
+				if (P) and (not entry.keepShownOnClick) then
 					if (_G["DropDownList1"]) then _G["DropDownList1"]:Hide(); end
 				end
 			end;

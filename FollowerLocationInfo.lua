@@ -77,7 +77,7 @@ local function dataBrokerInit()
 		if (lDBI) then
 			lDBI:Register(addon, obj, FollowerLocationInfoDB.Minimap)
 			if (not FollowerLocationInfoDB.Minimap.enabled) then
-				libDBIcon:Hide(addon);
+				lDBI:Hide(addon);
 			end
 		end
 	end
@@ -229,68 +229,51 @@ function getMenu(self)
 
 	ns.MenuGenerator.InitializeMenu();
 
-	ns.MenuGenerator.addEntry({
-		label = L["Show minimap button"],
-		checked = function() return FollowerLocationInfoDB.Minimap.enabled; end,
-		func  = function()
-			FollowerLocationInfoDB.Minimap.enabled = not FollowerLocationInfoDB.Minimap.enabled;
-			if (not FollowerLocationInfoDB.Minimap.enabled) then
-				lDBI:Hide(addon);
-			else
-				lDBI:Show(addon);
-			end
-		end,
-		tooltip = {L["Minimap"],(L["Show/Hide %s's minimap button"]):format(addon)},
-		--disabled = (type(v.disabled)=="function") and v.disabled() or v.disabled
-	});
-
-	ns.MenuGenerator.addEntry({
-		label = L["Show FollowerID in follower list"],
-		checked = function() return FollowerLocationInfoDB.ShowFollowerID; end,
-		func  = function()
-			FollowerLocationInfoDB.ShowFollowerID = not FollowerLocationInfoDB.ShowFollowerID;
-			FollowerLocationInfoFrame.List.showFollowerID:SetChecked(FollowerLocationInfoDB.ShowFollowerID);
-			List_Update();
-		end,
-		--tooltip = {L["Minimap"],(L["Show/Hide %s's minimap button"]):format(addon)},
-		--disabled = (type(v.disabled)=="function") and v.disabled() or v.disabled
-	});
-
-	ns.MenuGenerator.addEntry({
-		label = L["Show coordination frame"],
-		checked = function() return FollowerLocationInfoDB.ShowCoordsFrame; end,
-		func  = function()
-			FollowerLocationInfoDB.ShowCoordsFrame = not FollowerLocationInfoDB.ShowCoordsFrame;
-			FollowerLocationInfoFrame.List.showFollowerID:SetChecked(FollowerLocationInfoDB.ShowCoordsFrame);
-			List_Update();
-		end,
-		--tooltip = {L["Minimap"],(L["Show/Hide %s's minimap button"]):format(addon)},
-		disabled = true --(type(v.disabled)=="function") and v.disabled() or v.disabled
-	});
-
-	ns.MenuGenerator.addEntry({
-		label = L["Show coordinations on broker"],
-		checked = function() return FollowerLocationInfoDB.BrokerTitle_Coords; end,
-		func  = function()
-			FollowerLocationInfoDB.BrokerTitle_Coords = not FollowerLocationInfoDB.BrokerTitle_Coords;
-			FollowerLocationInfoFrame.List.showFollowerID:SetChecked(FollowerLocationInfoDB.BrokerTitle_Coords);
-			List_Update();
-		end,
-		--tooltip = {L["Minimap"],(L["Show/Hide %s's minimap button"]):format(addon)},
-		disabled = true --(type(v.disabled)=="function") and v.disabled() or v.disabled
-	});
-
-	ns.MenuGenerator.addEntry({
-		label = L["Show follower count on broker"],
-		checked = function() return FollowerLocationInfoDB.BrokerTitle_NumFollowers; end,
-		func  = function()
-			FollowerLocationInfoDB.BrokerTitle_NumFollowers = not FollowerLocationInfoDB.BrokerTitle_NumFollowers;
-			FollowerLocationInfoFrame.List.showFollowerID:SetChecked(FollowerLocationInfoDB.BrokerTitle_NumFollowers);
-			List_Update();
-		end,
-		--tooltip = {L["Minimap"],(L["Show/Hide %s's minimap button"]):format(addon)},
-		disabled = true --(type(v.disabled)=="function") and v.disabled() or v.disabled
-	});
+	local menu = {
+		--{ label = SETTINGS, title = true },
+		--{ separator = true },
+		{ label = "DataBroker", title=true }, --childs = {
+			{
+				label = L["Show minimap button"], tooltip = {L["Minimap"],(L["Show/Hide %s's minimap button"]):format(addon)},
+				checked = function() return FollowerLocationInfoDB.Minimap.enabled; end,
+				func  = function() FollowerLocationInfoDB.Minimap.enabled = not FollowerLocationInfoDB.Minimap.enabled; if (not FollowerLocationInfoDB.Minimap.enabled) then lDBI:Hide(addon); else lDBI:Show(addon); end end
+			},
+			{
+				label = L["Show coordinations on broker"], --tooltip={L[""],L[""]},
+				dbType="bool", keyName="BrokerTitle_Coords",
+				disabled = true
+			},
+			{
+				label = L["Show follower count on broker"], --tooltip={L[""],L[""]},
+				dbType="bool", keyName="BrokerTitle_NumFollowers",
+				disabled = true
+			},
+		--}},
+		{ separator = true },
+		{ label = "Follower list", title=true }, --childs = {
+			{
+				label = L["Show FollowerID"], --tooltip={L[""],L[""]},
+				dbType="bool", keyName="ShowFollowerID",
+				event = function() FollowerLocationInfoFrame.List.showFollowerID:SetChecked(FollowerLocationInfoDB.ShowFollowerID); List_Update(); end
+			},
+			{
+				label = L["Show collected followers"], --tooltip = {L[""],L[""]},
+				dbType="bool", keyName="ShowCollectedFollower",
+				event = function() List_Update(); end,
+				disabled = true
+			},
+		--}},
+		{ separator = true },
+		{ label = "Misc.", title=true },--childs = {
+			{
+				label = L["Show coordination frame"], --tooltip = {L[""],L[""]},
+				dbType="bool", keyName="ShowCoordsFrame",
+				--event  = function() end,
+				disabled = true
+			},
+		--}}
+	}
+	ns.MenuGenerator.addEntry(menu);
 
 	if (FollowerLocationInfoFrame.ConfigButton==self) then
 		ns.MenuGenerator.ShowMenu(self,nil,nil,{"TOPRIGHT",self,"BOTTOMRIGHT",0,0});
@@ -763,6 +746,7 @@ local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 			ShowCoordsFrame = true,
 			BrokerTitle_Coords = false,
 			BrokerTitle_NumFollowers = true,
+			ShowCollectedFollower = false
 		}) do 
 			if (FollowerLocationInfoDB[i]==nil) then
 				FollowerLocationInfoDB[i] = v;
