@@ -1,23 +1,21 @@
 
--- ID: 463, Name: Daleera Moonfang (A) / Ulna Thresher (H)
+-- ID: 0, Name: ? (A) / ? (H)
 
 local _, ns = ...;
 local L = ns.locale;
 
-ns.addFollower(463,false,{
+ns.addFollower(0,false,{
 	Alliance = {
 		complete=true,
-		zone = 971,
-		modelRace = "NightElfF",
-		{"mission", 91},
+		zone = 0,
 	},
 	Horde = {
 		complete=true,
-		zone = 976,
-		modelRace = "ScourgeF",
-		{"mission", 7},
+		zone = 0,
 	},
 	Neutral = {}
 });
+
+--[=[ TODO :: missing data... ]=]
 
 --local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};

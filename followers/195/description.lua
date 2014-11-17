@@ -4,21 +4,31 @@
 local _, ns = ...;
 local L = ns.locale;
 
-ns.addFollower(195,true,{
-	Alliance = {},
-	Horde = {},
-	Neutral = {
+local desc = {
+	enUS = "Barov is located at a random position in Draenor under a felled tree. With the ability of the sawmill Barov you can free. Then he offers his following.",
+	deDE = "Barov liegt an einer zufälligen Position in Draenor unter einem gefällten Baum. Mit der Fähigkeit des Sägewerks kannst du Barov befreien. Danach bietet er seine Gefolgschaft an.",
+};
+
+ns.addFollower(195,false,{
+	Alliance = {
 		complete=true,
 		zone = 962,
 		modelRace = "HumanM",
-		{"pos", {962}},
+		{"pos", {962, nil, nil, "Random location"}},
 		{"requirements", "Lumber mill"},
 		{"img", "1"},
-		{"desc", {
-			enUS = "Barov is located at a random position in Draenor under a felled tree. With the ability of the sawmill Barov you can free. Then he offers his following.",
-			deDE = "Barov liegt an einer zufälligen Position in Draenor unter einem gefällten Baum. Mit der Fähigkeit des Sägewerks kannst du Barov befreien. Danach bietet er seine Gefolgschaft an.",
-		}}
-	}
+		{"desc", desc}
+	},
+	Horde = {
+		complete=true,
+		zone = 962,
+		modelRace = "ScourgeM",
+		{"pos", {962, nil, nil, "Random location"}},
+		{"requirements", "Lumber mill"},
+		{"img", "1"},
+		{"desc", desc }
+	},
+	Neutral = {}
 });
 
 --local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};

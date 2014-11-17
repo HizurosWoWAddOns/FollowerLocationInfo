@@ -10,7 +10,7 @@ ns.addFollower(194,true,{
 	Neutral = {
 		complete=true,
 		zone = 962,
-		{"pos", {962}},
+		{"pos", {962, nil, nil, "Random location"}},
 		{"requirements", "Lumber mill (Level 3)"},
 		{"desc", {
 			enUS = "In cases of trees being attacked by him. He disappears with little life. This is a few times until he surrenders.",

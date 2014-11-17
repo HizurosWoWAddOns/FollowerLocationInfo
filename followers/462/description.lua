@@ -9,14 +9,14 @@ ns.addFollower(462,false,{
 		complete=true,
 		zone = 1009,
 		modelPosition = {1.5,0,-0.28},
-		{"vendor", {1009, 86391, 49.9, 61.4}},
+		{"vendor", {86391, 1009, 49.9, 61.4}},
 		{"payment", {823,5000}, {"gold", 50000000}},
 	},
 	Horde = {
 		complete=true,
 		zone = 1011,
 		modelPosition = {1.5,0,-0.28},
-		{"vendor", {1011, 86382, 64.6, 61.8}},
+		{"vendor", {86382, 1011, 64.6, 61.8}},
 		{"payment", {823,5000}, {"gold", 50000000}},
 	},
 	Neutral = {}

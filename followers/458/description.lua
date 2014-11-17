@@ -7,18 +7,20 @@ local L = ns.locale;
 ns.addFollower(460,false,{
 	Alliance = {
 		complete=true,
-		zone = 1009,
-		modelRace = "GoblinF",
-		{"vendor", {88482, 1009, 43.2, 77.4}},
-		{"reputation", {1711, 7}},
+		zone = 976,
+		modelRace = "DraeneiF",
+		{"vendor", {85427, 971, "Trading Post"}},
+		{"requirements", "Trading Post 2"},
+		{"reputation", {1710, 7}},
 		{"payment", {"gold", 50000000}},
 	},
 	Horde = {
 		complete=true,
-		zone = 1011,
-		modelRace = "GoblinF",
-		{"vendor", {88493, 1011, 53.8, 60.8}},
-		{"reputation", {1711, 7}},
+		zone = 976,
+		--modelRace = "",
+		{"vendor", {88493, 976, "Trading Post"}},
+		{"requirements", "Trading Post 2"},
+		{"reputation", {1708, 7}},
 		{"payment", {"gold", 50000000}},
 	},
 	Neutral = {}

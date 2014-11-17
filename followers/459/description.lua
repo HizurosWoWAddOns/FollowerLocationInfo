@@ -9,15 +9,15 @@ ns.addFollower(459,false,{
 		complete=true,
 		zone = 1009,
 		modelRace = "DraeneiM",
-		{"vendor", {1009, 85932, 46.6, 76.2}},
+		{"vendor", {85932, 1009, 46.6, 76.2}},
 		{"reputation", {1731, 7}},
 		{"payment", {"gold", 50000000}},
 	},
 	Horde = {
 		complete=true,
 		zone =  1011,
-		modelRace = "OrcM",
-		{"vendor", {1011, 86036, 53.4, 62.6}},
+		modelRace = "OgreM",
+		{"vendor", {86036, 1011, 53.4, 62.6}},
 		{"reputation", {1445, 7}},
 		{"payment", {"gold", 50000000}},
 

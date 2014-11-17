@@ -10,9 +10,8 @@ ns.addFollower(219,true,{
 	Neutral = {
 		complete=-2,
 		zone = 948,
-		modelPosition={1.45,0,-0.37},
-		--model = {race=nil,sex=nil},
-		{"pos", {948, 0, 0}},
+		modelRace = "SaberonM",
+		{"pos", {948, 55.3, 68.5, "Cave on image 1"}, {948, 55, 65.2, "Hidden cave"}},
 		{"img", "1", "2", "3"},
 		--{"desc", {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""}}
 	}

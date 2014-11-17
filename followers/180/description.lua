@@ -17,6 +17,7 @@ ns.addFollower(180,false,{
 	Horde = {
 		complete=-1	,
 		zone = 976,
+		modelRace = "TrollM",
 		{"questrow",
 			{34736, 78487, 976, 45.6, 43.2},
 			{34344, 78487, 976, 45.6, 43.2},

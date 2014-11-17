@@ -19,6 +19,7 @@ ns.addFollower(159,false,{
 	Horde = {
 		complete=-2,
 		zone = 949,
+		modelPosition = {1.5,0,-0.49},
 		{"quest",
 			{35511, 82338, 949, 47.6, 93.2},
 		},

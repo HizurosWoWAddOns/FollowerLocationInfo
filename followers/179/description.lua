@@ -18,6 +18,7 @@ ns.addFollower(179,false,{
 	Horde = {
 		complete=-2,
 		zone = 941,
+		modelRace = "OrcF",
 		{"quest", {34729, 74977, 941, 65, 39.4}}
 	},
 	Neutral = {}
