@@ -32,7 +32,7 @@ local modelPositions={
 --	PandarenF = {2,0,-0.62},
 --	PandarenM = {2,0,-0.62},
 --	 ScourgeF = {2,0,-0.62},
---	 ScourgeM = {2,0,-0.62},
+	 ScourgeM = {1,2,-0.62},
 --	  TaurenF = {2,0,-0.62},
 --	  TaurenM = {2,0,-0.62},
 --	   TrollF = {2,0,-0.62},
@@ -260,10 +260,17 @@ local function Desc_AddInfo(self, count, objType, ...)
 	if (objType=="pos") then
 		local title = L["Location"];
 		for i,v in ipairs(objs) do
-			if (#v>1) then
-				addLine(title, ("%s @ %1.1f, %1.1f%s"):format(GetMapNameByID(v[1]), v[2], v[3], (v[4]) and "|n("..L[v[4]]..")" or ""));
+			local location;
+			if (type(v[1])=="number") then
+				location = GetMapNameByID(v[1]);
+			end
+			if (type(v[2])=="number") and (type(v[3])=="number") then
+				location = ("%s%1.1f, %1.1f"):format((location) and location.." @ " or "",v[2],v[3]);
+			end
+			if (location) and (type(v[4])=="string") then
+				addLine(title, ("%s|n(%s)"):format(location,v[4]));
 			else
-				addLine(title, ("%s"):format(GetMapNameByID(v[1])));
+				addLine(title, location);
 			end
 			title = "";
 		end
@@ -294,8 +301,10 @@ local function Desc_AddInfo(self, count, objType, ...)
 					qZone = GetMapNameByID(v[3]);
 				end
 
-				if (v[4]) and (v[5]) then
+				if (type(v[4])=="number") and (type(v[5])=="number") then
 					qCoord = ("%1.1f, %1.1f"):format(v[4],v[5]);
+				elseif (type(v[4])=="string") then
+					qCoord = L[v[4]];
 				end
 
 				addLine(title, str:format(qTitle, qGiver, qZone, qCoord))
