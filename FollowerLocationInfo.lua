@@ -379,8 +379,9 @@ local function Desc_AddInfo(self, count, objType, ...)
 			if (strlen(str)>0) then str = str .. "|n"; end
 			if v[1] == "gold" then
 				str = str .. GetCoinTextureString(v[2]);
-			elseif (GetCurrencyLink(obj[1])) then
-				str = str .. obj[2] .. " " .. GetCurrencyLink(obj[1]);
+			elseif (GetCurrencyInfo(obj[1])) then
+				local name,_,icon = GetCurrencyInfo(obj[1]);
+				str = ("%s%s  |T%s:0|t (%s)"):format(str,obj[2],icon,name);
 			else
 				str = str .. obj[2] .. " ?";
 			end
