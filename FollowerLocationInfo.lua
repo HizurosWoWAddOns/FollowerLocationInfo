@@ -5,6 +5,8 @@ ns.faction, ns.factionLocale = UnitFactionGroup("player"); L[ns.faction] = ns.fa
 ns.factionID = ((ns.faction=="Alliance") and 1) or ((ns.faction=="Horde") and 2) or 0;
 ns.followers = {};
 ns.followers_zones = {};
+local getMenu;
+local List_Update;
 local followers = {};
 local zoneNames = {};
 local classes={};
@@ -58,10 +60,14 @@ local function dataBrokerInit()
 			--OnEnter       = function(self) end,
 			--OnLeave       = function(self) end,
 			OnClick       = function(self,button)
-				if (FollowerLocationInfoFrame:IsShown()) then
-					FollowerLocationInfoFrame:Hide();
-				else
-					FollowerLocationInfoFrame:Show();
+				if (button=="LeftButton") then
+					if (FollowerLocationInfoFrame:IsShown()) then
+						FollowerLocationInfoFrame:Hide();
+					else
+						FollowerLocationInfoFrame:Show();
+					end
+				elseif (button=="RightButton") then
+					getMenu(self);
 				end
 			end,
 			--OnDoubleClick = function(self) end,
@@ -76,8 +82,6 @@ local function dataBrokerInit()
 		end
 	end
 end
-
-
 
 
 --[=[ Misc ]=]
@@ -216,6 +220,83 @@ end
 
 local function GetUnitInfo(UnitID)
 	return Collector.QueryHyperlinkData("unit:"..UnitID);
+end
+
+
+--[=[[ Configurations ]=]
+function getMenu(self)
+	PlaySound("igMainMenuOptionCheckBoxOn");
+
+	ns.MenuGenerator.InitializeMenu();
+
+	ns.MenuGenerator.addEntry({
+		label = L["Show minimap button"],
+		checked = function() return FollowerLocationInfoDB.Minimap.enabled; end,
+		func  = function()
+			FollowerLocationInfoDB.Minimap.enabled = not FollowerLocationInfoDB.Minimap.enabled;
+			if (not FollowerLocationInfoDB.Minimap.enabled) then
+				lDBI:Hide(addon);
+			else
+				lDBI:Show(addon);
+			end
+		end,
+		tooltip = {L["Minimap"],(L["Show/Hide %s's minimap button"]):format(addon)},
+		--disabled = (type(v.disabled)=="function") and v.disabled() or v.disabled
+	});
+
+	ns.MenuGenerator.addEntry({
+		label = L["Show FollowerID in follower list"],
+		checked = function() return FollowerLocationInfoDB.ShowFollowerID; end,
+		func  = function()
+			FollowerLocationInfoDB.ShowFollowerID = not FollowerLocationInfoDB.ShowFollowerID;
+			FollowerLocationInfoFrame.List.showFollowerID:SetChecked(FollowerLocationInfoDB.ShowFollowerID);
+			List_Update();
+		end,
+		--tooltip = {L["Minimap"],(L["Show/Hide %s's minimap button"]):format(addon)},
+		--disabled = (type(v.disabled)=="function") and v.disabled() or v.disabled
+	});
+
+	ns.MenuGenerator.addEntry({
+		label = L["Show coordination frame"],
+		checked = function() return FollowerLocationInfoDB.ShowCoordsFrame; end,
+		func  = function()
+			FollowerLocationInfoDB.ShowCoordsFrame = not FollowerLocationInfoDB.ShowCoordsFrame;
+			FollowerLocationInfoFrame.List.showFollowerID:SetChecked(FollowerLocationInfoDB.ShowCoordsFrame);
+			List_Update();
+		end,
+		--tooltip = {L["Minimap"],(L["Show/Hide %s's minimap button"]):format(addon)},
+		disabled = true --(type(v.disabled)=="function") and v.disabled() or v.disabled
+	});
+
+	ns.MenuGenerator.addEntry({
+		label = L["Show coordinations on broker"],
+		checked = function() return FollowerLocationInfoDB.BrokerTitle_Coords; end,
+		func  = function()
+			FollowerLocationInfoDB.BrokerTitle_Coords = not FollowerLocationInfoDB.BrokerTitle_Coords;
+			FollowerLocationInfoFrame.List.showFollowerID:SetChecked(FollowerLocationInfoDB.BrokerTitle_Coords);
+			List_Update();
+		end,
+		--tooltip = {L["Minimap"],(L["Show/Hide %s's minimap button"]):format(addon)},
+		disabled = true --(type(v.disabled)=="function") and v.disabled() or v.disabled
+	});
+
+	ns.MenuGenerator.addEntry({
+		label = L["Show follower count on broker"],
+		checked = function() return FollowerLocationInfoDB.BrokerTitle_NumFollowers; end,
+		func  = function()
+			FollowerLocationInfoDB.BrokerTitle_NumFollowers = not FollowerLocationInfoDB.BrokerTitle_NumFollowers;
+			FollowerLocationInfoFrame.List.showFollowerID:SetChecked(FollowerLocationInfoDB.BrokerTitle_NumFollowers);
+			List_Update();
+		end,
+		--tooltip = {L["Minimap"],(L["Show/Hide %s's minimap button"]):format(addon)},
+		disabled = true --(type(v.disabled)=="function") and v.disabled() or v.disabled
+	});
+
+	if (FollowerLocationInfoFrame.ConfigButton==self) then
+		ns.MenuGenerator.ShowMenu(self,nil,nil,{"TOPRIGHT",self,"BOTTOMRIGHT",0,0});
+	else
+		ns.MenuGenerator.ShowMenu(self,nil,nil);
+	end
 end
 
 
@@ -529,7 +610,6 @@ end
 
 --[=[ FLI.List ]=]
 local ListButtonOffsetX, ListButtonOffsetY = 0,1;
-local List_Update;
 local ListEntrySelected = false;
 local ListEntries = {};
 
@@ -698,7 +778,6 @@ local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 	elseif (event=="GARRISON_FOLLOWER_LIST_UPDATE") or (event=="GARRISON_FOLLOWER_REMOVED") then
 		List_Update();
 	end
-
 end
 local function FollowerLocationInfoFrame_OnShow(self)
 	DescSelected=false;
@@ -736,6 +815,9 @@ function FollowerLocationInfoFrame_OnLoad(self)
 	self.Desc:SetScript("OnScrollRangeChanged",Desc_OnScroll)
 	self.Desc:SetScript("OnVerticalScroll",Desc_OnVScroll)
 	self.Desc:SetScript("OnMouseWheel",Desc_OnMouseWheel)
+
+	-- FLI.ConfigButton
+	self.ConfigButton:SetScript("OnClick",getMenu);
 
 	-- FLI
 	self:SetFrameLevel(10);

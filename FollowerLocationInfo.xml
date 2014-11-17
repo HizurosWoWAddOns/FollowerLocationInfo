@@ -5,6 +5,7 @@
 	<Include file="locale\load.xml" />
 	<Script  file="db_factions.lua" />
 	<Script  file="db_npcs.lua" />
+	<Script  file="MenuGenerator.lua" />
 	<Script  file="FollowerLocationInfo.lua" />
 	<Include file="followers\load.xml" />
 
@@ -196,7 +197,16 @@
 				</Anchors>
 			</Button>
 
-			<!-- config button ? -->
+			<Button parentKey="ConfigButton">
+				<Size x="16" y="16"/>
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.CloseButton" relativePoint="LEFT" x="-2" />
+				</Anchors>
+				<NormalTexture file="Interface\Scenarios\ScenarioIcon-Interact" />
+				<PushedTexture file="Interface\Scenarios\ScenarioIcon-Interact" alpha="0.5" />
+				<HighlightTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
+				<DisabledTexture file="Interface\Addons\GuildReport\media\ScenarioIcon-Interact-Disabled" alpha="0.7"/>
+			</Button>
 
 			<PlayerModel parentKey="Model" inherits="MouseDisabledModelTemplate">
 				<Size x="230" y="0" />
