@@ -691,8 +691,14 @@ local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 		self.List.showFollowerID:SetChecked(FollowerLocationInfoDB.ShowFollowerID);
 		dataBrokerInit();
 		classes = _G.CUSTOM_CLASS_COLORS or _G.RAID_CLASS_COLORS;
+		self:RegisterEvent("GARRISON_FOLLOWER_LIST_UPDATE");
+		self:RegisterEvent("GARRISON_FOLLOWER_REMOVED");
+		--self:RegisterEvent("GARRISON_FOLLOWER_XP_CHANGED");
 	elseif (event=="PLAYER_ENTERING_WORLD") then
+	elseif (event=="GARRISON_FOLLOWER_LIST_UPDATE") or (event=="GARRISON_FOLLOWER_REMOVED") then
+		List_Update();
 	end
+
 end
 local function FollowerLocationInfoFrame_OnShow(self)
 	DescSelected=false;
