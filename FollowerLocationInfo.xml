@@ -130,6 +130,45 @@
 		</Layers>
 	</Frame>
 
+	<Frame name="FollowerLocationInfoFilterTemplate" virtual="true">
+		<Size x="0" y="16" />
+		<Frames>
+			<Button parentKey="Button">
+				<Size x="22" y="22"/>
+				<Anchors>
+					<Anchor point="LEFT" x="50" />
+				</Anchors>
+				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
+				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled"/>
+				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
+			</Button>
+			<Button parentKey="Remove" hidden="true">
+				<Size x="32" y="32"/>
+				<Anchors> <Anchor point="RIGHT" x="5" /> </Anchors>
+				<HitRectInsets left="9" right="7" top="-7" bottom="10"/>
+				<NormalTexture file="Interface\Buttons\CancelButton-Up"/>
+				<PushedTexture file="Interface\Buttons\CancelButton-Down"/>
+				<HighlightTexture file="Interface\Buttons\CancelButton-Highlight" alphaMode="ADD"/>
+			</Button>
+		</Frames>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Title" inherits="GameFontNormalSmall">
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.Button" relativePoint="LEFT" x="-1" />
+					</Anchors>
+				</FontString>
+				<FontString parentKey="Text" inherits="GameFontHighlightSmall" justifyH="LEFT">
+					<Size x="145" y="0" />
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.Button" relativePoint="RIGHT" x="1" />
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Frame>
+
 	<Frame name="FollowerLocationInfoFrame" parent="UIParent" enableMouse="true" toplevel="true" hidden="true">
 		<Size x="538" y="538"/>
 		<Anchors>
@@ -384,6 +423,20 @@
 					</OnLoad>
 				</Scripts>
 			</EditBox>
+
+			<Frame parentKey="ClassFilter" inherits="FollowerLocationInfoFilterTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.Search" relativePoint="BOTTOMLEFT" y="-4" />
+					<Anchor point="TOPRIGHT" relativeKey="$parent.Search" relativePoint="BOTTOMRIGHT" y="-4" />
+				</Anchors>
+			</Frame>
+
+			<Frame parentKey="AbilityFilter" inherits="FollowerLocationInfoFilterTemplate" hidden="false">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.ClassFilter" relativePoint="BOTTOMLEFT" y="-4" />
+					<Anchor point="TOPRIGHT" relativeKey="$parent.ClassFilter" relativePoint="BOTTOMRIGHT" y="-4" />
+				</Anchors>
+			</Frame>
 
 			<ScrollFrame name="$parentList" parentKey="List" inherits="HybridScrollFrameTemplate">
 				<Anchors>

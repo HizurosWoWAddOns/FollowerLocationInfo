@@ -6,10 +6,11 @@ ns.factionID = ((ns.faction=="Alliance") and 1) or ((ns.faction=="Horde") and 2)
 ns.followers = {};
 FollowerLocationInfo_Toggle, FollowerLocationInfo_ToggleCollected, FollowerLocationInfo_ToggleIDs, FollowerLocationInfo_ResetConfig=nil,nil,nil,nil;
 local getMenu, List_Update;
-local followers, zoneNames, classes, collectGroups = {},{},{},{};
+local followers, zoneNames, classes, collectGroups, classNames1, classNames2, abilityNames = {},{},{},{},{},{},{};
 local numKnownFollowers, numCollectedFollowers = 0,0;
 local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButtons.ITEM_QUALITY3_DESC,_G.UnitPopupButtons.ITEM_QUALITY4_DESC};
 local doRefresh = false;
+local ClassFilterLabel, AbilityFilterLabel = "Classes & Class speccs", "Abilities & Traits";
 local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,971,949,946,948,950,941,978,1009} or {962,941,976,949,946,948,950,947,978,1011};
 for i,v in ipairs(factionZoneOrder) do zoneNames[v] = GetMapNameByID(v); end
 local modelPositions={
@@ -607,15 +608,112 @@ local ListButtonOffsetX, ListButtonOffsetY = 0,1;
 local ListEntrySelected = false;
 local ListEntries = {};
 local SearchStr = "";
+local ClassFilter = "";
+local AbilityFilter = "";
 
-function List_Search(self,bool)
+local function List_Search(self,bool)
 	SearchBoxTemplate_OnTextChanged(self);
 	SearchStr = (bool) and tostring(self:GetText()) or "";
 	List_Update();
 end
 
+local function List_ClassFilterClear(self)
+	self:GetParent().Text:SetText(L[ClassFilterLabel]);
+	ClassFilter = "";
+	List_Update();
+	self:Hide();
+end
+
+local function List_AbilityFilterClear(self)
+	self:GetParent().Text:SetText(L[AbilityFilterLabel]);
+	AbilityFilter = "";
+	List_Update();
+	self:Hide();
+end
+
+local function List_ClassFilter(self)
+	PlaySound("igMainMenuOptionCheckBoxOn");
+
+	ns.MenuGenerator.InitializeMenu();
+
+	local menu = {
+		{ label = "Choose", title = true },
+		{ separator = true },
+		{ label = "Classes", childs={}},
+		{ label = "Class speccs", childs={}},
+	};
+
+	for i,v in pairsByKeys(classNames2) do
+		tinsert(menu[3].childs, {
+			label = v[1],
+			colorCode="|c"..classes[v[2]:upper()].colorStr,
+			func=function()
+				ClassFilter = i;
+				local f = FollowerLocationInfoFrame.ClassFilter; f.Text:SetText(v[1]);
+				f.Remove:Show();
+				List_Update();
+			end
+		});
+	end
+
+	for i,v in pairsByKeys(classNames1) do
+		tinsert(menu[4].childs,{
+			label = v[1],
+			colorCode="|c"..classes[v[2]:upper()].colorStr,
+			func=function()
+				ClassFilter = v[1]:lower();
+				local f = FollowerLocationInfoFrame.ClassFilter;
+				f.Text:SetText(v[1]);
+				f.Remove:Show();
+				List_Update();
+			end
+		});
+	end
+
+	ns.MenuGenerator.addEntry(menu);
+
+	if (FollowerLocationInfoFrame.ConfigButton==self) then
+		ns.MenuGenerator.ShowMenu(self,nil,nil,{"TOPRIGHT",self,"BOTTOMRIGHT",0,0});
+	else
+		ns.MenuGenerator.ShowMenu(self,nil,nil);
+	end
+end
+
+local function List_AbilityFilter(self)
+	PlaySound("igMainMenuOptionCheckBoxOn");
+
+	ns.MenuGenerator.InitializeMenu();
+
+	local menu = {
+		{ label = "Choose", title = true },
+		{ separator = true },
+		{ label = "Traits", childs={} },
+		{ label = "Abilities", childs={} },
+	};
+
+	for i,v in pairsByKeys(abilityNames) do
+		tinsert(menu[ (v[2]) and 3 or 4].childs, {
+			label = v[1],
+			func=function()
+				AbilityFilter = v[1];
+				local f = FollowerLocationInfoFrame.AbilityFilter; f.Text:SetText(v[1]);
+				f.Remove:Show();
+				List_Update();
+			end
+		});
+	end
+
+	ns.MenuGenerator.addEntry(menu);
+
+	if (FollowerLocationInfoFrame.ConfigButton==self) then
+		ns.MenuGenerator.ShowMenu(self,nil,nil,{"TOPRIGHT",self,"BOTTOMRIGHT",0,0});
+	else
+		ns.MenuGenerator.ShowMenu(self,nil,nil);
+	end
+end
+
 local function ListEntries_Update()
-	local zones2follower,tmp,collected,ignore,_ = {[0]={}},{};
+	local zones2follower,tmp,collected,ignore,_ = {},{};
 	wipe(ListEntries);
 
 	for id,v in pairsByKeys(followers) do -- filter here!!
@@ -631,10 +729,23 @@ local function ListEntries_Update()
 		end
 
 		-- filter 2: Select class filter
-		--[=[ todo: impletement ]=]
+		local _,class=strsplit("-",v.info.classAtlas:lower());
+		if (ClassFilter~="") and not ((v.info.className:lower()==ClassFilter) or (class==ClassFilter)) then
+			ignore=true;
+		end
 
 		-- filter 3: Select traint filter
-		--[=[ todo: impletement ]=]
+		if (AbilityFilter~="") then
+			local dontIgnore=false;
+			for I,V in ipairs(v.abilities) do
+				if (V.name==AbilityFilter) then
+					dontIgnore=true;
+				end
+			end
+			if (not dontIgnore) then
+				ignore = true;
+			end
+		end
 
 		-- filter 4: Searchbox filter
 		if (SearchStr~="") and (not v.info.name:lower():find(SearchStr:lower())) then
@@ -649,6 +760,9 @@ local function ListEntries_Update()
 				end
 				tinsert(zones2follower[v.data.zone],id);
 			else
+				if (zones2follower[0]==nil) then
+					zones2follower[0]={};
+				end
 				tinsert(zones2follower[0],id);
 			end
 		end
@@ -665,11 +779,13 @@ local function ListEntries_Update()
 		end
 	end
 
-	-- header element
-	tinsert(ListEntries,{ZoneName=L["No description found for..."]});
-	--
-	for i2,v2 in ipairs(zones2follower[0]) do
-		tinsert(ListEntries,tmp[v2]);
+	if (factionZoneOrder[0]) and (factionZoneOrder[0]>0) then
+		-- header element
+		tinsert(ListEntries,{ZoneName=L["No description found for..."]});
+		--
+		for i2,v2 in ipairs(zones2follower[0]) do
+			tinsert(ListEntries,tmp[v2]);
+		end
 	end
 end
 
@@ -851,7 +967,17 @@ local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 					collectGroups[ns.followers[v.followerID].collectGroup] = true;
 				end
 			end
-			followers[v.followerID] = {info=v,data=ns.followers[v.followerID],collected=collected};
+			--
+			local _, class=strsplit("-",v.classAtlas:lower());
+			classNames1[v.className:lower()] = {v.className,class};
+			classNames2[class] = {_G.LOCALIZED_CLASS_NAMES_MALE[class:upper()],class};
+			--
+			local Abs = C_Garrison.GetFollowerAbilities(v.followerID);
+			for i,v in ipairs(Abs) do
+				abilityNames[v.name] = {v.name,v.isTrait};
+			end
+			--
+			followers[v.followerID] = {info=v,data=ns.followers[v.followerID],collected=collected,abilities=Abs};
 		end
 		List_Update();
 	end
@@ -895,8 +1021,16 @@ function FollowerLocationInfoFrame_OnLoad(self)
 	self:RegisterEvent("GARRISON_FOLLOWER_REMOVED");
 	self:RegisterEvent("GARRISON_FOLLOWER_XP_CHANGED");
 
-	-- FLI.Search
+	-- FLI -- FilterElements
 	self.Search:SetScript("OnTextChanged", List_Search);
+	self.ClassFilter.Text:SetText(L[ClassFilterLabel]);
+	self.ClassFilter.Title:SetText("Filter 1");
+	self.ClassFilter.Button:SetScript("OnClick", List_ClassFilter);
+	self.ClassFilter.Remove:SetScript("OnClick", List_ClassFilterClear);
+	self.AbilityFilter.Text:SetText(L[AbilityFilterLabel]);
+	self.AbilityFilter.Title:SetText("Filter 2");
+	self.AbilityFilter.Button:SetScript("OnClick", List_AbilityFilter);
+	self.AbilityFilter.Remove:SetScript("OnClick", List_AbilityFilterClear);
 
 	-- FLI.ListBG / FLI.ListOptionBG
 	self.ListBG:SetFrameLevel(self:GetFrameLevel()-2);

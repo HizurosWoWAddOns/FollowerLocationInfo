@@ -119,13 +119,9 @@ self.addEntry = function(D,P)
 
 		entry.text = D.label or "";
 
-		--[[
-		if (D.colorName) then
-			entry.colorCode = "|c"..ns.LC.color(D.colorName);
-		elseif (D.colorCode) then
+		if (D.colorCode) then
 			entry.colorCode = entry.colorCode;
 		end
-		]]
 
 		if (D.tooltip) and (type(D.tooltip)=="table") then
 			--entry.tooltipTitle = ns.LC.color("dkyellow",D.tooltip[1]);
