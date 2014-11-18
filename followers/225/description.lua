@@ -1,17 +1,23 @@
 
--- ID: 0, Name: ? (A) / ? (H)
+-- ID: 225, Name: ? (A) / ? (H)
 
 local _, ns = ...;
 local L = ns.locale;
 
-ns.addFollower(0,false,{
+ns.addFollower(225,false,{
 	Alliance = {
 		complete=true,
 		zone = 0,
+		--level = ,
+		--quality = ,
+		--modelRace = ,
 	},
 	Horde = {
 		complete=true,
 		zone = 0,
+		--level = ,
+		--quality = ,
+		--modelRace = ,
 	},
 	Neutral = {}
 });

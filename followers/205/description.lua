@@ -8,10 +8,16 @@ ns.addFollower(205,true,{
 	Alliance = {
 		complete=-2,
 		zone=0,
+		--level = ,
+		--quality = ,
+		--modelRace = ,
 	},
 	Horde = {
 		complete=-2,
 		zone=0,
+		--level = ,
+		--quality = ,
+		--modelRace = ,
 	},
 	Neutral = {}
 });

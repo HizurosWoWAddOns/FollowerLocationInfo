@@ -1,6 +1,6 @@
 ## Interface: 60000
 ## Title: Follower Location Info
-## Version: 0.2-beta6
+## Version: 0.4-beta1
 ## Author: Hizuro @ Der Mithrilorden EU
 ## SavedVariables: FollowerLocationInfoDB
 

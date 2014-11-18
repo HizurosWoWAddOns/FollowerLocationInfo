@@ -13,6 +13,8 @@ ns.addFollower(195,false,{
 	Alliance = {
 		complete=true,
 		zone = 962,
+		level = 95,
+		quality = 2,
 		modelRace = "HumanM",
 		{"pos", {962, nil, nil, "Random location"}},
 		{"requirements", "Lumber mill"},
@@ -22,6 +24,8 @@ ns.addFollower(195,false,{
 	Horde = {
 		complete=true,
 		zone = 962,
+		level = 95,
+		quality = 2,
 		modelRace = "ScourgeM",
 		{"pos", {962, nil, nil, "Random location"}},
 		{"requirements", "Lumber mill"},

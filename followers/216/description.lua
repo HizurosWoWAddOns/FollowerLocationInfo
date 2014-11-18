@@ -8,6 +8,8 @@ ns.addFollower(216,false,{
 	Alliance = {
 		complete=-2,
 		zone = 1009,
+		--level = ,
+		--quality = ,
 		modelRace = "DwarfM",
 		{"questrow",
 			{36624, 00000, 971, nil, nil},

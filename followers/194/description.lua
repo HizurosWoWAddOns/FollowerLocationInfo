@@ -10,6 +10,8 @@ ns.addFollower(194,true,{
 	Neutral = {
 		complete=true,
 		zone = 962,
+		level = 100,
+		quality = 3,
 		{"pos", {962, nil, nil, "Random location"}},
 		{"requirements", "Lumber mill (Level 3)"},
 		{"desc", {

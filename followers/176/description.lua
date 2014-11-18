@@ -8,6 +8,8 @@ ns.addFollower(176,false,{
 	Alliance = {
 		complete=-1,
 		zone = 949,
+		level = 93,
+		quality = 2,
 		modelRace = "DraeneiM",
 		{"questrow",
 			{34704, 81076, 949, 53.0, 59.6},
@@ -20,6 +22,9 @@ ns.addFollower(176,false,{
 	Horde = {
 		complete=-2,
 		zone = 949,
+		level = 93,
+		quality = 2,
+		modelRace = "OrcM",
 	},
 	Neutral = {
 	}

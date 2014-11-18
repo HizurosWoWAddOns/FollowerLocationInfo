@@ -10,7 +10,9 @@ ns.addFollower(193,true,{
 	Neutral = {
 		complete=true,
 		zone = 949,
-		modelRace = "OrgeM",
+		level = 93,
+		quality = 3,
+		modelRace = "Orge",
 		{"pos", {949, 44.9, 86.6}},
 		{"desc", {
 			enUS = "Help him to defend himself. Then he is friendly and can be recruited.",

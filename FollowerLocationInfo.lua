@@ -4,36 +4,34 @@ local L = ns.locale;
 ns.faction, ns.factionLocale = UnitFactionGroup("player"); L[ns.faction] = ns.factionLocale;
 ns.factionID = ((ns.faction=="Alliance") and 1) or ((ns.faction=="Horde") and 2) or 0;
 ns.followers = {};
-ns.followers_zones = {};
-local getMenu;
-local List_Update;
-local followers = {};
-local zoneNames = {};
-local classes={};
+FollowerLocationInfo_Toggle, FollowerLocationInfo_ToggleCollected, FollowerLocationInfo_ToggleIDs, FollowerLocationInfo_ResetConfig=nil,nil,nil,nil;
+local getMenu, List_Update;
+local followers, zoneNames, classes, collectGroups = {},{},{},{};
+local numKnownFollowers, numCollectedFollowers = 0,0;
 local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButtons.ITEM_QUALITY3_DESC,_G.UnitPopupButtons.ITEM_QUALITY4_DESC};
 local doRefresh = false;
-local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,971,949,946,948,950,941,978,1009} or {962,941,976,949,946,948,950,947.978,1011};
+local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,971,949,946,948,950,941,978,1009} or {962,941,976,949,946,948,950,947,978,1011};
 for i,v in ipairs(factionZoneOrder) do zoneNames[v] = GetMapNameByID(v); end
 local modelPositions={
---	BloodElfF = {2,0,-0.62},
+	BloodElfF = {1.5,0,-0.51},
 --	BloodElfM = {2,0,-0.62},
 	   DwarfF = {0.9,0,-0.27},
 	   DwarfM = {1.5,0,-0.45},
 	 DraeneiF = {1.9,0,-0.7},
 	 DraeneiM = {1.5,0,-0.62},
---	   GnomeF = {2,0,-0.62},
---	   GnomeM = {2,0,-0.62},
+	   GnomeF = {0.5,0,-0.18},
+	   GnomeM = {0.5,0,-0.18},
 	  GoblinF = {0.7,0,-0.24},
 	  GoblinM = {0.7,0,-0.24},
 	   HumanF = {1.2,0,-0.52},
 	   HumanM = {1.5,0,-0.59},
 --	NightElfF = {2,0,-0.62},
 --	NightElfM = {2,0,-0.62},
-		 OrcF = {1.25,0,-0.5},
-		 OrcM = {1.25,0,-0.5},
+	     OrcF = {1.25,0,-0.5},
+	     OrcM = {1.25,0,-0.5},
 --	PandarenF = {2,0,-0.62},
 --	PandarenM = {2,0,-0.62},
-	 ScourgeF = {1.7,0,-0.45},
+	 ScourgeF = {1.7,0,-0.56},
 	 ScourgeM = {1,0,-0.5},
 	  TaurenF = {1.5,0,-0.39},
 	  TaurenM = {1.5,0,-0.39},
@@ -41,9 +39,13 @@ local modelPositions={
 	   TrollM = {1.5,0,-0.42},
 --	  WorgenF = {2,0,-0.62},
 --	  WorgenM = {2,0,-0.62},
+	-- -----------------------------
 	     Mech = {2,0,-2.5},
-	    OrgeM = {1.4,0,-0.67}, -- {1,0,-0.7} ?
-	 SaberonM = {1.45,0,-0.37},
+	     Orge = {1.4,0,-0.67},
+	  Zyclope = {8,0,-3},
+	    Gnoll = {0.5,0,-0.15},
+	  Saberon = {1.45,0,-0.37},
+	  Arakkoa = {1.5,0,-0.28},
 };
 
 
@@ -61,11 +63,7 @@ local function dataBrokerInit()
 			--OnLeave       = function(self) end,
 			OnClick       = function(self,button)
 				if (button=="LeftButton") then
-					if (FollowerLocationInfoFrame:IsShown()) then
-						FollowerLocationInfoFrame:Hide();
-					else
-						FollowerLocationInfoFrame:Show();
-					end
+					FollowerLocationInfo_Toggle();
 				elseif (button=="RightButton") then
 					getMenu(self);
 				end
@@ -85,6 +83,24 @@ end
 
 
 --[=[ Misc ]=]
+local pairsByKeys = function(t, f)
+	local a = {}
+	for n in pairs(t) do
+		table.insert(a, n)
+	end
+	table.sort(a, f)
+	local i = 0      -- iterator variable
+	local iter = function ()   -- iterator function
+		i = i + 1
+		if a[i] == nil then
+			return nil
+		else
+			return a[i], t[a[i]]
+		end
+	end
+	return iter
+end
+
 local function IsQuestCompleted(QuestID)
 	if (not questsCompleted) or ((questsCompleted) and ((time() - questsCompleted.last)<300)) then
 		questsCompleted = {ids=GetQuestsCompleted(), last=time()};
@@ -92,7 +108,7 @@ local function IsQuestCompleted(QuestID)
 	return (questsCompleted.ids[QuestID]==true);
 end
 
-local IsMissing = {npcs={},coords={},zones={},quests={},completed={},descs={},modelRaces={},x=0};
+local IsMissing = {npcs={},coords={},zones={},quests={},completed={},descs={},modelRaces={}};
 IsMissing.chk=function(id,data)
 	--if (data.ignore==true) or (data.complete==true) then return; end
 
@@ -116,7 +132,6 @@ IsMissing.chk=function(id,data)
 				end
 			end
 		elseif (v[1]=="vendor") then
-			IsMissing.x = IsMissing.x + 1;
 			for I,V in ipairs(v) do
 				if (I>1) and (type(V[1])=="number") and (V[1]~=0) and (ns.npcs[V[1]]==nil) then
 					tinsert(IsMissing.npcs,V[1]);
@@ -135,22 +150,15 @@ IsMissing.chk=function(id,data)
 	end
 end
 
-function FollowerLocationInfo_PrintMissingData()
-	local tmp;
-	for i,v in pairs(IsMissing) do
-		if (type(v)=="table") and (#v>0) then
-			table.sort(v);
-			print("|cffff4444"..addon.."|r","|cffffff00Missing "..i.." data:|r", "|cff4488ff"..table.concat(v,"|r, |cff4488ff").."|r");
-		end
-	end
-	print(IsMissing.x);
-end
-
 ns.addFollower = function(id,neutral,data)
 	local Data = data[(neutral) and "Neutral" or ns.faction];
 	if (#Data>0) and (Data.zone~=0) and (not Data.ignore) then
 		ns.followers[id] = Data;
-		ns.followers_zones[id] = Data.zone;
+		if (data.collectGroup) then
+			collectGroups[data.collectGroup]=false;
+			ns.followers[id].collectGroup = data.collectGroup;
+		end
+			numKnownFollowers = numKnownFollowers + 1;
 	end
 	IsMissing.chk(id,Data);
 end
@@ -234,7 +242,7 @@ function getMenu(self)
 		--{ separator = true },
 		{ label = "DataBroker", title=true }, --childs = {
 			{
-				label = L["Show minimap button"], tooltip = {L["Minimap"],(L["Show/Hide %s's minimap button"]):format(addon)},
+				label = L["Show minimap button"], tooltip = {L["Minimap"],L["Show/Hide minimap button"]},
 				checked = function() return FollowerLocationInfoDB.Minimap.enabled; end,
 				func  = function() FollowerLocationInfoDB.Minimap.enabled = not FollowerLocationInfoDB.Minimap.enabled; if (not FollowerLocationInfoDB.Minimap.enabled) then lDBI:Hide(addon); else lDBI:Show(addon); end end
 			},
@@ -252,15 +260,14 @@ function getMenu(self)
 		{ separator = true },
 		{ label = "Follower list", title=true }, --childs = {
 			{
-				label = L["Show FollowerID"], --tooltip={L[""],L[""]},
+				label = L["Show FollowerID"], tooltip={L["Follower ID"],L["Show/Hide followerID's in follower list"]},
 				dbType="bool", keyName="ShowFollowerID",
-				event = function() FollowerLocationInfoFrame.List.showFollowerID:SetChecked(FollowerLocationInfoDB.ShowFollowerID); List_Update(); end
+				event = function() List_Update(); end
 			},
 			{
-				label = L["Show collected followers"], --tooltip = {L[""],L[""]},
+				label = L["Show collected followers"], tooltip = {L["Collected followers"],L["Show/Hide collected and not collectable followers in follower list"]},
 				dbType="bool", keyName="ShowCollectedFollower",
 				event = function() List_Update(); end,
-				disabled = true
 			},
 		--}},
 		{ separator = true },
@@ -281,7 +288,6 @@ function getMenu(self)
 		ns.MenuGenerator.ShowMenu(self,nil,nil);
 	end
 end
-
 
 
 --[=[ FLI.Desc ]=]
@@ -393,20 +399,20 @@ local function Desc_AddInfo(self, count, objType, ...)
 		if (not desc) and ((lang=="esES") or (lang=="esMX")) then
 			desc = ( (obj.esES) and obj.esES ) or ( (obj.esMX) and obj.esMX ) or false;
 		end
-
 		if (not desc) and ((lang=="zhCN") or (lang=="zhTW")) then
 			desc = ( (obj.zhCN) and obj.zhCN ) or ( (obj.zhTW) and obj.zhTW ) or false;
 		end
-
 		if (not desc) and ((lang=="enUS") or (lang=="enGB")) then
 			desc = ( (obj.enUS) and obj.enUS ) or ( (obj.enGB) and obj.enGB ) or false;
 		end
-
 		if (not desc) and (obj.enUS) then -- fallback if possible?
 			desc = obj.enUS;
 		end
 
 		if (desc) then
+			if (type(desc)=="table") then
+				desc = table.concat(desc,"|n");
+			end
 			addLine(L["Description"], desc:format(self.info.name));
 		end
 	elseif (objType=="img") then
@@ -539,9 +545,14 @@ local function Desc_Update()
 	else
 		local count = 0;
 		for i,v in ipairs({
-			{"Usage","Select a follower to see the description..."}
-		--	{"Greetings","Welcome to use this addon. Currently it is still incomplete.
-		--	{"Followers",#C_Garrison.GetFollowers().." added by Blizzard into the game."}
+			{"Usage","Select a follower to see the description..."},
+			--{"Greetings","Welcome to use this addon.|nCurrently it is still incomplete."},
+			{"Followers",
+				#C_Garrison.GetFollowers()..L[" listed in game (depends on your faction)"] .. "|n" ..
+				numKnownFollowers..L[" followers with description"]  .. "|n" ..
+				numCollectedFollowers..L[" collected with this character"]
+			},
+			{"Version",GetAddOnMetadata(addon,"Version")}
 		}) do
 			count = Desc_AddInfo(self, count, "custom", v);
 		end
@@ -596,34 +607,51 @@ local ListButtonOffsetX, ListButtonOffsetY = 0,1;
 local ListEntrySelected = false;
 local ListEntries = {};
 
-local function ListEntries_Update(filter)
-	local zones2follower = {[0]={}};
-	for i,v in ipairs(C_Garrison.GetFollowers()) do
-		if (v.garrFollowerID~=nil) then
-			v.followerID,v.garrFollowerID = tonumber(v.garrFollowerID),v.followerID; -- blizzard's stupid order change...
-		end
-		local id = v.followerID;
-		local data = ns.followers[id];
-		followers[id]={info=v,data=data};
+local function ListEntries_Update()
+	local zones2follower,tmp,collected,ignore,_ = {[0]={}},{};
+	wipe(ListEntries);
 
-		-- filter here!!
+	for id,v in pairsByKeys(followers) do -- filter here!!
+		ignore = false;
 
-		if (data) then
-			if (zones2follower[ns.followers_zones[id]]==nil) then
-				zones2follower[ns.followers_zones[id]]={};
+		-- filter 1: ShowCollectedFollower option
+		if (not FollowerLocationInfoDB.ShowCollectedFollower) then
+			if (v.collected==true) then
+				ignore = true;
+			elseif (v.data) and (v.data.collectGroup) and (collectGroups[v.data.collectGroup]) then
+				ignore = true;
 			end
-			tinsert(zones2follower[ns.followers_zones[id]],id);
-		else
-			tinsert(zones2follower[0],id);
+		end
+
+		-- filter 2: Select class filter
+		--[=[ todo: impletement ]=]
+
+		-- filter 3: Select traint filter
+		--[=[ todo: impletement ]=]
+
+		-- filter 4: Searchbox filter
+		--[=[ todo: impletement ]=]
+
+		if (ignore~=true) then
+			tmp[id]=v;
+			if (v.data) and (v.data.zone) and (v.data.zone~=0) then
+				if (zones2follower[v.data.zone]==nil) then
+					zones2follower[v.data.zone]={};
+				end
+				tinsert(zones2follower[v.data.zone],id);
+			else
+				tinsert(zones2follower[0],id);
+			end
 		end
 	end
+
 	for i1,v1 in ipairs(factionZoneOrder) do
 		if (zones2follower[v1]) and (#zones2follower[v1]>0) then
 			-- header element
 			tinsert(ListEntries,{ZoneName=zoneNames[v1]});
 			--
 			for i2,v2 in ipairs(zones2follower[v1]) do
-				tinsert(ListEntries,followers[v2]);
+				tinsert(ListEntries,tmp[v2]);
 			end
 		end
 	end
@@ -632,7 +660,7 @@ local function ListEntries_Update(filter)
 	tinsert(ListEntries,{ZoneName=L["No description found for..."]});
 	--
 	for i2,v2 in ipairs(zones2follower[0]) do
-		tinsert(ListEntries,followers[v2]);
+		tinsert(ListEntries,tmp[v2]);
 	end
 end
 
@@ -657,15 +685,18 @@ local function ListEntry_Setup(self,isHeader)
 		self.Level:Hide();
 		self.ZoneName:Show();
 		self.highlightTex:Hide();
+		self.headerBG:Show();
 	elseif (not isHeader) and (self.IsHeader) then
 		self.IsHeader = false;
+		self.headerBG:Hide();
 		self.Portrait:Show();
 		self.Name:Show();
 		self.Level:Show();
 		self.ZoneName:Hide();
 		self.highlightTex:Show();
 	end
-	self.owned:Hide();
+	self.collected:Hide();
+	self.notCollectable:Hide();
 	self.quality2:Hide();
 	self.quality3:Hide();
 	self.quality4:Hide();
@@ -676,9 +707,8 @@ local function ListEntry_Setup(self,isHeader)
 end
 
 function List_Update()
-	if (#ListEntries==0) then
-		ListEntries_Update();
-	end
+	if (not FollowerLocationInfoFrame:IsShown()) then return; end
+	ListEntries_Update();
 	local scroll = FollowerLocationInfoFrame.List;
 	local button, index, obj;
 	local offset = HybridScrollFrame_GetOffset(scroll);
@@ -705,7 +735,9 @@ function List_Update()
 					button["quality"..obj.info.quality]:Show();
 				end
 				if (obj.info.garrFollowerID) then
-					button.owned:Show();
+					button.collected:Show();
+				elseif (obj.data) and (obj.data.collectGroup) and (collectGroups[obj.data.collectGroup]==true) then
+					button.notCollectable:Show();
 				end
 				button.info = obj.info;
 				if (obj.data) then
@@ -734,6 +766,41 @@ function List_Update()
 end
 
 
+--[=[ public functions ]=]
+function FollowerLocationInfo_Toggle()
+	if (FollowerLocationInfoFrame:IsShown()) then
+		FollowerLocationInfoFrame:Hide();
+	else
+		FollowerLocationInfoFrame:Show();
+	end
+end
+
+function FollowerLocationInfo_ToggleCollected()
+	FollowerLocationInfoDB.ShowCollectedFollower = not FollowerLocationInfoDB.ShowCollectedFollower;
+	List_Update();
+end
+
+function FollowerLocationInfo_ToggleIDs()
+	FollowerLocationInfoDB.ShowFollowerID = not FollowerLocationInfoDB.ShowFollowerID;
+	List_Update();
+end
+
+function FollowerLocationInfo_ResetConfig()
+	wipe(FollowerLocationInfoDB);
+	ReloadUI();
+end
+
+function FollowerLocationInfo_PrintMissingData()
+	local tmp;
+	for i,v in pairs(IsMissing) do
+		if (type(v)=="table") and (#v>0) then
+			table.sort(v);
+			print("|cffff4444FLI|r","|cffffff00"..i.."?|r", "|cff44aaff"..table.concat(v,"|r, |cff44aaff").."|r");
+		end
+	end
+end
+
+
 --[=[ FollowerLocationInfoFrame ]=]
 local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 	if (event=="ADDON_LOADED") and (arg1==addon) then
@@ -752,25 +819,41 @@ local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 				FollowerLocationInfoDB[i] = v;
 			end
 		end
-		self.List.showFollowerID:SetChecked(FollowerLocationInfoDB.ShowFollowerID);
 		dataBrokerInit();
-		classes = _G.CUSTOM_CLASS_COLORS or _G.RAID_CLASS_COLORS;
-		self:RegisterEvent("GARRISON_FOLLOWER_LIST_UPDATE");
-		self:RegisterEvent("GARRISON_FOLLOWER_REMOVED");
-		--self:RegisterEvent("GARRISON_FOLLOWER_XP_CHANGED");
-	elseif (event=="PLAYER_ENTERING_WORLD") then
-	elseif (event=="GARRISON_FOLLOWER_LIST_UPDATE") or (event=="GARRISON_FOLLOWER_REMOVED") then
+		for i,v in pairs(_G.RAID_CLASS_COLORS) do
+			if (_G.CUSTOM_CLASS_COLORS) and (_G.CUSTOM_CLASS_COLORS[i]) and (_G.CUSTOM_CLASS_COLORS[i].colorStr) then
+				classes[i] = _G.CUSTOM_CLASS_COLORS[i];
+			else
+				classes[i] = v;
+			end
+		end
+	elseif (event=="PLAYER_ENTERING_WORLD") or (event=="GARRISON_FOLLOWER_LIST_UPDATE") or (event=="GARRISON_FOLLOWER_REMOVED") or (event=="GARRISON_FOLLOWER_XP_CHANGED") then
+		local tmp,collected = C_Garrison.GetFollowers();
+		numCollectedFollowers = 0;
+		for _,v in ipairs(tmp) do
+			collected = false;
+			if (v.garrFollowerID~=nil) then
+				v.followerID,v.garrFollowerID = tonumber(v.garrFollowerID),v.followerID; -- blizzard's stupid order change...
+				collected = true;
+				numCollectedFollowers = numCollectedFollowers + 1;
+			end
+			if (ns.followers[v.followerID]) then
+				if (ns.followers[v.followerID].collectGroup) and (collected) then
+					collectGroups[ns.followers[v.followerID].collectGroup] = true;
+				end
+			end
+			followers[v.followerID] = {info=v,data=ns.followers[v.followerID],collected=collected};
+		end
 		List_Update();
 	end
 end
+
 local function FollowerLocationInfoFrame_OnShow(self)
 	DescSelected=false;
 	ListEntrySelected=false;
 	List_Update();
 	Desc_Update();
 end
---local function FollowerLocationInfoFrame_OnUpdate(self) end
---local function FollowerLocationInfoFrame_OnHide(self) end
 
 function FollowerLocationInfoFrame_OnLoad(self)
 	-- FLI.List
@@ -783,16 +866,6 @@ function FollowerLocationInfoFrame_OnLoad(self)
 		self.List.buttons[2]:SetPoint("TOPLEFT",self.List.buttons[1],"BOTTOMLEFT",1, (-ListButtonOffsetY) - 1)
 	end
 	self.List.ButtonHeight = self.List.buttons[1]:GetHeight();
-	self.List.showFollowerID.Text:SetText(L["Show FollowerID"]);
-	self.List.showFollowerID:SetScript("OnClick",function(self)
-		if ( self:GetChecked() ) then
-			PlaySound("igMainMenuOptionCheckBoxOn");
-		else
-			PlaySound("igMainMenuOptionCheckBoxOff");
-		end
-		FollowerLocationInfoDB.ShowFollowerID = (self:GetChecked());
-		self:GetParent().update();
-	end);
 
 	-- FLI.Desc
 	self.Desc.Bar:SetScale(0.7);
@@ -809,6 +882,9 @@ function FollowerLocationInfoFrame_OnLoad(self)
 	self:SetScript("OnShow", FollowerLocationInfoFrame_OnShow);
 	self:RegisterEvent("ADDON_LOADED");
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
+	self:RegisterEvent("GARRISON_FOLLOWER_LIST_UPDATE");
+	self:RegisterEvent("GARRISON_FOLLOWER_REMOVED");
+	self:RegisterEvent("GARRISON_FOLLOWER_XP_CHANGED");
 
 	-- FLI.ListBG
 	self.ListBG:SetFrameLevel(self:GetFrameLevel()-3);
@@ -827,3 +903,38 @@ _G.WorldMapFrame:HookScript("OnHide",function(self)
 	f:ClearAllPoints();
 	f:SetPoint("LEFT",UIParent,"LEFT", 300,0);
 end);
+
+
+--[=[ chat command ]=]
+SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
+	local cmd, arg = strsplit(" ", cmd, 2)
+	local _print = function(...)
+		print("|cffff4444FLI|r", "|cff44aaff", ..., "|r");
+	end
+	cmd = cmd:lower()
+
+	if (cmd=="toggle") then
+		FollowerLocationInfo_Toggle();
+	elseif (cmd=="collected") then
+		FollowerLocationInfo_ToggleCollected();
+	elseif (cmd=="ids") then
+		FollowerLocationInfo_ToggleIDs();
+	elseif (cmd=="missing") then
+		FollowerLocationInfo_PrintMissingData();
+	elseif (cmd=="reset") then
+		FollowerLocationInfo_ResetConfig();
+	else
+		_print(L["Commandline options for %s"]:format(addon));
+		_print(L["Usage: /fli <command>"]);
+		_print("      "..L["or /followerlocationinfo <command>"]);
+		_print(L["Commands:"]);
+		_print("  toggle = " .. L["Show/Hide frame."]);
+		_print("  collected = " .. L["Show/Hide collected followers."]);
+		_print("  ids = " .. L["Show/Hide follower ids."]);
+		_print("  reset = " .. L["Reset addon settings."]);
+		_print("  missing = ".. L["Print missing data (follower and npc id's)"]);
+	end
+end
+
+SLASH_FOLLOWERLOCATIONINFO1 = "/fli";
+SLASH_FOLLOWERLOCATIONINFO2 = "/followerlocationinfo";

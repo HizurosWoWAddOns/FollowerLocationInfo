@@ -39,10 +39,60 @@ ns.npcs[85932] = "Vindicator Nuurem";
 ns.npcs[86391] = "Dawn-Seeker Krek";
 ns.npcs[88195] = "Hulda Shadowblade";
 ns.npcs[88482] = "Gazrix Gearlock";
-
--- objects as quest giver
+ns.npcs[76200] = "Prelate Reenu";
+ns.npcs[79978] = "Aeda Brightdawn";
+ns.npcs[79979] = "Defender Illona";
 ns.npcs["o233229"] = "Shadow Council Tome of Curses";
 
+
+if LOCALE_deDE then
+	ns.npcs[74741] = "Romuul";
+	ns.npcs[76204] = "Fiona";
+	ns.npcs[77031] = "Ahm";
+	ns.npcs[79159] = "Lehrling Miall";
+	ns.npcs[79160] = "Meisterschmied Ared";
+	ns.npcs[79457] = "Verteidiger Maraad";
+	ns.npcs[79492] = "Dagg";
+	ns.npcs[79853] = "Genussbot 8000";
+	ns.npcs[79901] = "Torben Zischknall";
+	ns.npcs[79966] = "Verirrter Packesel";
+	ns.npcs[80073] = "Exarch Maladaar";
+	ns.npcs[80078] = "Exarch Akama";
+	ns.npcs[80163] = "Ken Kerbe";
+	ns.npcs[80627] = "Miall";
+	ns.npcs[80632] = "Soldatin der Allianz";
+	ns.npcs[80727] = "Rangari Arepheon";
+	ns.npcs[81772] = "Rangari Kaalya";
+	ns.npcs[85119] = "Glirin";
+	ns.npcs[85932] = "Verteidiger Nuurem";
+	ns.npcs[86391] = "Dämmerungssucher Krek";
+	ns.npcs[88482] = "Gazrix Kolbenfresser";
+	ns.npcs[76200] = "Prälat Reenu";
+	ns.npcs["o233229"] = "Fluchfoliant des Schattenrats";
+end
+
+if LOCALE_esES or LOCALE_esMX then
+	ns.npcs[79160] = "Maestro herrero Ared";
+	ns.npcs[80078] = "Exarca Akama";
+	ns.npcs[80632] = "Soldado de la Alianza";
+end
+
+if LOCALE_frFR then
+	ns.npcs[76204] = "Fiona";
+	ns.npcs[79159] = "Apprentie Miall";
+	ns.npcs[79160] = "Maître forgeron Ared";
+	ns.npcs[79329] = "Miall";
+	ns.npcs[79966] = "Mule de bât perdue";
+	ns.npcs[80078] = "Exarque Akama";
+	ns.npcs[80163] = "Ken Loggin";
+	ns.npcs[80627] = "Miall";
+	ns.npcs[80632] = "Soldat de l’Alliance";
+	ns.npcs[85932] = "Redresseur de torts Nuurem";
+	ns.npcs[86391] = "Traque-aube Krek";
+	ns.npcs[88482] = "Gazrik Verrouage";
+	ns.npcs[76200] = "Prélat Reenu";
+	ns.npcs[79979] = "Défenseur Illona";
+end
 
 if LOCALE_itIT then
 	ns.npcs[73877] = "Jarrod Hamby";
@@ -54,6 +104,7 @@ if LOCALE_itIT then
 	ns.npcs[77031] = "Ahm";
 	ns.npcs[79159] = "Apprendista Miall";
 	ns.npcs[79160] = "Maestro Fabbro Ared";
+	ns.npcs[79322] = "Akaani la Gladiatrice";
 	ns.npcs[79329] = "Miall";
 	ns.npcs[79457] = "Vendicatore Maraad";
 	ns.npcs[79492] = "Dagg";
@@ -74,8 +125,24 @@ if LOCALE_itIT then
 	ns.npcs[81772] = "Guardaselve Kaalya";
 	ns.npcs[85932] = "Vendicatore Nuurem";
 	ns.npcs[86391] = "Cercatore dell\'Alba Krek";
+	ns.npcs[88195] = "Hulda Lamaombra";
 	ns.npcs[88482] = "Gazrix Sbloccaruote";
+	ns.npcs[76200] = "Prelato Reenu";
+	ns.npcs[79978] = "Aeda Albaluce";
+	ns.npcs[79979] = "Difensore Illona";
 	ns.npcs["o233229"] = "Tomo delle Maledizioni del Concilio dell\'Ombra";
+end
+
+if LOCALE_ptBR then
+	ns.npcs[77014] = "Brutus";
+	ns.npcs[77031] = "Ahm";
+	ns.npcs[79160] = "Mestre Ferreiro Ared";
+	ns.npcs[79966] = "Mula de Carga Perdida";
+	ns.npcs[80163] = "Kleber Loureiro";
+	ns.npcs[80628] = "Miall";
+	ns.npcs[80632] = "Soldado da Aliança";
+	ns.npcs[81772] = "Rangari Kaalya";
+	ns.npcs[76200] = "Prelado Reenu";
 end
 
 if LOCALE_ruRU then
@@ -87,13 +154,11 @@ if LOCALE_ruRU then
 	ns.npcs[77031] = "Ахм";
 	ns.npcs[79159] = "Ученица Миалла";
 	ns.npcs[79160] = "Мастер-кузнец Аред";
-	ns.npcs[79329] = "Миалла";
 	ns.npcs[79457] = "Воздаятель Мараад";
 	ns.npcs[79966] = "Потерявшийся вьючный мул";
 	ns.npcs[80073] = "Экзарх Маладаар";
 	ns.npcs[80078] = "Экзарх Акама";
 	ns.npcs[80163] = "Кен Логгин";
-	ns.npcs[80627] = "Миалла";
 	ns.npcs[80632] = "Солдат Альянса";
 	ns.npcs[80672] = "Магистр Серена";
 	ns.npcs[80727] = "Рангари Арефеон";
@@ -103,63 +168,9 @@ if LOCALE_ruRU then
 	ns.npcs[85932] = "Воздаятель Нуурем";
 	ns.npcs[86391] = "Искатель зари Крек";
 	ns.npcs[88482] = "Газрикс Замокс";
+	ns.npcs[76200] = "Прелат Рину";
+	ns.npcs[79978] = "Аеда Ясная Заря";
+	ns.npcs[79979] = "Защитница Иллона";
 	ns.npcs["o233229"] = "Фолиант проклятий Совета Теней";
 end
-
-if LOCALE_deDE then
-	ns.npcs[74741] = "Romuul";
-	ns.npcs[76204] = "Fiona";
-	ns.npcs[77031] = "Ahm";
-	ns.npcs[79159] = "Lehrling Miall";
-	ns.npcs[79160] = "Meisterschmied Ared";
-	ns.npcs[79457] = "Verteidiger Maraad";
-	ns.npcs[79492] = "Dagg";
-	ns.npcs[79853] = "Genussbot 8000";
-	ns.npcs[79901] = "Torben Zischknall";
-	ns.npcs[79966] = "Verirrter Packesel";
-	ns.npcs[80073] = "Exarch Maladaar";
-	ns.npcs[80078] = "Exarch Akama";
-	ns.npcs[80163] = "Ken Kerbe";
-	ns.npcs[80632] = "Soldatin der Allianz";
-	ns.npcs[80727] = "Rangari Arepheon";
-	ns.npcs[81772] = "Rangari Kaalya";
-	ns.npcs[85119] = "Glirin";
-	ns.npcs[85932] = "Verteidiger Nuurem";
-	ns.npcs[86391] = "Dämmerungssucher Krek";
-	ns.npcs[88482] = "Gazrix Kolbenfresser";
-	ns.npcs["o233229"] = "Fluchfoliant des Schattenrats";
-end
-
-if LOCALE_frFR then
-	ns.npcs[76204] = "Fiona";
-	ns.npcs[79159] = "Apprentie Miall";
-	ns.npcs[79160] = "Maître forgeron Ared";
-	ns.npcs[79329] = "Miall";
-	ns.npcs[79966] = "Mule de bât perdue";
-	ns.npcs[80078] = "Exarque Akama";
-	ns.npcs[80163] = "Ken Loggin";
-	ns.npcs[80627] = "Miall";
-	ns.npcs[80628] = "Miall";
-	ns.npcs[80632] = "Soldat de l’Alliance";
-	ns.npcs[85932] = "Redresseur de torts Nuurem";
-	ns.npcs[86391] = "Traque-aube Krek";
-	ns.npcs[88482] = "Gazrik Verrouage";
-end
-
-if LOCALE_ptBR then
-	ns.npcs[77014] = "Brutus";
-	ns.npcs[77031] = "Ahm";
-	ns.npcs[79160] = "Mestre Ferreiro Ared";
-	ns.npcs[80632] = "Soldado da Aliança";
-	ns.npcs[81772] = "Rangari Kaalya";
-end
-
-if LOCALE_esES or LOCALE_esMX then
-	ns.npcs[79160] = "Maestro herrero Ared";
-	ns.npcs[80078] = "Exarca Akama";
-	ns.npcs[80632] = "Soldado de la Alianza";
-end
-
--- if LOCALE_koKR then end
--- if LOCALE_zhCN or LOCALE_zhTW then end
 

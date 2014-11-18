@@ -8,12 +8,16 @@ ns.addFollower(463,false,{
 	Alliance = {
 		complete=true,
 		zone = 971,
+		level = 90,
+		quality = 2,
 		modelRace = "NightElfF",
 		{"mission", 91},
 	},
 	Horde = {
 		complete=true,
 		zone = 976,
+		level = 90,
+		quality = 2,
 		modelRace = "ScourgeF",
 		{"mission", 7},
 	},

@@ -1,12 +1,19 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\..\FrameXML\UI.xsd">
 
-	<!-- missions -->
-	<Script file="153\description.lua" />
-	<Script file="463\description.lua" />
-	
-	<!-- shadowmoon valley / 947 -->
+	<Script file="32\description.lua" />
 	<Script file="34\description.lua" />
+	<Script file="153\description.lua" />
+	<Script file="154\description.lua" />
+	<Script file="155\description.lua" />
+	<Script file="157\description.lua" />
+	<Script file="159\description.lua" />
+	<Script file="168\description.lua" />
+	<Script file="170\description.lua" />
+	<Script file="171\description.lua" />
+	<Script file="176\description.lua" />
+	<Script file="177\description.lua" />
+	<Script file="178\description.lua" />
 	<Script file="179\description.lua" />
 	<Script file="180\description.lua" />
 	<Script file="182\description.lua" />
@@ -14,50 +21,33 @@
 	<Script file="184\description.lua" />
 	<Script file="185\description.lua" />
 	<Script file="186\description.lua" />
-
-	<!-- gorgrond / 949 -->
-	<Script file="159\description.lua" />
-	<Script file="176\description.lua" />
 	<Script file="189\description.lua" />
-	<Script file="193\description.lua" />
-	<Script file="211\description.lua" />
-	<Script file="212\description.lua" />
-
-	<!-- talador / 946 -->
-	<Script file="154\description.lua" />
-	<Script file="155\description.lua" />
-	<Script file="171\description.lua" />
 	<Script file="190\description.lua" />
+	<Script file="192\description.lua" />
+	<Script file="193\description.lua" />
+	<Script file="194\description.lua" />
+	<Script file="195\description.lua" />
+	<Script file="202\description.lua" />
+	<Script file="203\description.lua" />
+	<Script file="204\description.lua" />
 	<Script file="205\description.lua" />
 	<Script file="207\description.lua" />
 	<Script file="208\description.lua" />
-
-	<!-- spires of arak / 948 -->
-	<Script file="168\description.lua" />
-	<Script file="192\description.lua" />
-	<Script file="204\description.lua" />
+	<Script file="209\description.lua" />
+	<Script file="211\description.lua" />
+	<Script file="212\description.lua" />
+	<Script file="216\description.lua" />
+	<Script file="217\description.lua" />
 	<Script file="218\description.lua" />
 	<Script file="219\description.lua" />
+	<Script file="224\description.lua" />
+	<Script file="225\description.lua" />
 	<Script file="453\description.lua" />
-
-	<!-- nagrand / 950 -->
-	<Script file="157\description.lua" />
-	<Script file="170\description.lua" />
-	<Script file="209\description.lua" />
-
-	<!-- frostfire ridge / 941 -->
-	<Script file="32\description.lua" />
-
-	<!-- stormshield(alliance), 1009 // Warspear(horde), 1011 -->
+	<Script file="455\description.lua" />
+	<Script file="458\description.lua" />
 	<Script file="459\description.lua" />
 	<Script file="460\description.lua" />
 	<Script file="462\description.lua" />
-	<Script file="216\description.lua" />
-
-	<!-- not zone bound / draenor wide, 962 -->
-	<Script file="194\description.lua" />
-	<Script file="195\description.lua" />
+	<Script file="463\description.lua" />
 
 </Ui>
-
-

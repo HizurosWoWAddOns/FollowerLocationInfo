@@ -5,9 +5,12 @@ local _, ns = ...;
 local L = ns.locale;
 
 ns.addFollower(186,false,{
+	collectGroup="184.185.186",
 	Alliance = {
-		complete=-1,
+		complete=true,
 		zone = 947,
+		level = 90,
+		quality = 2,
 		modelRace = "DraeneiF",
 		{"questrow",
 			{34787, 80078, 947, 56.5, 23.5},
@@ -22,12 +25,25 @@ ns.addFollower(186,false,{
 		}}
 	},
 	Horde = {
-		complete=-2,
-		zone=0,
+		ignore=true,
+		complete=-1,
+		zone=941,
+		level = 90,
+		quality = 2,
+		modelRace = "OrcF",
+		{"questrow", 
+			{33828, 72940, 941, nil, nil},
+			{33493, 72940, 941, nil, nil},
+			{37291, 74163, 976, 50, 38.4},
+			{34722, 74163, 976, 50, 38.4},
+			{33010, 74163, 976, 50, 38.4},
+			{34123, 76720, 941, 65.4, 65.6},
+			{34124, 76487, 941, 73.4, 58.8},
+		}
 	},
 	Neutral = {}
 });
 
---[=[ TODO :: missing quest id's and more... ]=]
+--[=[ TODO :: missing quest giver coords... ]=]
 
 --local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};

@@ -8,12 +8,17 @@ ns.addFollower(183,false,{
 	Alliance = {
 		complete=-1,
 		zone = 947,
+		level = 92,
+		quality = 2,
 		modelRace = "OrcF",
 		{"quest", {35631, 75884, 947, 45.6, 26.2}}
 	},
 	Horde = {
 		complete=-2,
-		zone = 0,
+		zone = 941,
+		level = 92,
+		quality = 2,
+		modelRace = "OrcM",
 	},
 	Neutral = {}
 });

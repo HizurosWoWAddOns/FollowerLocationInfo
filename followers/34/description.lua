@@ -7,6 +7,8 @@ local L = ns.locale;
 ns.addFollower(34,false,{
 	Alliance = {
 		zone = 971,
+		level = 91,
+		quality = 2,
 		modelRace = "NightElfF",
 		{"quest", {34646, 79457, 971, 44, 52.8}},
 		complete=-1
@@ -14,6 +16,8 @@ ns.addFollower(34,false,{
 	Horde = {
 		complete=true,
 		zone = 976,
+		level = 91,
+		quality = 2,
 		modelRace = "TaurenM",
 		{"questrow",
 			{33868, 0, 976, 0, 0}, --[=[ unknown npc ]=]

@@ -6,14 +6,20 @@ local L = ns.locale;
 
 ns.addFollower(207,false,{
 	Alliance = {
-		complete=-2,
-		zone=0,
-		{"pos", {946, 57.5, 51.1}},
-		--[[{"quest", {34777, 00000, 946, 57.5, 51.1 }, {36519, 00000, 000, nil, nil } }]]
+		complete=-1,
+		zone=946,
+		level = 95,
+		quality = 3,
+		modelRace = "DreaneiF",
+		{"quest", {34777, 79979, 946, 57.5, 51.1 }, {36519, 79978, 946, 57.5, 51.1 }}
 	},
 	Horde = {
 		complete=-2,
-		zone=0,
+		zone=946,
+		level = 95,
+		quality = 3,
+		modelRace = "BloodElfF",
+		{"quest", {34776, 79978, 946, 58.1, 53}, {36518, 79978, 946, 58.1, 53 }}
 	},
 	Neutral = {}
 });

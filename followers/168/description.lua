@@ -8,10 +8,16 @@ ns.addFollower(168,false,{
 	Alliance = {
 		complete=-2,
 		zone = 948,
+		level = 99,
+		quality = 2,
+		modelRace = "Mech",
 	},
 	Horde = {
 		complete=-2,
 		zone = 948,
+		level = 99,
+		quality = 2,
+		modelRace = "Mech",
 	},
 	Neutral = {}
 });

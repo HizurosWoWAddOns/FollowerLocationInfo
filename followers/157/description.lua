@@ -8,6 +8,9 @@ ns.addFollower(157,false,{
 	Alliance = {
 		complete=-2,
 		zone = 950,
+		level = 99,
+		quality = 2,
+		modelRace = "OrcM",
 		--{"questrow", 
 			--{34951, 80624, 950, 63.4, 61.8},
 			--{34954, 80161, 950, 85.4, 54.6},
@@ -25,6 +28,9 @@ ns.addFollower(157,false,{
 	Horde = {
 		complete=-2,
 		zone = 950,
+		level = 99,
+		quality = 2,
+		modelRace = "OrcM",
 		--{"questrow", 
 
 		--},

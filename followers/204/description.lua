@@ -7,11 +7,17 @@ local L = ns.locale;
 ns.addFollower(204,false,{
 	Alliance = {
 		complete=-2,
-		zone=0,
+		zone=948,
+		level = 96,
+		quality = 2,
+		modelRace = "HumanM",
 	},
 	Horde = {
 		complete=-2,
-		zone=0,
+		zone=948,
+		level = 96,
+		quality = 2,
+		modelRace = "ScourgeM",
 	},
 	Neutral = {}
 });

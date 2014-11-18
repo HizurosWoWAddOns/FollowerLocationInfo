@@ -8,6 +8,8 @@ ns.addFollower(459,false,{
 	Alliance = {
 		complete=true,
 		zone = 1009,
+		level = 100,
+		quality = 3,
 		modelRace = "DraeneiM",
 		{"vendor", {85932, 1009, 46.6, 76.2}},
 		{"reputation", {1731, 7}},
@@ -15,8 +17,10 @@ ns.addFollower(459,false,{
 	},
 	Horde = {
 		complete=true,
-		zone =  1011,
-		modelRace = "OgreM",
+		zone = 1011,
+		level = 100,
+		quality = 3,
+		modelRace = "OrcM",
 		{"vendor", {86036, 1011, 53.4, 62.6}},
 		{"reputation", {1445, 7}},
 		{"payment", {"gold", 50000000}},

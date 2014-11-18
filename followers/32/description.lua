@@ -13,7 +13,9 @@ ns.addFollower(32,false,{
 	Alliance = {
 		complete=true,
 		zone = 941,
-		modelRace = "OrgeM",
+		level = 90,
+		quality = 2,
+		modelRace = "Orge",
 		{"pos", {941, 65.9, 60.8}, {941, 39.6, 28.0}},
 		{"quest", {34733, 79492, 971, 54.8, 69.4}},
 		{"desc", desc },
@@ -21,7 +23,9 @@ ns.addFollower(32,false,{
 	Horde = {
 		complete=true,
 		zone = 941,
-		modelRace = "OrgeM",
+		level = 90,
+		quality = 2,
+		modelRace = "Orge",
 		{"pos", {941, 65.9, 60.8}, {941, 39.6, 28.0}},
 		{"quest", {34733, 79492, 976, 48.8, 17.2}},
 		{"desc", desc },

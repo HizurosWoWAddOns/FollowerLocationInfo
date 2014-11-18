@@ -28,6 +28,9 @@
 					<TexCoords left="0.0546875" right="0.330078125" top="0.765625" bottom="0.875"/>
 					<Color r=".57" g=".49" b=".39" />
 				</Texture>
+				<Texture file="Interface\common\NameShadow" parentKey="headerBG" setAllPoints="true" hidden="true" alpha="1" >
+					<TexCoords left="0.4" right="0.5" top="1" bottom="0.2"/>
+				</Texture>
 			</Layer>
 
 			<Layer level="BORDER">
@@ -68,7 +71,7 @@
 					</Anchors>
 				</FontString>
 
-				<Texture parentKey="owned" file="Interface\QuestFrame\ObjectiveTracker" hidden="true">
+				<Texture parentKey="collected" file="Interface\QuestFrame\ObjectiveTracker" hidden="true">
 					<Size x="14" y="14"/>
 					<Anchors>
 						<Anchor point="BOTTOMRIGHT" />
@@ -76,9 +79,17 @@
 					<TexCoords left="0.619140625" right="0.654296875" top="0.25390625" bottom="0.32421875" />
 				</Texture>
 
+				<Texture parentKey="notCollectable" file="Interface\QuestFrame\ObjectiveTracker" hidden="true">
+					<Size x="14" y="14"/>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.collected" />
+					</Anchors>
+					<TexCoords left="0.583984375" right="0.619140625" top="0.25390625" bottom="0.32421875" />
+				</Texture>
+
 				<FontString parentKey="followerID" inherits="GameFontWhiteTiny" alpha="0.3">
 					<Anchors>
-						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.owned" relativePoint="BOTTOMLEFT" x="-3" />
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.collected" relativePoint="BOTTOMLEFT" x="-3" />
 					</Anchors>
 				</FontString>
 
@@ -349,24 +360,6 @@
 						</Backdrop>
 						<ThumbTexture parentKey="thumbTexture" file="Interface\Buttons\UI-SliderBar-Button-Vertical" />
 					</Slider>
-					<CheckButton parentKey="showFollowerID" inherits="OptionsBaseCheckButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="8" y="-1" />
-						</Anchors>
-						<Layers>
-							<Layer level="ARTWORK">
-								<FontString parentKey="Text" inherits="GameFontNormalSmall" >
-									<Anchors>
-										<Anchor point="LEFT" relativePoint="RIGHT">
-											<Offset>
-												<AbsDimension x="0" y="1"/>
-											</Offset>
-										</Anchor>
-									</Anchors>
-								</FontString>
-							</Layer>
-						</Layers>
-					</CheckButton>
 				</Frames>
 			</ScrollFrame>
 

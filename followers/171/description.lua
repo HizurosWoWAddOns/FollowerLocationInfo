@@ -13,6 +13,8 @@ ns.addFollower(171,false,{
 	Alliance = {
 		complete=true,
 		zone = 946,
+		level = 94,
+		quality = 2,
 		modelRace = "Mech",
 		{"pos", {946, 62.9, 50.3}},
 		{"questrow",
@@ -24,6 +26,8 @@ ns.addFollower(171,false,{
 	Horde = {
 		complete=true,
 		zone = 946,
+		level = 94,
+		quality = 2,
 		modelRace = "Mech",
 		{"pos", {946}},
 		{"questrow",

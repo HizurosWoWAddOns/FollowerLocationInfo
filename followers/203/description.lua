@@ -1,19 +1,20 @@
 
--- ID: 0, Name: ? (A) / ? (H)
+-- ID: 203, Name: Meatball
 
 local _, ns = ...;
 local L = ns.locale;
 
-ns.addFollower(0,false,{
-	Alliance = {
+ns.addFollower(203,true,{
+	Alliance = {},
+	Horde = {},
+	Neutral = {
 		complete=true,
-		zone = 0,
-	},
-	Horde = {
-		complete=true,
-		zone = 0,
-	},
-	Neutral = {}
+		zone = 962,
+		level = 100,
+		quality = 4,
+		modelRace = "Gnoll",
+		{"requirements", "Brawler's Guild Rank 5"}
+	}
 });
 
 --[=[ TODO :: missing data... ]=]

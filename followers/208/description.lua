@@ -8,8 +8,10 @@ ns.addFollower(208,true,{
 	Alliance = {},
 	Horde = {},
 	Neutral = {
-		complete=-1,
+		complete=true,
 		zone = 946,
+		--level = ,
+		--quality = ,
 		modelRace = "DraeneiM",
 		{"quest", {33973, 77031, 946, 56.7, 26}},
 		{"desc", {
