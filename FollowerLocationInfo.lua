@@ -606,6 +606,13 @@ end
 local ListButtonOffsetX, ListButtonOffsetY = 0,1;
 local ListEntrySelected = false;
 local ListEntries = {};
+local SearchStr = "";
+
+function List_Search(self,bool)
+	SearchBoxTemplate_OnTextChanged(self);
+	SearchStr = (bool) and tostring(self:GetText()) or "";
+	List_Update();
+end
 
 local function ListEntries_Update()
 	local zones2follower,tmp,collected,ignore,_ = {[0]={}},{};
@@ -630,7 +637,9 @@ local function ListEntries_Update()
 		--[=[ todo: impletement ]=]
 
 		-- filter 4: Searchbox filter
-		--[=[ todo: impletement ]=]
+		if (SearchStr~="") and (not v.info.name:lower():find(SearchStr:lower())) then
+			ignore=true;
+		end
 
 		if (ignore~=true) then
 			tmp[id]=v;
@@ -886,8 +895,12 @@ function FollowerLocationInfoFrame_OnLoad(self)
 	self:RegisterEvent("GARRISON_FOLLOWER_REMOVED");
 	self:RegisterEvent("GARRISON_FOLLOWER_XP_CHANGED");
 
-	-- FLI.ListBG
-	self.ListBG:SetFrameLevel(self:GetFrameLevel()-3);
+	-- FLI.Search
+	self.Search:SetScript("OnTextChanged", List_Search);
+
+	-- FLI.ListBG / FLI.ListOptionBG
+	self.ListBG:SetFrameLevel(self:GetFrameLevel()-2);
+	self.ListOptionBG:SetFrameLevel(self:GetFrameLevel()-4);
 end
 
 

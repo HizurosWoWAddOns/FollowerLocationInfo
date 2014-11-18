@@ -271,8 +271,50 @@
 				</Layers>
 			</Frame>
 
+			<Frame parentKey="ListOptionBG">
+				<Size x="290" y="160"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="20" y="-10"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="0">
+						<Texture parentKey="BG" atlas="GarrLanding-MiddleTile" horizTile="true" vertTile="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="25" y="-25"/>
+								<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+							</Anchors>
+							<Color r=".57" g=".49" b=".39" />
+						</Texture>
+					</Layer>
+					<Layer level="BACKGROUND" textureSubLevel="2">
+						<Texture parentKey="TL" atlas="GarrLanding-upperleft" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="-2" y="1"/>
+							</Anchors>
+							<Color r=".57" g=".49" b=".39" />
+						</Texture>
+						<Texture parentKey="TOP" atlas="GarrLanding-Top" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.TL" relativePoint="TOPRIGHT" y="-1"/> 
+								<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" y="-1"/>
+							</Anchors>
+							<Color r=".57" g=".49" b=".39" />
+						</Texture>
+						<Texture parentKey="LEFT" atlas="GarLanding-Left" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.TL" relativePoint="BOTTOMLEFT" x="2"/>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="2"/>
+							</Anchors>
+							<Color r=".57" g=".49" b=".39" />
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+				</Frames>
+			</Frame>
+
 			<Frame parentKey="ListBG">
-				<Size x="280" y="438"/>
+				<Size x="290" y="400"/>
 				<Anchors>
 					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="10" y="20"/>
 				</Anchors>
@@ -326,14 +368,16 @@
 				</Frames>
 			</Frame>
 
-			<EditBox parentKey="Search" inherits="SearchBoxTemplate" letters="40" hidden="true">
+			<EditBox parentKey="Search" inherits="SearchBoxTemplate" letters="40" hidden="false">
 				<Size x="0" y="20"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.ListBG" x="58" y="-18" />
-					<Anchor point="TOPRIGHT" relativeKey="$parent.ListBG" x="-12" y="-18" />
+					<Anchor point="TOPLEFT" relativeKey="$parent.ListOptionBG" x="42" y="-38" />
+					<Anchor point="TOPRIGHT" relativeKey="$parent.ListOptionBG" x="-18" y="-18" />
 				</Anchors>
 				<Scripts>
+					<!--
 					<OnTextChanged function="$parent.SearchTextChanged"/>
+					-->
 					<OnLoad>
 						self:SetScale(.95);
 						SearchBoxTemplate_OnLoad(self);
@@ -343,8 +387,8 @@
 
 			<ScrollFrame name="$parentList" parentKey="List" inherits="HybridScrollFrameTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.ListBG" x="37" y="-37" />
-					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ListBG" x="-4" y="34" />
+					<Anchor point="TOPLEFT" relativeKey="$parent.ListBG" x="35" y="-37" />
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ListBG" x="-8" y="32" />
 				</Anchors>
 				<Frames>
 					<Slider name="$parentScrollBar" parentKey="Bar" inherits="MinimalHybridScrollBarTemplate" hidden="false">
