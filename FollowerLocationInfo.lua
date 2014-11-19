@@ -11,7 +11,7 @@ local numKnownFollowers, numCollectedFollowers = 0,0;
 local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButtons.ITEM_QUALITY3_DESC,_G.UnitPopupButtons.ITEM_QUALITY4_DESC};
 local doRefresh = false;
 local ClassFilterLabel, AbilityFilterLabel = "Classes & Class speccs", "Abilities & Traits";
-local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,971,949,946,948,950,941,978,1009} or {962,941,976,949,946,948,950,947,978,1011};
+local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,971,949,946,948,950,941,978,1009,964,969,984,987,988,989,993,994,995,1008} or {962,941,976,949,946,948,950,947,978,1011,964,969,984,987,988,989,993,994,995,1008};
 for i,v in ipairs(factionZoneOrder) do zoneNames[v] = GetMapNameByID(v); end
 local modelPositions={
 	BloodElfF = {1.5,0,-0.51},
