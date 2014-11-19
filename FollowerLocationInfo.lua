@@ -789,7 +789,7 @@ local function ListEntries_Update()
 		end
 	end
 
-	if (factionZoneOrder[0]) and (factionZoneOrder[0]>0) then
+	if (zones2follower[0]) and (#zones2follower[0]>0) then
 		-- header element
 		tinsert(ListEntries,{ZoneName=L["No description found for..."]});
 		--
