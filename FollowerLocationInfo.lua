@@ -71,13 +71,23 @@ local function dataBrokerInit()
 			end,
 			--OnDoubleClick = function(self) end,
 			--OnTooltipShow = function(self) end
-		})
+		});
 
 		if (lDBI) then
 			lDBI:Register(addon, obj, FollowerLocationInfoDB.Minimap)
 			if (not FollowerLocationInfoDB.Minimap.enabled) then
 				lDBI:Hide(addon);
 			end
+		end
+	end
+	if (GetAddOnInfo("SlideBar")) then
+		if (GetAddOnEnableState(UnitName("player"),"SlideBar")>1) then
+			local name = addon..".Launcher"
+			local obj = lDB:NewDataObject(name, {
+				type          = "launcher",
+				icon          = "Interface\\Icons\\Achievement_GarrisonFollower_Rare",
+				OnClick       = function(self,button) FollowerLocationInfo_Toggle(); end
+			});
 		end
 	end
 end
