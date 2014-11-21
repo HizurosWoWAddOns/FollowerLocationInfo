@@ -201,13 +201,15 @@ self.addConfigElements = function(modName,separator)
 	end
 end
 
-self.ShowMenu = function(parent, parentX, parentY, reAnchor)
+self.ShowMenu = function(parent, anchorA, anchorB, parentX, parentY)
 	local anchor, x, y, displayMode = "cursor", nil, nil, "MENU"
 
 	if (parent) then
 		anchor = parent;
 		x = parentX or 0;
 		y = parentY or 0;
+		self.frame.point = anchorA or "TOPLEFT"
+		self.frame.relativePoint=anchorB or "BOTTOMLEFT";
 	end
 
 	self.addEntry({separator=true});
@@ -215,9 +217,4 @@ self.ShowMenu = function(parent, parentX, parentY, reAnchor)
 
 	UIDropDownMenu_Initialize(self.frame, EasyMenu_Initialize, displayMode, nil, self.menu);
 	ToggleDropDownMenu(1, nil, self.frame, anchor, x, y, self.menu, nil, nil);
-
-	if (reAnchor) then
-		self.frame:ClearAllPoints();
-		self.frame:SetPoint(unpack(reAnchor));
-	end
 end

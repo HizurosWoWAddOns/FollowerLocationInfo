@@ -1,52 +1,48 @@
 
 local addon,ns = ...;
 local L = ns.locale;
+
 ns.faction, ns.factionLocale = UnitFactionGroup("player"); L[ns.faction] = ns.factionLocale;
 ns.factionID = ((ns.faction=="Alliance") and 1) or ((ns.faction=="Horde") and 2) or 0;
 ns.followers = {};
+
 FollowerLocationInfo_Toggle, FollowerLocationInfo_ToggleCollected, FollowerLocationInfo_ToggleIDs, FollowerLocationInfo_ResetConfig=nil,nil,nil,nil;
-local getMenu, List_Update;
+local configMenu, List_Update, FollowerLocationInfoFrame_OnEvent,ExternalURL;
+
 local followers, zoneNames, classes, collectGroups, classNames1, classNames2, abilityNames = {},{},{},{},{},{},{};
-local numKnownFollowers, numCollectedFollowers = 0,0;
+local numHidden,numRealFollowers, numKnownFollowers, numCollectedFollowers = (292-48),0,0,0;
 local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButtons.ITEM_QUALITY3_DESC,_G.UnitPopupButtons.ITEM_QUALITY4_DESC};
 local doRefresh = false;
-local ClassFilterLabel, AbilityFilterLabel = "Classes & Class speccs", "Abilities & Traits";
-local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,971,949,946,948,950,941,978,1009,964,969,984,987,988,989,993,994,995,1008} or {962,941,976,949,946,948,950,947,978,1011,964,969,984,987,988,989,993,994,995,1008};
-for i,v in ipairs(factionZoneOrder) do zoneNames[v] = GetMapNameByID(v); end
+local ClassFilterLabel, AbilityFilterLabel = L["Classes & Class speccs"], L["Abilities & Traits"];
+
+local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,971,949,946,948,950,941,978,1009,964,969,984,987,988,989,993,994,995,1008,-1,0}
+														   or {962,941,976,949,946,948,950,947,978,1011,964,969,984,987,988,989,993,994,995,1008,-1,0};
+for i,v in ipairs(factionZoneOrder) do if (v>0) then zoneNames[v] = GetMapNameByID(v); end end
+zoneNames[-1] = L["hidden followers"];
+zoneNames[0]=L["No description found for..."];
+
 local modelPositions={
-	BloodElfF = {1.5,0,-0.51},
---	BloodElfM = {2,0,-0.62},
-	   DwarfF = {0.9,0,-0.27},
-	   DwarfM = {1.5,0,-0.45},
-	 DraeneiF = {1.9,0,-0.7},
-	 DraeneiM = {1.5,0,-0.62},
-	   GnomeF = {0.5,0,-0.18},
-	   GnomeM = {0.5,0,-0.18},
-	  GoblinF = {0.7,0,-0.24},
-	  GoblinM = {0.7,0,-0.24},
-	   HumanF = {1.2,0,-0.52},
-	   HumanM = {1.5,0,-0.59},
---	NightElfF = {2,0,-0.62},
---	NightElfM = {2,0,-0.62},
-	     OrcF = {1.25,0,-0.5},
-	     OrcM = {1.25,0,-0.5},
---	PandarenF = {2,0,-0.62},
---	PandarenM = {2,0,-0.62},
-	 ScourgeF = {1.7,0,-0.56},
-	 ScourgeM = {1,0,-0.5},
-	  TaurenF = {1.5,0,-0.39},
-	  TaurenM = {1.5,0,-0.39},
-	   TrollF = {1.5,0,-0.42},
-	   TrollM = {1.5,0,-0.42},
---	  WorgenF = {2,0,-0.62},
---	  WorgenM = {2,0,-0.62},
-	-- -----------------------------
-	     Mech = {2,0,-2.5},
-	     Orge = {1.4,0,-0.67},
-	  Zyclope = {8,0,-3},
-	    Gnoll = {0.5,0,-0.15},
-	  Saberon = {1.45,0,-0.37},
-	  Arakkoa = {1.5,0,-0.28},
+	-- Alliance races ------------------------------------------
+	DraeneiF	= {1.9,0,-0.7},		DraeneiM	= {1.5,0,-0.62},
+	DwarfF		= {0.9,0,-0.27},	DwarfM		= {1.5,0,-0.45},
+	GnomeF		= {0.5,0,-0.18},	GnomeM		= {0.5,0,-0.18},
+	HumanF		= {1.2,0,-0.52},	HumanM		= {1.5,0,-0.59},
+	NightElfF	= {2,0,-0.62},		NightElfM	= {2,0,-0.62},
+	WorgenF		= {3,0,-0.62},		WorgenM		= {1.5,0,-0.62},
+	-- Horde races ---------------------------------------------
+	BloodElfF	= {1.5,0,-0.51},	BloodElfM	= {2,0,-0.62},
+	GoblinF		= {0.7,0,-0.24},	GoblinM		= {0.7,0,-0.24},
+	OrcF		= {1.25,0,-0.5},	OrcM		= {1.25,0,-0.5},
+	ScourgeF	= {1.7,0,-0.56},	ScourgeM	= {1,0,-0.5},
+	TaurenF		= {1.5,0,-0.39},	TaurenM		= {1.5,0,-0.39},
+	TrollF		= {1.5,0,-0.42},	TrollM		= {1.5,0,-0.42},
+	-- Neutral playable races ----------------------------------
+	PandarenF	= {1.2,0,-0.62},	PandarenM	= {2,0,-0.58},
+	-- Misc unplayable races -----------------------------------
+	Mech		= {2,0,-2.5},		Orge		= {1.4,0,-0.67},
+	Zyclope		= {8,0,-3},			Gnoll		= {0.5,0,-0.15},
+	Saberon		= {1.45,0,-0.37},	Arakkoa		= {1.5,0,-0.28},
+	Hozen		= {2,0,-0.62},		Jinyu		= {2,0,-0.62}
 };
 
 
@@ -66,7 +62,7 @@ local function dataBrokerInit()
 				if (button=="LeftButton") then
 					FollowerLocationInfo_Toggle();
 				elseif (button=="RightButton") then
-					getMenu(self);
+					configMenu(self,"TOP","BOTTOM");
 				end
 			end,
 			--OnDoubleClick = function(self) end,
@@ -93,6 +89,38 @@ local function dataBrokerInit()
 end
 
 
+--[=[ External URL dialog ]=]
+local urls = {
+	WoWHead = function(t,id)
+		local lang = {deDE="de",esES="es",esMX="es",frFR="fr",ptBR="pt"}
+		local field = {q="quest",i="item",s="spell",o="object"}
+		return ("http://%s.wowhead.com/%s=%d"):format(lang[GetLocale()] or "www",field[t],id);
+	end,
+	Buffed = function(t,id)
+		local url = {deDE="http://wowdata.buffed.de/?%s=%d",ruRU="http://wowdata.buffed.ru/?%s=%d"}
+		local field = {q="q",i="i",s="s",o="o"}
+		return (url[GetLocale()] or "http://wowdata.getbuffed.com/?q=%d"):format(field[t],id);
+	end,
+	WoWDB = function(t,id)
+		local field = {q="quests",i="items",s="spells",o="objects"}
+		return ("http://www.wowdb.com/%s/%d"):format(field[t],id);
+	end
+}
+
+StaticPopupDialogs["FLI_URL_DIALOG"] = {
+	text = "URL", button2 = CLOSE, timeout = 0, whileDead = 1, 
+	hasEditBox = 1, hideOnEscape = 1, maxLetters = 1024, editBoxWidth = 250,
+	OnShow = function(f)
+		local e,b = _G[f:GetName().."EditBox"],_G[f:GetName().."Button2"];
+		if e then e:SetText(ExternalURL) e:SetFocus() e:HighlightText(0) end
+		if b then b:ClearAllPoints() b:SetWidth(100) b:SetPoint("CENTER",e,"CENTER",0,-30) end
+	end,
+	EditBoxOnEscapePressed = function(f)
+		f:GetParent():Hide()
+	end
+}
+
+
 --[=[ Misc ]=]
 local pairsByKeys = function(t, f)
 	local a = {}
@@ -112,6 +140,21 @@ local pairsByKeys = function(t, f)
 	return iter
 end
 
+local function getFollowerBasics(id,key)
+	if (ns.follower_basics==nil) then
+		error("can't load follower basics");
+	end
+
+	if (ns.follower_basics[id]) and (ns.follower_basics[id][key]) then
+		if (type(ns.follower_basics[id][key])=="table") then
+			return ns.follower_basics[id][key][ns.factionID];
+		else
+			return ns.follower_basics[id][key];
+		end
+	end
+	return nil;
+end
+
 local function IsQuestCompleted(QuestID)
 	if (not questsCompleted) or ((questsCompleted) and ((time() - questsCompleted.last)<300)) then
 		questsCompleted = {ids=GetQuestsCompleted(), last=time()};
@@ -119,19 +162,15 @@ local function IsQuestCompleted(QuestID)
 	return (questsCompleted.ids[QuestID]==true);
 end
 
-local IsMissing = {npcs={},coords={},zones={},quests={},completed={},descs={},modelRaces={}};
+local IsMissing = {npcs={},coords={},zones={},quests={},completed={},descs={}};
 IsMissing.chk=function(id,data)
-	--if (data.ignore==true) or (data.complete==true) then return; end
-
 	local hasQuests,hasNpcs,hasDesc = false,false,false;
 	if (data.zone==nil) or (data.zone==0) then
 		tinsert(IsMissing.zones,id);
 	end
+
 	if (data.complete~=true) then
 		tinsert(IsMissing.completed,id);
-	end
-	if (data.modelRace==nil) then
-		tinsert(IsMissing.modelRaces,id);
 	end
 
 	for i,v in ipairs(data) do
@@ -156,22 +195,26 @@ IsMissing.chk=function(id,data)
 	if (not hasQuests) then
 		tinsert(IsMissing.quests,id);
 	end
+
 	if (not hasDesc) then
 		tinsert(IsMissing.descs,id);
 	end
 end
 
-ns.addFollower = function(id,neutral,data)
-	local Data = data[(neutral) and "Neutral" or ns.faction];
+ns.addFollower = function(id,neutral,data1,data2,notCount)
+	local Data = ((neutral) and data1) or ((ns.faction=="Alliance") and data1 or data2) or {};
 	if (#Data>0) and (Data.zone~=0) and (not Data.ignore) then
 		ns.followers[id] = Data;
-		if (data.collectGroup) then
-			collectGroups[data.collectGroup]=false;
-			ns.followers[id].collectGroup = data.collectGroup;
+		if (Data.collectGroup) and (collectGroups[Data.collectGroup]==nil) then
+			collectGroups[Data.collectGroup]=false;
 		end
+		if (not notCount) then
 			numKnownFollowers = numKnownFollowers + 1;
+		end
 	end
-	IsMissing.chk(id,Data);
+	if (not notCount) then
+		IsMissing.chk(id,Data);
+	end
 end
 
 local Collector = {data={},hLink=false};
@@ -242,13 +285,18 @@ local function GetUnitInfo(UnitID)
 end
 
 
---[=[[ Configurations ]=]
-function getMenu(self)
+--[=[ menus ]=]
+local function createMenu(parent,menuElements,anchorA,anchorB)
 	PlaySound("igMainMenuOptionCheckBoxOn");
-
 	ns.MenuGenerator.InitializeMenu();
+	ns.MenuGenerator.addEntry(menuElements);
+	ns.MenuGenerator.ShowMenu(parent, anchorA, anchorB);
+end
 
-	local menu = {
+
+--[=[[ Configurations ]=]
+function configMenu(self,anchorA,anchorB)
+	createMenu(self,{
 		--{ label = SETTINGS, title = true },
 		--{ separator = true },
 		{ label = "DataBroker", title=true }, --childs = {
@@ -280,6 +328,11 @@ function getMenu(self)
 				dbType="bool", keyName="ShowCollectedFollower",
 				event = function() List_Update(); end,
 			},
+			{
+				label = L["Show hidden followers"], tooltip = {L["Hidden followers"],L["Show/Hide hidden followers in follower list"]},
+				dbType="bool", keyName="ShowHiddenFollowers",
+				event = function() List_Update(); end,
+			},
 		--}},
 		{ separator = true },
 		{ label = "Misc.", title=true },--childs = {
@@ -289,15 +342,22 @@ function getMenu(self)
 				--event  = function() end,
 				disabled = true
 			},
+			--[[
+			{
+				--name = "questIdUrl",
+				label = L["Fav. website"],
+				tooltip = {L["Fav. website"],L["Choose your favorite website for further informations to a quest."]},
+				dbType="select", keyName="questIdUrl
+				default = "WoWHead",
+				values = {
+					WoWHead = "WoWHead",
+					WoWDB = "WoWDB (english only)",
+					Buffed = "Buffed"
+				}
+			}
+			]]
 		--}}
-	}
-	ns.MenuGenerator.addEntry(menu);
-
-	if (FollowerLocationInfoFrame.ConfigButton==self) then
-		ns.MenuGenerator.ShowMenu(self,nil,nil,{"TOPRIGHT",self,"BOTTOMRIGHT",0,0});
-	else
-		ns.MenuGenerator.ShowMenu(self,nil,nil);
-	end
+	},anchorA,anchorB);
 end
 
 
@@ -308,12 +368,13 @@ local function Desc_AddInfo(self, count, objType, ...)
 	local p,objs,_ = self.Child,{...};
 	local obj = objs[1];
 
-	local addLine = function(title, text, img)
+	local addLine = function(title, text, img, menu)
 		local l = nil
+
 		count = count + 1;
 
 		if (not self.lines[count]) then
-			self.lines[count] = CreateFrame("frame",nil,p,"FollowerLocationInfoDescLineTemplate");
+			self.lines[count] = CreateFrame("Frame",nil,p,"FollowerLocationInfoDescLineTemplate");
 			l = self.lines[count];
 		else
 			l = self.lines[count];
@@ -331,6 +392,13 @@ local function Desc_AddInfo(self, count, objType, ...)
 			l.text:Show();
 		end
 
+		if (menu) and (type(menu)=="table") and (#menu>0) then
+			l.Options:SetScript("OnClick",function(self) createMenu(self,menu,"TOPRIGHT","BOTTOMRIGHT") end);
+			l.Options:Show();
+		else
+			l.Options:Hide();
+		end
+
 		l:SetParent(p);
 		l:SetPoint("TOP", (count==1) and p or self.lines[count-1], (count==1) and "TOP" or "BOTTOM", 0, (count==1) and -12 or -6);
 		l:SetPoint("LEFT");
@@ -341,17 +409,18 @@ local function Desc_AddInfo(self, count, objType, ...)
 	if (objType=="pos") then
 		local title = L["Location"];
 		for i,v in ipairs(objs) do
-			local location;
+			local location,menu=nil,{};
 			if (type(v[1])=="number") then
 				location = GetMapNameByID(v[1]);
 			end
 			if (type(v[2])=="number") and (type(v[3])=="number") then
 				location = ("%s%1.1f, %1.1f"):format((location) and location.." @ " or "",v[2],v[3]);
+				tinsert(menu,{ label = L["Add waypoint to Tom Tom"] });
 			end
 			if (location) and (type(v[4])=="string") then
-				addLine(title, ("%s|n(%s)"):format(location,v[4]));
+				addLine(title, ("%s|n(%s)"):format(location,v[4]),nil,menu);
 			else
-				addLine(title, location);
+				addLine(title, location, nil, menu);
 			end
 			title = "";
 		end
@@ -365,14 +434,23 @@ local function Desc_AddInfo(self, count, objType, ...)
 			title = L["Event"];
 		end
 		for i,v in ipairs(objs) do
+			local menu = {};
 			qState, qGiver, qZone, qCoord, str = 0, "", "zone?", "?.?, ?.?", "%s|n  » %s(%s @ %s)" --"%s|n    %s|n    (%s @ %s)"
 			qTitle, qText = GetQuestInfo(v[1]);
 			if (qTitle) then
-				if (GetQuestLogIndexByID(v[1])~=0) then
-					qTitle = qTitle .. " |cffeeee00"..L["(In questlog)"].."|r"
+				local qIndex = GetQuestLogIndexByID(v[1]);
+				if (qIndex~=0) then
+					qTitle = qTitle .. " |cffeeee00"..L["(In questlog)"].."|r";
+					tinsert(menu,{ label = TRACK_QUEST, func=function() QuestMapQuestOptions_TrackQuest(v[1]); end });
+					tinsert(menu,{ label = L["Open questlog"], func=function() securecall("QuestMapFrame_OpenToQuestDetails", v[1]); end });
+					tinsert(menu,{ label = L["Share quest"], func=function() QuestLogPushQuest(qIndex) end, disabled=(not (GetQuestLogPushable(qIndex) and IsInGroup())) });
 				elseif (IsQuestCompleted(v[1])) then
 					qTitle = qTitle .. " |cff888888"..L["(Completed)"].."|r"
 				end
+				tinsert(menu,{ label = L["On WoWHead"], func=function()
+					ExternalURL = urls[FollowerLocationInfoDB.ExternalURL]("q",v[1]);
+					StaticPopup_Show("FLI_URL_DIALOG");
+				end });
 
 				if ((type(v[2])=="number") and (v[2]>0) and (ns.npcs[v[2]])) or ((type(v[2])=="string") and (v[2]:find("^o[0-9]+$")) and (ns.npcs[v[2]])) then
 					qGiver = ns.npcs[v[2]].."|n    ";
@@ -384,11 +462,12 @@ local function Desc_AddInfo(self, count, objType, ...)
 
 				if (type(v[4])=="number") and (type(v[5])=="number") then
 					qCoord = ("%1.1f, %1.1f"):format(v[4],v[5]);
+					tinsert(menu,{ label = L["Add waypoint to Tom Tom"] });
 				elseif (type(v[4])=="string") then
 					qCoord = L[v[4]];
 				end
 
-				addLine(title, str:format(qTitle, qGiver, qZone, qCoord))
+				addLine(title, str:format(qTitle, qGiver, qZone, qCoord),nil,menu);
 			elseif v[1]==0 then
 				addLine(title, L["Missing quest..."]);
 			elseif (qTitle==false) then
@@ -432,6 +511,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 		end
 	elseif (objType=="vendor") then
 		local title = L["Vendor"];
+		local menu = {};
 		for i,v in ipairs(objs) do
 			local location, npc;
 			if (type(v[1])=="number") and (ns.npcs[v[1]]~=nil) then
@@ -442,16 +522,17 @@ local function Desc_AddInfo(self, count, objType, ...)
 			end
 			if (type(v[3])=="number") and (type(v[4])=="number") then
 				location = ("(%s%1.1f, %1.1f)"):format((location) and location.." @ " or "",v[3],v[4]); -- merge zone name with coordinations
+				tinsert(menu,{ label = L["Add waypoint to Tom Tom"] });
 			elseif (type(v[3])) then
 				location = ("(%s @ %s)"):format(location,L[v[3]]); -- merge zone name with named location like buildings in garrison...
 			end
 
 			if (npc) and (location) then
-				addLine(title,("%s|n    %s"):format(npc,location));
+				addLine(title,("%s|n    %s"):format(npc,location), nil, menu);
 			elseif (npc) then
 				addLine(title,npc);
 			elseif (location) then
-				addLine(title,location);
+				addLine(title,location, nil, menu);
 			end
 			title = "";
 		end
@@ -459,7 +540,6 @@ local function Desc_AddInfo(self, count, objType, ...)
 		local title = L["Mission"];
 		for i,v in ipairs(objs) do
 			if (type(v)=="number") then
-				--C_Garrison.GetMissionInfo(v);
 				addLine(title, C_Garrison.GetMissionName(v).."  |cff888888(MissionID: "..v..")|r");
 			end
 		end
@@ -487,6 +567,17 @@ local function Desc_AddInfo(self, count, objType, ...)
 			tinsert(req,L[v]);
 		end
 		addLine(L["Requirements"], table.concat(req,"|n"));
+	elseif (objType=="achievement") then
+		local str = "";
+		local IDNumber, Name, Points, Completed, Month, Day, Year, Description, Flags, Image, RewardText, IsGuild, WasEarnedByMe, EarnedBy = GetAchievementInfo(obj);
+		local Char=UnitName("player");
+		if (IDNumber) then
+			local lnk = GetAchievementLink(obj);
+			str = lnk;
+		else
+			str = L["Can't get achievement data. %d isn't an achievement id?"]:format(obj);
+		end
+		addLine("Achievement", str, nil, {});
 	elseif (objType=="custom") then
 		addLine(L[obj[1]], L[obj[2]]);
 	end
@@ -499,6 +590,7 @@ local function Desc_Update()
 	local DescHead = FollowerLocationInfoFrame.DescHeader;
 	local InfoHead = FollowerLocationInfoFrame.InfoHeader;
 	local Model = FollowerLocationInfoFrame.Model;
+	local BigModel = FollowerLocationInfoFrame.BigModelViewer.Model;
 	local line,count = nil,0;
 
 	if (not self.lines) then
@@ -519,11 +611,15 @@ local function Desc_Update()
 	Model:Hide();
 	--FollowerLocationInfoDescLineTemplate
 	if (DescSelected) then
-		self.info,self.data=DescSelected.info,DescSelected.data;
+		self.info = DescSelected;
 
 		-- add all elements
-		for i=1, #self.data do
-			count = Desc_AddInfo(self,count,unpack(self.data[i]));
+		if (type(self.info.desc)=="table") then
+			for i=1, #self.info.desc do
+				count = Desc_AddInfo(self,count,unpack(self.info.desc[i]));
+			end
+		else
+			-- custom message?
 		end
 
 		if (doRefresh) then
@@ -533,22 +629,27 @@ local function Desc_Update()
 			end);
 		end
 
-		-- Header-Model
+		-- 3d Models
 		local pos = {2,0,-0.62};
-		if (self.data.modelRace) and (modelPositions[self.data.modelRace]) then
-			pos = modelPositions[self.data.modelRace];
-		elseif (self.data.modelPosition) then
-			pos = self.data.modelPosition;
+		if (self.info.race) and (modelPositions[self.info.race]) then
+			pos = modelPositions[self.info.race];
+		elseif (self.info.modelPosition) then
+			pos = self.info.modelPosition;
 		end
+		BigModel:SetDisplayInfo(self.info.displayID);
 		Model:SetDisplayInfo(self.info.displayID);
 		Model:SetPosition(unpack(pos));
 
+		if (not self.info.quality) then
+			self.info.quality=2;
+		end
 		-- DescHead data
-		local _,className = strsplit("-",self.info.classAtlas);
-		local class = classes[className:upper()];
-		DescHead.Name:SetText("|c" .. class.colorStr .. self.info.name .. "|r");
+		DescHead.Name:SetText("|c" .. self.info.classColor .. self.info.name .. "|r");
 		DescHead.Class:SetText("|cffffffff" .. self.info.className .. "|r");
-		DescHead.Misc:SetText(("%s: %d, %s: %s%s|r"):format(LEVEL,self.info.level,QUALITY,qualities[self.info.quality].color.hex,qualities[self.info.quality].text));
+		DescHead.Misc:SetText(("%s: %d, %s: %s%s|r"):format(
+			LEVEL,		self.info.level,
+			QUALITY,	qualities[self.info.quality].color.hex, qualities[self.info.quality].text
+		));
 
 		Model:Show();
 		DescHead:Show();
@@ -560,10 +661,12 @@ local function Desc_Update()
 			--{"Greetings","Welcome to use this addon.|nCurrently it is still incomplete."},
 			{"Followers",
 				#C_Garrison.GetFollowers()..L[" listed in game (depends on your faction)"] .. "|n" ..
+				numHidden..L[" hidden followers (Inn recruitement?)"] .. "|n" ..
 				numKnownFollowers..L[" followers with description"]  .. "|n" ..
 				numCollectedFollowers..L[" collected with this character"]
 			},
-			{"Version",GetAddOnMetadata(addon,"Version")}
+			{"Version",GetAddOnMetadata(addon,"Version")},
+			{"Msg from Dev","|cff44eeffGreetings friends...|n|nThe option \"Add waypoints to TomTom\" is disabled because currently i have no TomTom installed. I do it tomorrow.|n|nNow i'm tired... :)|nHave a nice day|r"}
 		}) do
 			count = Desc_AddInfo(self, count, "custom", v);
 		end
@@ -628,24 +731,20 @@ local function List_Search(self,bool)
 end
 
 local function List_ClassFilterClear(self)
-	self:GetParent().Text:SetText(L[ClassFilterLabel]);
+	self:GetParent().Text:SetText(ClassFilterLabel);
 	ClassFilter = "";
 	List_Update();
 	self:Hide();
 end
 
 local function List_AbilityFilterClear(self)
-	self:GetParent().Text:SetText(L[AbilityFilterLabel]);
+	self:GetParent().Text:SetText(AbilityFilterLabel);
 	AbilityFilter = "";
 	List_Update();
 	self:Hide();
 end
 
 local function List_ClassFilter(self)
-	PlaySound("igMainMenuOptionCheckBoxOn");
-
-	ns.MenuGenerator.InitializeMenu();
-
 	local menu = {
 		{ label = "Choose", title = true },
 		{ separator = true },
@@ -680,20 +779,10 @@ local function List_ClassFilter(self)
 		});
 	end
 
-	ns.MenuGenerator.addEntry(menu);
-
-	if (FollowerLocationInfoFrame.ConfigButton==self) then
-		ns.MenuGenerator.ShowMenu(self,nil,nil,{"TOPRIGHT",self,"BOTTOMRIGHT",0,0});
-	else
-		ns.MenuGenerator.ShowMenu(self,nil,nil);
-	end
+	createMenu(self,menu,"TOPLEFT","TOPRIGHT");
 end
 
 local function List_AbilityFilter(self)
-	PlaySound("igMainMenuOptionCheckBoxOn");
-
-	ns.MenuGenerator.InitializeMenu();
-
 	local menu = {
 		{ label = "Choose", title = true },
 		{ separator = true },
@@ -713,13 +802,7 @@ local function List_AbilityFilter(self)
 		});
 	end
 
-	ns.MenuGenerator.addEntry(menu);
-
-	if (FollowerLocationInfoFrame.ConfigButton==self) then
-		ns.MenuGenerator.ShowMenu(self,nil,nil,{"TOPRIGHT",self,"BOTTOMRIGHT",0,0});
-	else
-		ns.MenuGenerator.ShowMenu(self,nil,nil);
-	end
+	createMenu(self,menu,"TOPLEFT","TOPRIGHT");
 end
 
 local function ListEntries_Update()
@@ -729,22 +812,26 @@ local function ListEntries_Update()
 	for id,v in pairsByKeys(followers) do -- filter here!!
 		ignore = false;
 
-		-- filter 1: ShowCollectedFollower option
+		-- filter 1: ShowHiddenFollowers option
+		if (not FollowerLocationInfoDB.ShowHiddenFollowers) and (v.hidden) then
+			ignore = true;
+		end
+
+		-- filter 2: ShowCollectedFollower option
 		if (not FollowerLocationInfoDB.ShowCollectedFollower) then
 			if (v.collected==true) then
 				ignore = true;
-			elseif (v.data) and (v.data.collectGroup) and (collectGroups[v.data.collectGroup]) then
+			elseif (v.collectGroup) and (collectGroups[v.collectGroup]) then
 				ignore = true;
 			end
 		end
 
-		-- filter 2: Select class filter
-		local _,class=strsplit("-",v.info.classAtlas:lower());
-		if (ClassFilter~="") and not ((v.info.className:lower()==ClassFilter) or (class==ClassFilter)) then
+		-- filter 3: Select class filter
+		if (ClassFilter~="") and not ((v.className:lower()==ClassFilter) or (v.class==ClassFilter)) then
 			ignore=true;
 		end
 
-		-- filter 3: Select traint filter
+		-- filter 4: Select traint filter
 		if (AbilityFilter~="") then
 			local dontIgnore=false;
 			for I,V in ipairs(v.abilities) do
@@ -757,18 +844,19 @@ local function ListEntries_Update()
 			end
 		end
 
-		-- filter 4: Searchbox filter
-		if (SearchStr~="") and (not v.info.name:lower():find(SearchStr:lower())) then
+		-- filter 5: Searchbox filter
+		if (SearchStr~="") and (not v.name:lower():find(SearchStr:lower())) then
 			ignore=true;
 		end
 
+		-- now add all if not set as ignore...
 		if (ignore~=true) then
 			tmp[id]=v;
-			if (v.data) and (v.data.zone) and (v.data.zone~=0) then
-				if (zones2follower[v.data.zone]==nil) then
-					zones2follower[v.data.zone]={};
+			if (v.zone) and (v.zone~=0) then
+				if (zones2follower[v.zone]==nil) then
+					zones2follower[v.zone]={};
 				end
-				tinsert(zones2follower[v.data.zone],id);
+				tinsert(zones2follower[v.zone],id);
 			else
 				if (zones2follower[0]==nil) then
 					zones2follower[0]={};
@@ -779,7 +867,7 @@ local function ListEntries_Update()
 	end
 
 	for i1,v1 in ipairs(factionZoneOrder) do
-		if (zones2follower[v1]) and (#zones2follower[v1]>0) then
+		if (zones2follower[v1]) then
 			-- header element
 			tinsert(ListEntries,{ZoneName=zoneNames[v1]});
 			--
@@ -788,21 +876,12 @@ local function ListEntries_Update()
 			end
 		end
 	end
-
-	if (zones2follower[0]) and (#zones2follower[0]>0) then
-		-- header element
-		tinsert(ListEntries,{ZoneName=L["No description found for..."]});
-		--
-		for i2,v2 in ipairs(zones2follower[0]) do
-			tinsert(ListEntries,tmp[v2]);
-		end
-	end
 end
 
 local function ListEntries_OnClick(self,button)
 	if (ListEntrySelected==false) or (ListEntrySelected~=self.info.followerID) then
 		ListEntrySelected = self.info.followerID;
-		DescSelected = {info=self.info,data=self.data};
+		DescSelected = self.info;
 	else
 		ListEntrySelected = false;
 		DescSelected = false;
@@ -861,31 +940,28 @@ function List_Update()
 			if (obj.ZoneName) then
 				button.ZoneName:SetText(obj.ZoneName);
 			else
-				local _,className = strsplit("-",obj.info.classAtlas);
-				local class = classes[className:upper()];
-				GarrisonFollowerPortrait_Set(button.Portrait,obj.info.portraitIconID);
-				button.Name:SetText(("|c%s%s|r"):format(class.colorStr,obj.info.name));
-				button.Level:SetText(obj.info.level);
-				if (obj.info.quality) and (button["quality"..obj.info.quality]) then
-					button["quality"..obj.info.quality]:Show();
+				button.info = obj;
+
+				GarrisonFollowerPortrait_Set(button.Portrait,obj.portraitIconID);
+				button.Name:SetText(("|c%s%s|r"):format(obj.classColor,obj.name));
+				button.Level:SetText(obj.level);
+				if (obj.quality) and (button["quality"..obj.quality]) then
+					button["quality"..obj.quality]:Show();
 				end
-				if (obj.info.garrFollowerID) then
+				if (obj.collected) then
 					button.collected:Show();
-				elseif (obj.data) and (obj.data.collectGroup) and (collectGroups[obj.data.collectGroup]==true) then
+				elseif (obj.collectGroup) and (collectGroups[obj.collectGroup]==true) then
 					button.notCollectable:Show();
 				end
-				button.info = obj.info;
-				if (obj.data) then
-					button.data = obj.data;
+				--if (obj.desc) then
 					button:Enable();
 					button:SetScript("OnClick",ListEntries_OnClick);
-
-					if (ListEntrySelected) and (ListEntrySelected==obj.info.followerID) then
+					if (ListEntrySelected) and (ListEntrySelected==obj.followerID) then
 						button.selectedTex:Show();
 					end
-				end
+				--end
 				if (FollowerLocationInfoDB.ShowFollowerID) then
-					button.followerID:SetText("ID: "..obj.info.followerID);
+					button.followerID:SetText("ID: "..obj.followerID);
 					button.followerID:Show();
 				end
 			end
@@ -937,7 +1013,7 @@ end
 
 
 --[=[ FollowerLocationInfoFrame ]=]
-local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
+function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 	if (event=="ADDON_LOADED") and (arg1==addon) then
 		if (FollowerLocationInfoDB==nil) then
 			FollowerLocationInfoDB={Minimap={enabled=true}};
@@ -948,7 +1024,9 @@ local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 			ShowCoordsFrame = true,
 			BrokerTitle_Coords = false,
 			BrokerTitle_NumFollowers = true,
-			ShowCollectedFollower = false
+			ShowCollectedFollower = false,
+			ShowHiddenFollowers = false,
+			ExternalURL = "WoWHead"
 		}) do 
 			if (FollowerLocationInfoDB[i]==nil) then
 				FollowerLocationInfoDB[i] = v;
@@ -963,32 +1041,73 @@ local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 			end
 		end
 	elseif (event=="PLAYER_ENTERING_WORLD") or (event=="GARRISON_FOLLOWER_LIST_UPDATE") or (event=="GARRISON_FOLLOWER_REMOVED") or (event=="GARRISON_FOLLOWER_XP_CHANGED") then
-		local tmp,collected = C_Garrison.GetFollowers();
+		local data = {zone=-1,{"custom",{"Info","Lunarfall/Frostwall Inn follower recruitment?|nNeed help to confirm it..."}}};
+		local tmp = C_Garrison.GetFollowers();
 		numCollectedFollowers = 0;
-		for _,v in ipairs(tmp) do
-			collected = false;
-			if (v.garrFollowerID~=nil) then
-				v.followerID,v.garrFollowerID = tonumber(v.garrFollowerID),v.followerID; -- blizzard's stupid order change...
-				collected = true;
-				numCollectedFollowers = numCollectedFollowers + 1;
-			end
-			if (ns.followers[v.followerID]) then
-				if (ns.followers[v.followerID].collectGroup) and (collected) then
-					collectGroups[ns.followers[v.followerID].collectGroup] = true;
+
+		local ids = {};
+		for i,v in ipairs(tmp) do
+			ids[(v.garrFollowerID) and tonumber(v.garrFollowerID) or v.followerID] = true;
+		end
+
+		for i,v in pairs(ns.follower_basics) do
+			if (v) and (not ids[i]) then
+				local d = C_Garrison.GetFollowerInfo(i);
+				if (d) and (type(d.portraitIconID)=="number") and (d.portraitIconID>0) then
+					d.hidden=true;
+					tinsert(tmp,d);
 				end
 			end
-			--
-			local _, class=strsplit("-",v.classAtlas:lower());
-			classNames1[v.className:lower()] = {v.className,class};
-			classNames2[class] = {_G.LOCALIZED_CLASS_NAMES_MALE[class:upper()],class};
-			--
-			local Abs = C_Garrison.GetFollowerAbilities(v.followerID);
-			for i,v in ipairs(Abs) do
-				abilityNames[v.name] = {v.name,v.isTrait};
-			end
-			--
-			followers[v.followerID] = {info=v,data=ns.followers[v.followerID],collected=collected,abilities=Abs};
 		end
+
+		for _,v in ipairs(tmp) do
+			-- is collected?
+			v.collected = false;
+			if (v.garrFollowerID~=nil) then
+				v.followerID,v.garrFollowerID = tonumber(v.garrFollowerID),v.followerID; -- blizzard's stupid order change...
+				numCollectedFollowers = numCollectedFollowers + 1;
+				v.collected = true;
+			end
+
+			if (ns.followers[v.followerID]) then
+				-- add zone
+				v.zone = ns.followers[v.followerID].zone;
+
+				-- add descriptions without zone
+				v.desc = {};
+				for _,d in ipairs(ns.followers[v.followerID]) do tinsert(v.desc,d); end
+
+				-- member of a collectGroup? [only one of the group is collectable]
+				if (ns.followers[v.followerID].collectGroup) then
+					v.collectGroup=ns.followers[v.followerID].collectGroup;
+				end
+				if (v.collectGroup) and (v.collected) then
+					collectGroups[v.collectGroup] = true;
+				end
+			end
+
+			-- add missing basics and correct wrong level and quality. GetFollower returns current stand of all collected followers, not good for this addon.
+			v.race = getFollowerBasics(v.followerID,"race");
+			v.level = getFollowerBasics(v.followerID,"level");
+			v.quality = getFollowerBasics(v.followerID,"quality");
+			v.abilities = C_Garrison.GetFollowerAbilities(v.followerID);
+			local _,class = strsplit("-",v.classAtlas);
+			v.class = class;
+			local c = classes[v.class:upper()];
+			v.classColor = c.colorStr;
+
+			-- add class and class specc names to filter table;
+			classNames1[v.className:lower()] = {v.className,v.class:lower()};
+			classNames2[v.class] = {_G.LOCALIZED_CLASS_NAMES_MALE[v.class:upper()],v.class:lower()};
+
+			-- get abilities and add it to filter table
+			for _,V in ipairs(v.abilities) do
+				abilityNames[V.name] = {V.name,V.isTrait};
+			end
+
+			followers[v.followerID] = v;
+		end
+
 		List_Update();
 	end
 end
@@ -1019,7 +1138,7 @@ function FollowerLocationInfoFrame_OnLoad(self)
 	self.Desc:SetScript("OnMouseWheel",Desc_OnMouseWheel)
 
 	-- FLI.ConfigButton
-	self.ConfigButton:SetScript("OnClick",getMenu);
+	self.ConfigButton:SetScript("OnClick",function(self) configMenu(self,"TOPRIGHT","BOTTOMRIGHT") end);
 
 	-- FLI
 	self:SetFrameLevel(10);
@@ -1045,6 +1164,12 @@ function FollowerLocationInfoFrame_OnLoad(self)
 	-- FLI.ListBG / FLI.ListOptionBG
 	self.ListBG:SetFrameLevel(self:GetFrameLevel()-2);
 	self.ListOptionBG:SetFrameLevel(self:GetFrameLevel()-4);
+
+	-- FLI.BigModelViewer
+	self.BigModelViewer:SetFrameLevel(self:GetFrameLevel()-4);
+	self.BigModelViewerToggle:SetFrameLevel(self:GetFrameLevel()+1);
+	self.BigModelViewer.Border:SetFrameLevel(self:GetFrameLevel()-2);
+	self.BigModelViewerToggle.tooltip = L["Show/Hide big 3d model viewer"];
 end
 
 
@@ -1065,11 +1190,8 @@ end);
 --[=[ chat command ]=]
 SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 	local cmd, arg = strsplit(" ", cmd, 2)
-	local _print = function(...)
-		print("|cffff4444FLI|r", "|cff44aaff", ..., "|r");
-	end
+	local _print = function(...) print("|cffff4444FLI|r", "|cff44aaff", ..., "|r"); end
 	cmd = cmd:lower()
-
 	if (cmd=="toggle") then
 		FollowerLocationInfo_Toggle();
 	elseif (cmd=="collected") then
@@ -1095,3 +1217,4 @@ end
 
 SLASH_FOLLOWERLOCATIONINFO1 = "/fli";
 SLASH_FOLLOWERLOCATIONINFO2 = "/followerlocationinfo";
+

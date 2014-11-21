@@ -1,17 +1,14 @@
-
+--X
 -- ID: 185, Name: Rangari Chel (A) / Lokra (H)
 
 local _, ns = ...;
-local L = ns.locale;
 
-ns.addFollower(185,false,{
-	collectGroup="184.185.186",
-	Alliance = {
-		complete=true,
+ns.addFollower(
+	185,
+	false,
+	{
+		collectGroup="184.185.186",
 		zone = 947,
-		level = 90,
-		quality = 2,
-		modelRace = "DraeneiF",
 		{"questrow",
 			{34787, 80078, 947, 56.5, 23.5},
 			{35552, 80073, 947, 62.4, 26.2 },
@@ -24,13 +21,10 @@ ns.addFollower(185,false,{
 			enUS = "Gained afte completing the Elodor questline. You have to choose between Andren, Chel and Onaala. (Tritox/WoWHead)",
 		}}
 	},
-	Horde = {
+	{
 		ignore=true,
-		complete=-1,
+		collectGroup="184.185.186",
 		zone=941,
-		level = 90,
-		quality = 2,
-		modelRace = "OrcF",
 		{"questrow", 
 			{33828, 72940, 941, nil, nil},
 			{33493, 72940, 941, nil, nil},
@@ -40,10 +34,9 @@ ns.addFollower(185,false,{
 			{34123, 76720, 941, 65.4, 65.6},
 			{34124, 76487, 941, 73.4, 58.8},
 		}
-	},
-	Neutral = {}
-});
+	}
+);
 
---[=[ TODO :: missing quest giver coords... ]=]
+
 
 --local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};

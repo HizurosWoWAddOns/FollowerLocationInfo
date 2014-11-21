@@ -2,16 +2,12 @@
 -- ID: 194, Name: Phylarch the Evergreen
 
 local _, ns = ...;
-local L = ns.locale;
 
-ns.addFollower(194,true,{
-	Alliance = {},
-	Horde = {},
-	Neutral = {
-		complete=true,
+ns.addFollower(
+	194,
+	true,
+	{
 		zone = 962,
-		level = 100,
-		quality = 3,
 		{"pos", {962, nil, nil, "Random location"}},
 		{"requirements", "Lumber mill (Level 3)"},
 		{"desc", {
@@ -19,6 +15,6 @@ ns.addFollower(194,true,{
 			deDE = "Beim fällen von Bäumen wird man von ihm angegriffen. Er verschwindet mit wenig Leben. Das geht ein paar mal so bis er sich ergibt.",
 		}}
 	}
-});
+);
 
 --local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};

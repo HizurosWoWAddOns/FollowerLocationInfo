@@ -2,15 +2,12 @@
 -- ID: 155, Name: Miall (A) / Morketh Bladehowl (H)
 
 local _, ns = ...;
-local L = ns.locale;
 
-ns.addFollower(155,false,{
-	Alliance = {
-		complete=true,
+ns.addFollower(
+	155,
+	false,
+	{
 		zone = 946,
-		level = 94,
-		quality = 2,
-		modelRace = "DraeneiF",
 		{"questrow",
 			{34563, 79160, 946, 69.2, 19.2},
 			{34571, 79159, 946, 69.2, 19.2},
@@ -24,12 +21,8 @@ ns.addFollower(155,false,{
 			{34982, 80968, 946, 69.6, 20.8}
 		},
 	},
-	Horde = {
-		complete=true,
+	{
 		zone = 946,
-		level = 94,
-		quality = 2,
-		modelRace = "OrcM",
 		{"questrow",
 			{34972, 79356, 946, 70.8, 30.4},
 			{34837, 79356, 946, 70.8, 30.4},
@@ -39,8 +32,7 @@ ns.addFollower(155,false,{
 			{34971, 80342, 946, 64.4, 81.6},
 			{34972, 80623, 946, 71.2, 29.8}
 		},
-	},
-	Neutral = {}
-});
+	}
+);
 
 --local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};

@@ -1,16 +1,13 @@
-
+--X
 -- ID: 179, Name: Artificer Romuul (A) / Weaponsmith Na'Shral (H)
 
 local _, ns = ...;
-local L = ns.locale;
 
-ns.addFollower(179,false,{
-	Alliance = {
-		complete=true,
+ns.addFollower(
+	179,
+	false,
+	{
 		zone = 947,
-		level = 92,
-		quality = 2,
-		modelRace = "DraeneiM",
 		{"event", {33038, 74741, 947, 42.8, 40.4}},
 		{"quest", {35614, 74741, 947, 42.8, 40.4}},
 		{"desc", {
@@ -19,17 +16,10 @@ ns.addFollower(179,false,{
 		}},
 		{"img", "1"},
 	},
-	Horde = {
-		complete=-2,
+	{
 		zone = 941,
-		level = 92,
-		quality = 2,
-		modelRace = "OrcF",
 		{"quest", {34729, 74977, 941, 65, 39.4}}
-	},
-	Neutral = {}
-});
-
---[=[ TODO :: image ? ]=]
+	}
+);
 
 --local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};

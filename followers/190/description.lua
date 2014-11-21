@@ -2,17 +2,12 @@
 -- ID: 190, Name: 
 
 local _, ns = ...;
-local L = ns.locale;
 
-ns.addFollower(190,true,{
-	Alliance = {},
-	Horde = {},
-	Neutral = {
-		complete=true,
+ns.addFollower(
+	190,
+	true,
+	{
 		zone=946,
-		level = 100,
-		quality = 2,
-		modelRace = "HumanM",
 		{"questrow", 
 			{34463, "o229330", 949, 39.7, 39.9},
 			{34464, "o229333", 941, 68.0, 19.0},
@@ -26,6 +21,6 @@ ns.addFollower(190,true,{
 			deDE = "Finde die vier mysteriösen Gegenstände und bringe sie zu Zooti Zappenduster für das Ritual."
 		}}
 	}
-});
+);
 
 --local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};

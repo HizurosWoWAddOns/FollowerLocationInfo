@@ -2,11 +2,15 @@
 ..\..\FrameXML\UI.xsd">
 
 	<Include file="libs\load.xml" />
+	<Script  file="MenuGenerator.lua" />
+
 	<Include file="locale\load.xml" />
+
+	<Script  file="FollowerLocationInfo.lua" />
+	<Script  file="db_follower_basics.lua" />
 	<Script  file="db_factions.lua" />
 	<Script  file="db_npcs.lua" />
-	<Script  file="MenuGenerator.lua" />
-	<Script  file="FollowerLocationInfo.lua" />
+
 	<Include file="followers\load.xml" />
 
 	<GameTooltip name="FollowerLocationInfoTooltip" inherits="GameTooltipTemplate" alpha="0" />
@@ -114,10 +118,9 @@
 					</Anchors>
 				</FontString>
 				<FontString parentKey="text" inherits="GameFontHighlight" justifyH="LEFT" nonspacewrap="true" hidden="true">
-					<Size x="320" />
+					<Size x="300" />
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeKey="$parent.title" relativePoint="TOPRIGHT" x="6" />
-						<!-- <Anchor point="RIGHT" /> -->
 					</Anchors>
 				</FontString>
 				<Texture parentKey="img" hidden="true">
@@ -128,20 +131,31 @@
 				</Texture>
 			</Layer>
 		</Layers>
+		<Frames>
+			<Button parentKey="Options" hidden="">
+				<Size x="24" y="24"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.text" relativePoint="TOPRIGHT" x="6" y="6" />
+				</Anchors>
+				<NormalTexture file="Interface\FriendsFrame\UI-FriendsList-Small-Up" />
+				<PushedTexture file="Interface\FriendsFrame\UI-FriendsList-Small-Down" />
+				<HighlightTexture file="Interface\FriendsFrame\UI-FriendsList-Highlight" alphaMode="ADD"/>
+			</Button>
+		</Frames>
 	</Frame>
 
 	<Frame name="FollowerLocationInfoFilterTemplate" virtual="true">
 		<Size x="0" y="16" />
 		<Frames>
 			<Button parentKey="Button">
-				<Size x="22" y="22"/>
+				<Size x="24" y="24"/>
 				<Anchors>
 					<Anchor point="LEFT" x="50" />
 				</Anchors>
 				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
 				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
 				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled"/>
-				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
+				<HighlightTexture file="Interface\FriendsFrame\UI-FriendsList-Highlight" alphaMode="ADD"/>
 			</Button>
 			<Button parentKey="Remove" hidden="true">
 				<Size x="32" y="32"/>
@@ -310,6 +324,7 @@
 				</Layers>
 			</Frame>
 
+			<!-- Follower list - Options area -->
 			<Frame parentKey="ListOptionBG">
 				<Size x="290" y="160"/>
 				<Anchors>
@@ -351,6 +366,39 @@
 				<Frames>
 				</Frames>
 			</Frame>
+
+			<EditBox parentKey="Search" inherits="SearchBoxTemplate" letters="40" hidden="false">
+				<Size x="0" y="20"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.ListOptionBG" x="42" y="-38" />
+					<Anchor point="TOPRIGHT" relativeKey="$parent.ListOptionBG" x="-18" y="-18" />
+				</Anchors>
+				<Scripts>
+					<!--
+					<OnTextChanged function="$parent.SearchTextChanged"/>
+					-->
+					<OnLoad>
+						self:SetScale(.95);
+						SearchBoxTemplate_OnLoad(self);
+					</OnLoad>
+				</Scripts>
+			</EditBox>
+
+			<Frame parentKey="ClassFilter" inherits="FollowerLocationInfoFilterTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.Search" relativePoint="BOTTOMLEFT" y="-4" />
+					<Anchor point="TOPRIGHT" relativeKey="$parent.Search" relativePoint="BOTTOMRIGHT" y="-4" />
+				</Anchors>
+			</Frame>
+
+			<Frame parentKey="AbilityFilter" inherits="FollowerLocationInfoFilterTemplate" hidden="false">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.ClassFilter" relativePoint="BOTTOMLEFT" y="-4" />
+					<Anchor point="TOPRIGHT" relativeKey="$parent.ClassFilter" relativePoint="BOTTOMRIGHT" y="-4" />
+				</Anchors>
+			</Frame>
+			<!-- /Follower list - Options area -->
+
 
 			<Frame parentKey="ListBG">
 				<Size x="290" y="400"/>
@@ -406,38 +454,6 @@
 				<Frames>
 				</Frames>
 			</Frame>
-
-			<EditBox parentKey="Search" inherits="SearchBoxTemplate" letters="40" hidden="false">
-				<Size x="0" y="20"/>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.ListOptionBG" x="42" y="-38" />
-					<Anchor point="TOPRIGHT" relativeKey="$parent.ListOptionBG" x="-18" y="-18" />
-				</Anchors>
-				<Scripts>
-					<!--
-					<OnTextChanged function="$parent.SearchTextChanged"/>
-					-->
-					<OnLoad>
-						self:SetScale(.95);
-						SearchBoxTemplate_OnLoad(self);
-					</OnLoad>
-				</Scripts>
-			</EditBox>
-
-			<Frame parentKey="ClassFilter" inherits="FollowerLocationInfoFilterTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Search" relativePoint="BOTTOMLEFT" y="-4" />
-					<Anchor point="TOPRIGHT" relativeKey="$parent.Search" relativePoint="BOTTOMRIGHT" y="-4" />
-				</Anchors>
-			</Frame>
-
-			<Frame parentKey="AbilityFilter" inherits="FollowerLocationInfoFilterTemplate" hidden="false">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.ClassFilter" relativePoint="BOTTOMLEFT" y="-4" />
-					<Anchor point="TOPRIGHT" relativeKey="$parent.ClassFilter" relativePoint="BOTTOMRIGHT" y="-4" />
-				</Anchors>
-			</Frame>
-
 			<ScrollFrame name="$parentList" parentKey="List" inherits="HybridScrollFrameTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.ListBG" x="35" y="-37" />
@@ -491,6 +507,106 @@
 					</Frame>
 				</ScrollChild>
 			</ScrollFrame>
+
+			<!-- BigModelViewer -->
+			<Frame parentKey="BigModelViewer" hidden="true">
+				<Size x="290" y="0"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-17" y="-20" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-17" y="20"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="BG" atlas="GarrLanding-MiddleTile" horizTile="true" vertTile="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="0" y="-25"/>
+								<Anchor point="BOTTOMRIGHT" x="-25" y="25"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<PlayerModel parentKey="Model" inherits="ModelWithControlsTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" x="0" y="-16" />
+							<Anchor point="BOTTOMRIGHT" x="-16" y="16" />
+						</Anchors>
+					</PlayerModel>
+					<Frame parentKey="Border" setAllPoints="true">
+						<Layers>
+							<Layer level="ARTWORK">
+								<Texture parentKey="TR" atlas="GarrLanding-upperright" useAtlasSize="true">
+									<Anchors>
+										<Anchor point="TOPRIGHT" y="1"/>
+									</Anchors>
+								</Texture>
+								<Texture parentKey="BR" atlas="GarrLanding-lowerright" useAtlasSize="true">
+									<Anchors>
+										<Anchor point="BOTTOMRIGHT" y="-2"/>
+									</Anchors>
+								</Texture>
+								<Texture parentKey="TOP" atlas="GarrLanding-Top" useAtlasSize="true">
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="0"/> 
+										<Anchor point="TOPRIGHT" relativeKey="$parent.TR" relativePoint="TOPLEFT" y="0"/>
+									</Anchors>
+								</Texture>
+								<Texture parentKey="BOTTOM" atlas="GarLanding-Bottom" useAtlasSize="true">
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" y="0"/>
+										<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BR" relativePoint="BOTTOMLEFT" y="0"/>
+									</Anchors>
+								</Texture>
+								<Texture parentKey="RIGHT" atlas="GarLanding-Right" useAtlasSize="true">
+									<Anchors>
+										<Anchor point="TOPRIGHT" relativeKey="$parent.TR" relativePoint="BOTTOMRIGHT" y="0"/>
+										<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BR" relativePoint="TOPRIGHT" y="0"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Frame>
+				</Frames>
+			</Frame>
+
+			<Button parentKey="BigModelViewerToggle">
+				<Size x="24" y="24" />
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="-12" y="12" />
+				</Anchors>
+				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
+				<HighlightTexture file="Interface\FriendsFrame\UI-FriendsList-Highlight" alphaMode="ADD"/>
+				<Scripts>
+					<OnEnter>
+						if (self.tooltip) then
+							GameTooltip:SetOwner(self,"ANCHOR_LEFT");
+							GameTooltip:SetText(self.tooltip);
+							GameTooltip:Show();
+						end
+					</OnEnter>
+					<OnLeave>
+						if (self.tooltip) then
+							GameTooltip:Hide();
+							GameTooltip:ClearLines();
+						end
+					</OnLeave>
+					<OnClick>
+						local f,n,h = self:GetParent().BigModelViewer,self:GetNormalTexture(),self:GetHighlightTexture();
+						if (f:IsShown()) then
+							f:Hide();
+							n:SetTexture(gsub(n:GetTexture(),"Prev","Next"));
+							h:SetTexture(gsub(h:GetTexture(),"Prev","Next"));
+						else
+							f:Show();
+							n:SetTexture(gsub(n:GetTexture(),"Next","Prev"));
+							h:SetTexture(gsub(h:GetTexture(),"Next","Prev"));
+						end
+					</OnClick>
+				</Scripts>
+			</Button>
+			<!-- /BigModelViewer -->
+
 		</Frames>
 		<Scripts>
 			<OnLoad function="FollowerLocationInfoFrame_OnLoad"/>
