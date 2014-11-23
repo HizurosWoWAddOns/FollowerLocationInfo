@@ -6,12 +6,13 @@ ns.faction, ns.factionLocale = UnitFactionGroup("player"); L[ns.faction] = ns.fa
 ns.factionID = ((ns.faction=="Alliance") and 1) or ((ns.faction=="Horde") and 2) or 0;
 ns.followers = {};
 
-FollowerLocationInfo_Toggle, FollowerLocationInfo_ToggleCollected, FollowerLocationInfo_ToggleIDs, FollowerLocationInfo_ResetConfig=nil,nil,nil,nil;
+FollowerLocationInfo_Toggle, FollowerLocationInfo_ToggleCollected, FollowerLocationInfo_ToggleIDs, FollowerLocationInfo_ResetConfig,FollowerLocationInfo_MinimapButton=nil,nil,nil,nil,nil;
 local configMenu, List_Update, FollowerLocationInfoFrame_OnEvent,ExternalURL;
 
 local followers, zoneNames, classes, collectGroups, classNames1, classNames2, abilityNames = {},{},{},{},{},{},{};
 local numHidden,numRealFollowers, numKnownFollowers, numCollectedFollowers = (292-48),0,0,0;
 local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButtons.ITEM_QUALITY3_DESC,_G.UnitPopupButtons.ITEM_QUALITY4_DESC};
+local initState={minimap=false};
 local doRefresh = false;
 local ClassFilterLabel, AbilityFilterLabel = L["Classes & Class speccs"], L["Abilities & Traits"];
 
@@ -19,7 +20,7 @@ local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,971,949,9
 														   or {962,941,976,949,946,948,950,947,978,1011,964,969,984,987,988,989,993,994,995,1008,-1,0};
 for i,v in ipairs(factionZoneOrder) do if (v>0) then zoneNames[v] = GetMapNameByID(v); end end
 zoneNames[-1] = L["hidden followers"];
-zoneNames[0]=L["No description found for..."];
+zoneNames[0] = L["No description found for..."];
 
 local modelPositions={
 	-- Alliance races ------------------------------------------
@@ -50,32 +51,25 @@ local modelPositions={
 local lDB = LibStub("LibDataBroker-1.1");
 local lDBI = LibStub("LibDBIcon-1.0");
 local function dataBrokerInit()
-	if (lDB) then
-		local obj = lDB:NewDataObject(addon, {
-			type          = "data source",
-			label         = addon,
-			icon          = "Interface\\Icons\\Achievement_GarrisonFollower_Rare",
-			text          = addon,
-			--OnEnter       = function(self) end,
-			--OnLeave       = function(self) end,
-			OnClick       = function(self,button)
-				if (button=="LeftButton") then
-					FollowerLocationInfo_Toggle();
-				elseif (button=="RightButton") then
-					configMenu(self,"TOP","BOTTOM");
-				end
-			end,
-			--OnDoubleClick = function(self) end,
-			--OnTooltipShow = function(self) end
-		});
-
-		if (lDBI) then
-			lDBI:Register(addon, obj, FollowerLocationInfoDB.Minimap)
-			if (not FollowerLocationInfoDB.Minimap.enabled) then
-				lDBI:Hide(addon);
+	if (not lDB) then return; end
+	local obj = lDB:NewDataObject(addon, {
+		type          = "data source",
+		label         = addon,
+		icon          = "Interface\\Icons\\Achievement_GarrisonFollower_Rare",
+		text          = addon,
+		--OnEnter       = function(self) end,
+		--OnLeave       = function(self) end,
+		OnClick       = function(self,button)
+			if (button=="LeftButton") then
+				FollowerLocationInfo_Toggle();
+			elseif (button=="RightButton") then
+				configMenu(self,"TOP","BOTTOM");
 			end
-		end
-	end
+		end,
+		--OnDoubleClick = function(self) end,
+		--OnTooltipShow = function(self) end
+	});
+
 	if (GetAddOnInfo("SlideBar")) then
 		if (GetAddOnEnableState(UnitName("player"),"SlideBar")>1) then
 			local name = addon..".Launcher"
@@ -86,6 +80,12 @@ local function dataBrokerInit()
 			});
 		end
 	end
+end
+local function minimapInit()
+	if (not lDB) or (not lDBI) and (not initState.minimap) then return; end
+	local obj = lDB:GetDataObjectByName(addon);
+	lDBI:Register(addon, obj, FollowerLocationInfoDB.Minimap);
+	initState.minimap=true;
 end
 
 
@@ -313,7 +313,8 @@ function configMenu(self,anchorA,anchorB)
 			{
 				label = L["Show minimap button"], tooltip = {L["Minimap"],L["Show/Hide minimap button"]},
 				checked = function() return FollowerLocationInfoDB.Minimap.enabled; end,
-				func  = function() FollowerLocationInfoDB.Minimap.enabled = not FollowerLocationInfoDB.Minimap.enabled; if (not FollowerLocationInfoDB.Minimap.enabled) then lDBI:Hide(addon); else lDBI:Show(addon); end end
+				--func  = function() FollowerLocationInfoDB.Minimap.enabled = not FollowerLocationInfoDB.Minimap.enabled; if (not FollowerLocationInfoDB.Minimap.enabled) then lDBI:Hide(addon); else lDBI:Show(addon); end end
+				func = function() FollowerLocationInfo_MinimapButton(); end
 			},
 			{
 				label = L["Show coordinations on broker"], --tooltip={L[""],L[""]},
@@ -1013,6 +1014,20 @@ function FollowerLocationInfo_ResetConfig()
 	ReloadUI();
 end
 
+function FollowerLocationInfo_MinimapButton()
+	if (initState.minimap) then
+		FollowerLocationInfoDB.Minimap.enabled = not FollowerLocationInfoDB.Minimap.enabled;
+		if (not FollowerLocationInfoDB.Minimap.enabled) then
+			lDBI:Hide(addon);
+		else
+			lDBI:Show(addon);
+		end
+	else
+		minimapInit();
+		FollowerLocationInfoDB.Minimap.enabled = true;
+	end
+end
+
 function FollowerLocationInfo_PrintMissingData()
 	local tmp;
 	for i,v in pairs(IsMissing) do
@@ -1044,7 +1059,6 @@ function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 				FollowerLocationInfoDB[i] = v;
 			end
 		end
-		dataBrokerInit();
 		for i,v in pairs(_G.RAID_CLASS_COLORS) do
 			if (_G.CUSTOM_CLASS_COLORS) and (_G.CUSTOM_CLASS_COLORS[i]) and (_G.CUSTOM_CLASS_COLORS[i].colorStr) then
 				classes[i] = _G.CUSTOM_CLASS_COLORS[i];
@@ -1052,7 +1066,14 @@ function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 				classes[i] = v;
 			end
 		end
-	elseif (event=="PLAYER_ENTERING_WORLD") or (event=="GARRISON_FOLLOWER_LIST_UPDATE") or (event=="GARRISON_FOLLOWER_REMOVED") or (event=="GARRISON_FOLLOWER_XP_CHANGED") then
+	end
+	if (event=="PLAYER_ENTERING_WORLD") then
+		dataBrokerInit();
+		if (FollowerLocationInfoDB.Minimap.enabled) then
+			FollowerLocationInfo_MinimapButton();
+		end
+	end
+	if (event=="PLAYER_ENTERING_WORLD") or (event=="GARRISON_FOLLOWER_LIST_UPDATE") or (event=="GARRISON_FOLLOWER_REMOVED") or (event=="GARRISON_FOLLOWER_XP_CHANGED") then
 		local data = {zone=-1,{"custom",{"Info","Lunarfall/Frostwall Inn follower recruitment?|nNeed help to confirm it..."}}};
 		local tmp = C_Garrison.GetFollowers();
 		numCollectedFollowers = 0;
@@ -1212,6 +1233,8 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		FollowerLocationInfo_ToggleIDs();
 	elseif (cmd=="missing") then
 		FollowerLocationInfo_PrintMissingData();
+	elseif (cmd=="minimap") then
+		FollowerLocationInfo_MinimapButton();
 	elseif (cmd=="reset") then
 		FollowerLocationInfo_ResetConfig();
 	else
@@ -1219,11 +1242,12 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		_print(L["Usage: /fli <command>"]);
 		_print("      "..L["or /followerlocationinfo <command>"]);
 		_print(L["Commands:"]);
-		_print("  toggle = " .. L["Show/Hide frame."]);
+		_print("  toggle    = " .. L["Show/Hide frame."]);
 		_print("  collected = " .. L["Show/Hide collected followers."]);
-		_print("  ids = " .. L["Show/Hide follower ids."]);
-		_print("  reset = " .. L["Reset addon settings."]);
-		_print("  missing = ".. L["Print missing data (follower and npc id's)"]);
+		_print("  ids       = " .. L["Show/Hide follower ids."]);
+		_print("  minimap   = " .. L["Show/Hide minimap button."]);
+		_print("  reset     = " .. L["Reset addon settings."]);
+		_print("  missing   = " .. L["Print missing data (follower and npc id's)"]);
 	end
 end
 
