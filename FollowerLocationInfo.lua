@@ -284,6 +284,16 @@ local function GetUnitInfo(UnitID)
 	return Collector.QueryHyperlinkData("unit:"..UnitID);
 end
 
+local function MenuEntry_AddWaypoint(menu,zone,x,y,title)
+	if (TomTom) then
+		tinsert(menu,{
+			label = L["Add waypoint to Tom Tom"],
+			func = function()
+				TomTom:AddMFWaypoint(zone,0,x/100,y/100,{title=title});
+			end
+		});
+	end
+end
 
 --[=[ menus ]=]
 local function createMenu(parent,menuElements,anchorA,anchorB)
@@ -415,17 +425,17 @@ local function Desc_AddInfo(self, count, objType, ...)
 			end
 			if (type(v[2])=="number") and (type(v[3])=="number") then
 				location = ("%s%1.1f, %1.1f"):format((location) and location.." @ " or "",v[2],v[3]);
-				tinsert(menu,{ label = L["Add waypoint to Tom Tom"] });
+				MenuEntry_AddWaypoint(menu,v[1],v[2],v[3],((v[4]) and v[4] or self.info.name).."|n("..location..")");
 			end
 			if (location) and (type(v[4])=="string") then
-				addLine(title, ("%s|n(%s)"):format(location,v[4]),nil,menu);
+				addLine(title, ("%s|n(%s)"):format(v[4],location),nil,menu);
 			else
 				addLine(title, location, nil, menu);
 			end
 			title = "";
 		end
 	elseif (objType=="quest") or (objType=="questrow") or (objType=="event") then
-		local title, qState, qTitle, qText, qGiver, qZone, qCoord, str, qGiverData;
+		local title, qState, qTitle, qTitle2, qText, qGiver, qZone, qCoord, str, qGiverData;
 		if objType=="quest" then
 			title = L["Quests"];
 		elseif objType=="questrow" then
@@ -437,15 +447,16 @@ local function Desc_AddInfo(self, count, objType, ...)
 			local menu = {};
 			qState, qGiver, qZone, qCoord, str = 0, "", "zone?", "?.?, ?.?", "%s|n  » %s(%s @ %s)" --"%s|n    %s|n    (%s @ %s)"
 			qTitle, qText = GetQuestInfo(v[1]);
+			qTitle2 = qTitle;
 			if (qTitle) then
 				local qIndex = GetQuestLogIndexByID(v[1]);
 				if (qIndex~=0) then
-					qTitle = qTitle .. " |cffeeee00"..L["(In questlog)"].."|r";
+					qTitle2 = qTitle .. " |cffeeee00"..L["(In questlog)"].."|r";
 					tinsert(menu,{ label = TRACK_QUEST, func=function() QuestMapQuestOptions_TrackQuest(v[1]); end });
 					tinsert(menu,{ label = L["Open questlog"], func=function() securecall("QuestMapFrame_OpenToQuestDetails", v[1]); end });
 					tinsert(menu,{ label = L["Share quest"], func=function() QuestLogPushQuest(qIndex) end, disabled=(not (GetQuestLogPushable(qIndex) and IsInGroup())) });
 				elseif (IsQuestCompleted(v[1])) then
-					qTitle = qTitle .. " |cff888888"..L["(Completed)"].."|r"
+					qTitle2 = qTitle .. " |cff888888"..L["(Completed)"].."|r"
 				end
 				tinsert(menu,{ label = L["On WoWHead"], func=function()
 					ExternalURL = urls[FollowerLocationInfoDB.ExternalURL]("q",v[1]);
@@ -453,7 +464,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 				end });
 
 				if ((type(v[2])=="number") and (v[2]>0) and (ns.npcs[v[2]])) or ((type(v[2])=="string") and (v[2]:find("^o[0-9]+$")) and (ns.npcs[v[2]])) then
-					qGiver = ns.npcs[v[2]].."|n    ";
+					qGiver = ns.npcs[v[2]];
 				end
 
 				if (type(v[3])=="number") and (v[3]~=0) then
@@ -462,12 +473,13 @@ local function Desc_AddInfo(self, count, objType, ...)
 
 				if (type(v[4])=="number") and (type(v[5])=="number") then
 					qCoord = ("%1.1f, %1.1f"):format(v[4],v[5]);
-					tinsert(menu,{ label = L["Add waypoint to Tom Tom"] });
+					local title = qTitle .. ( (qGiver~="") and ("|n%s: %s"):format(L["Quest giver"],qGiver) or "" ) .. ("|n(%s @ %s)"):format(qZone,qCoord);
+					MenuEntry_AddWaypoint(menu,v[3],v[4],v[5],title);
 				elseif (type(v[4])=="string") then
 					qCoord = L[v[4]];
 				end
 
-				addLine(title, str:format(qTitle, qGiver, qZone, qCoord),nil,menu);
+				addLine(title, str:format(qTitle2, qGiver.."|n   ", qZone, qCoord),nil,menu);
 			elseif v[1]==0 then
 				addLine(title, L["Missing quest..."]);
 			elseif (qTitle==false) then
@@ -522,7 +534,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 			end
 			if (type(v[3])=="number") and (type(v[4])=="number") then
 				location = ("(%s%1.1f, %1.1f)"):format((location) and location.." @ " or "",v[3],v[4]); -- merge zone name with coordinations
-				tinsert(menu,{ label = L["Add waypoint to Tom Tom"] });
+				MenuEntry_AddWaypoint(menu,v[2],v[3],v[4],((npc) and npc or L["Vendor for "]..self.info.name).. "|n"..location );
 			elseif (type(v[3])) then
 				location = ("(%s @ %s)"):format(location,L[v[3]]); -- merge zone name with named location like buildings in garrison...
 			end
@@ -666,7 +678,7 @@ local function Desc_Update()
 				numCollectedFollowers..L[" collected with this character"]
 			},
 			{"Version",GetAddOnMetadata(addon,"Version")},
-			{"Msg from Dev","|cff44eeffGreetings friends...|n|nThe option \"Add waypoints to TomTom\" is disabled because currently i have no TomTom installed. I do it tomorrow.|n|nNow i'm tired... :)|nHave a nice day|r"}
+			{"Msg from Dev","|cff44eeffGreetings friends...|n|nNow TomTom support works. :)|n|nHave a nice day|r"}
 		}) do
 			count = Desc_AddInfo(self, count, "custom", v);
 		end
