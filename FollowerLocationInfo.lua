@@ -1247,10 +1247,12 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		_print("  ids       = " .. L["Show/Hide follower ids."]);
 		_print("  minimap   = " .. L["Show/Hide minimap button."]);
 		_print("  reset     = " .. L["Reset addon settings."]);
+		_print("~ development commands ~");
 		_print("  missing   = " .. L["Print missing data (follower and npc id's)"]);
 	end
 end
 
 SLASH_FOLLOWERLOCATIONINFO1 = "/fli";
 SLASH_FOLLOWERLOCATIONINFO2 = "/followerlocationinfo";
+
 

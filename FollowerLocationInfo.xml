@@ -6,10 +6,11 @@
 
 	<Include file="locale\load.xml" />
 
-	<Script  file="FollowerLocationInfo.lua" />
 	<Script  file="db_follower_basics.lua" />
 	<Script  file="db_factions.lua" />
 	<Script  file="db_npcs.lua" />
+
+	<Script  file="FollowerLocationInfo.lua" />
 
 	<Include file="followers\load.xml" />
 
