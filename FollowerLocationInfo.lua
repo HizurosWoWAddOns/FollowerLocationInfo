@@ -6,16 +6,19 @@ ns.faction, ns.factionLocale = UnitFactionGroup("player"); L[ns.faction] = ns.fa
 ns.factionID = ((ns.faction=="Alliance") and 1) or ((ns.faction=="Horde") and 2) or 0;
 ns.followers = {};
 
-FollowerLocationInfo_Toggle, FollowerLocationInfo_ToggleCollected, FollowerLocationInfo_ToggleIDs, FollowerLocationInfo_ResetConfig,FollowerLocationInfo_MinimapButton=nil,nil,nil,nil,nil;
+FollowerLocationInfo_Toggle, FollowerLocationInfo_ToggleCollected, FollowerLocationInfo_ToggleIDs, FollowerLocationInfo_ResetConfig,FollowerLocationInfo_MinimapButton,FollowerLocationInfo_ToggleList=nil,nil,nil,nil,nil,nil;
 local configMenu, List_Update, FollowerLocationInfoFrame_OnEvent,ExternalURL;
 
 local followers, zoneNames, classes, collectGroups, classNames1, classNames2, abilityNames = {},{},{},{},{},{},{};
 local numHidden,numRealFollowers, numKnownFollowers, numCollectedFollowers = (292-48),0,0,0;
 local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButtons.ITEM_QUALITY3_DESC,_G.UnitPopupButtons.ITEM_QUALITY4_DESC};
-local initState={minimap=false};
-local doRefresh = false;
+local initState,doRefresh={minimap=false},false;
 local ClassFilterLabel, AbilityFilterLabel = L["Classes & Class speccs"], L["Abilities & Traits"];
-
+local ListButtonOffsetX, ListButtonOffsetY = 0,1;
+local ListEntrySelected, ListEntries = false,{};
+local SearchStr,ClassFilter,AbilityFilter = "","","";
+local GetFollowersOnUpdate,GetFollowersOnUpdateCount = false,0;
+local DisabledByLevel,DisabledByBlizzardBug=false,false;
 local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,971,949,946,948,950,941,978,1009,964,969,984,987,988,989,993,994,995,1008,-1,0}
 														   or {962,941,976,949,946,948,950,947,978,1011,964,969,984,987,988,989,993,994,995,1008,-1,0};
 for i,v in ipairs(factionZoneOrder) do if (v>0) then zoneNames[v] = GetMapNameByID(v); end end
@@ -138,6 +141,10 @@ local pairsByKeys = function(t, f)
 		end
 	end
 	return iter
+end
+
+local function getFollowerID(t)
+	return (t.garrFollowerID) and tonumber(t.garrFollowerID) or t.followerID;
 end
 
 local function getFollowerBasics(id,key)
@@ -282,6 +289,102 @@ end
 
 local function GetUnitInfo(UnitID)
 	return Collector.QueryHyperlinkData("unit:"..UnitID);
+end
+
+local function GetFollowers(self)
+	if (DisabledByLevel) then return; end
+
+	-- check on wrong faction
+	local test=C_Garrison.GetFollowerInfo(34);
+	if ((ns.faction=="Alliance") and (test.displayID~=55047)) or ((ns.faction=="Horde") and (test.displayID~=55046)) then -- is it save to test on displayID?
+		if (GetFollowersOnUpdateCount==3) then
+			GetFollowersOnUpdate = false;
+			DisabledByBlizzardBug = true;
+			self.Warning:SetText(L["Unable to load correct faction followers... (Blizzard Bug)"]);
+			self.Warning:Show();
+			return;
+		end
+		GetFollowersOnUpdate = true;
+		FollowerLocationInfo_ToggleList(false);
+		return;
+	else
+		GetFollowersOnUpdate = false;
+		FollowerLocationInfo_ToggleList(false);
+	end
+
+
+	local data = {zone=-1,{"custom",{"Info","Lunarfall/Frostwall Inn follower recruitment?|nNeed help to confirm it..."}}};
+	local tmp = C_Garrison.GetFollowers();
+	numCollectedFollowers = 0;
+
+	local ids = {};
+	for i,v in ipairs(tmp) do
+		ids[getFollowerID(v)] = true;
+	end
+
+	for i,v in pairs(ns.follower_basics) do
+		if (v) and (not ids[i]) then
+			local d = C_Garrison.GetFollowerInfo(i);
+			if (d) and (type(d.portraitIconID)=="number") and (d.portraitIconID>0) then
+				d.hidden=true;
+				tinsert(tmp,d);
+				ns.followers[getFollowerID(d)] = {zone=-1};
+			end
+		end
+	end
+
+	for _,v in ipairs(tmp) do
+		-- is collected?
+		v.collected = false;
+		if (v.garrFollowerID~=nil) then
+			v.followerID,v.garrFollowerID = tonumber(v.garrFollowerID),v.followerID; -- blizzard's stupid order change...
+			numCollectedFollowers = numCollectedFollowers + 1;
+			v.collected = true;
+		end
+
+		if (ns.followers[v.followerID]) then
+			-- add zone
+			v.zone = ns.followers[v.followerID].zone;
+
+			-- add descriptions without zone
+			v.desc = {};
+			for _,d in ipairs(ns.followers[v.followerID]) do tinsert(v.desc,d); end
+
+			-- member of a collectGroup? [only one of the group is collectable]
+			if (ns.followers[v.followerID].collectGroup) then
+				v.collectGroup=ns.followers[v.followerID].collectGroup;
+			end
+			if (v.collectGroup) and (v.collected) then
+				collectGroups[v.collectGroup] = true;
+			end
+		end
+
+		-- add missing basics and correct wrong level and quality. GetFollower returns current stand of all collected followers, not good for this addon.
+		v.race = getFollowerBasics(v.followerID,"race");
+		v.level = getFollowerBasics(v.followerID,"level");
+		v.quality = getFollowerBasics(v.followerID,"quality");
+		v.abilities = C_Garrison.GetFollowerAbilities(v.followerID);
+		local _,class = strsplit("-",v.classAtlas);
+		v.class = class;
+		local c = classes[v.class:upper()];
+		v.classColor = c.colorStr;
+
+		-- add class and class specc names to filter table;
+		classNames1[v.className:lower()] = {v.className,v.class:lower()};
+		classNames2[v.class] = {_G.LOCALIZED_CLASS_NAMES_MALE[v.class:upper()],v.class:lower()};
+
+		-- get abilities and add it to filter table
+		for _,V in ipairs(v.abilities) do
+			abilityNames[V.name] = {V.name,V.isTrait};
+		end
+
+		followers[v.followerID] = v;
+	end
+
+	if (FollowerLocationInfoDB.ListOpen) then
+		FollowerLocationInfo_ToggleList(true);
+	end
+	List_Update();
 end
 
 local function MenuEntry_AddWaypoint(menu,zone,x,y,title)
@@ -669,7 +772,7 @@ local function Desc_Update()
 		InfoHead:Hide();
 	else
 		local count = 0;
-		for i,v in ipairs({
+		local descs={
 			{"Usage","Select a follower to see the description..."},
 			--{"Greetings","Welcome to use this addon.|nCurrently it is still incomplete."},
 			{"Followers",
@@ -680,7 +783,15 @@ local function Desc_Update()
 			},
 			{"Version",GetAddOnMetadata(addon,"Version")},
 			{"Msg from Dev","|cff44eeffGreetings friends...|n|nNow TomTom support works. :)|n|nHave a nice day|r"}
-		}) do
+		};
+
+		if (DisabledByBlizzardBug) then
+			tinsert(descs,1,{"Disabled",L["Follower listing disabled because a blizzard bug prevents loading the correct faction followers."]});
+		elseif (DisabledByLevel) then
+			tinsert(descs,1,{"|cffff0000Disabled|r",L["|cffffaa00Follower listing disabled. You must be level 90 or higher. The follower list will be automaticly enabled on level 90.|r"]});
+		end
+
+		for i,v in ipairs(descs) do
 			count = Desc_AddInfo(self, count, "custom", v);
 		end
 		DescHead:Hide();
@@ -730,13 +841,6 @@ end
 
 
 --[=[ FLI.List ]=]
-local ListButtonOffsetX, ListButtonOffsetY = 0,1;
-local ListEntrySelected = false;
-local ListEntries = {};
-local SearchStr = "";
-local ClassFilter = "";
-local AbilityFilter = "";
-
 local function List_Search(self,bool)
 	SearchBoxTemplate_OnTextChanged(self);
 	SearchStr = (bool) and tostring(self:GetText()) or "";
@@ -1038,9 +1142,59 @@ function FollowerLocationInfo_PrintMissingData()
 	end
 end
 
+function FollowerLocationInfo_ToggleList(force)
+	if (force==nil) and (DisabledByLevel) or (DisabledByBlizzardBug) then return; end
+	local self = FollowerLocationInfoFrame;
+	local n, h = self.ListToggle:GetNormalTexture(),self.ListToggle:GetHighlightTexture();
+	if (force==false) or (self.List:IsShown()) then
+		self.List:Hide();
+		self.ListBG:Hide();
+		self.ListOptionBG:Hide()
+		self.Search:Hide();
+		self.ClassFilter:Hide();
+		self.AbilityFilter:Hide();
+		n:SetTexture(gsub(n:GetTexture(),"Next","Prev"));
+		h:SetTexture(gsub(h:GetTexture(),"Next","Prev"));
+		if (force==nil) then
+			FollowerLocationInfoDB.ListOpen=false;
+		end
+	elseif (force==true) or (not self.List:IsShown()) then
+		self.List:Show();
+		self.ListBG:Show();
+		self.ListOptionBG:Show()
+		self.Search:Show();
+		self.ClassFilter:Show();
+		self.AbilityFilter:Show();
+		n:SetTexture(gsub(n:GetTexture(),"Prev","Next"));
+		h:SetTexture(gsub(h:GetTexture(),"Prev","Next"));
+		if (force==nil) then
+			FollowerLocationInfoDB.ListOpen=true;
+		end
+		List_Update();
+	end
+end
+
 
 --[=[ FollowerLocationInfoFrame ]=]
-function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
+local function FollowerLocaitonInfoFrame_OnUpdate(self,elapsed)
+	if (not GetFollowersOnUpdate) then
+		return;
+	end
+
+	if (self.elapse == nil) then
+		self.elapse = 0;
+	end
+
+	if (self.elapse>10) then
+		self.elapse = 0;
+		GetFollowersOnUpdateCount=GetFollowersOnUpdateCount+1;
+		GetFollowers();
+	else
+		self.elapse=self.elapse+elapsed;
+	end
+end
+
+local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 	if (event=="ADDON_LOADED") and (arg1==addon) then
 		if (FollowerLocationInfoDB==nil) then
 			FollowerLocationInfoDB={Minimap={enabled=true}};
@@ -1053,7 +1207,8 @@ function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 			BrokerTitle_NumFollowers = true,
 			ShowCollectedFollower = false,
 			ShowHiddenFollowers = false,
-			ExternalURL = "WoWHead"
+			ExternalURL = "WoWHead",
+			ListOpen = true
 		}) do 
 			if (FollowerLocationInfoDB[i]==nil) then
 				FollowerLocationInfoDB[i] = v;
@@ -1073,75 +1228,18 @@ function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 			FollowerLocationInfo_MinimapButton();
 		end
 	end
-	if (event=="PLAYER_ENTERING_WORLD") or (event=="GARRISON_FOLLOWER_LIST_UPDATE") or (event=="GARRISON_FOLLOWER_REMOVED") or (event=="GARRISON_FOLLOWER_XP_CHANGED") then
-		local data = {zone=-1,{"custom",{"Info","Lunarfall/Frostwall Inn follower recruitment?|nNeed help to confirm it..."}}};
-		local tmp = C_Garrison.GetFollowers();
-		numCollectedFollowers = 0;
-
-		local ids = {};
-		for i,v in ipairs(tmp) do
-			ids[(v.garrFollowerID) and tonumber(v.garrFollowerID) or v.followerID] = true;
-		end
-
-		for i,v in pairs(ns.follower_basics) do
-			if (v) and (not ids[i]) then
-				local d = C_Garrison.GetFollowerInfo(i);
-				if (d) and (type(d.portraitIconID)=="number") and (d.portraitIconID>0) then
-					d.hidden=true;
-					tinsert(tmp,d);
-				end
+	if (UnitLevel("player")>=90) then
+		DisabledByLevel=false;
+		if (event=="PLAYER_ENTERING_WORLD") --[[or (event=="levelup?")]]  then
+			if (UnitLevel("player")>=90) and (not GarrisonLandingPage) then
+				Garrison_LoadUI();
 			end
 		end
-
-		for _,v in ipairs(tmp) do
-			-- is collected?
-			v.collected = false;
-			if (v.garrFollowerID~=nil) then
-				v.followerID,v.garrFollowerID = tonumber(v.garrFollowerID),v.followerID; -- blizzard's stupid order change...
-				numCollectedFollowers = numCollectedFollowers + 1;
-				v.collected = true;
-			end
-
-			if (ns.followers[v.followerID]) then
-				-- add zone
-				v.zone = ns.followers[v.followerID].zone;
-
-				-- add descriptions without zone
-				v.desc = {};
-				for _,d in ipairs(ns.followers[v.followerID]) do tinsert(v.desc,d); end
-
-				-- member of a collectGroup? [only one of the group is collectable]
-				if (ns.followers[v.followerID].collectGroup) then
-					v.collectGroup=ns.followers[v.followerID].collectGroup;
-				end
-				if (v.collectGroup) and (v.collected) then
-					collectGroups[v.collectGroup] = true;
-				end
-			end
-
-			-- add missing basics and correct wrong level and quality. GetFollower returns current stand of all collected followers, not good for this addon.
-			v.race = getFollowerBasics(v.followerID,"race");
-			v.level = getFollowerBasics(v.followerID,"level");
-			v.quality = getFollowerBasics(v.followerID,"quality");
-			v.abilities = C_Garrison.GetFollowerAbilities(v.followerID);
-			local _,class = strsplit("-",v.classAtlas);
-			v.class = class;
-			local c = classes[v.class:upper()];
-			v.classColor = c.colorStr;
-
-			-- add class and class specc names to filter table;
-			classNames1[v.className:lower()] = {v.className,v.class:lower()};
-			classNames2[v.class] = {_G.LOCALIZED_CLASS_NAMES_MALE[v.class:upper()],v.class:lower()};
-
-			-- get abilities and add it to filter table
-			for _,V in ipairs(v.abilities) do
-				abilityNames[V.name] = {V.name,V.isTrait};
-			end
-
-			followers[v.followerID] = v;
+		if (event=="ADDON_LOADED" and arg1=="Blizzard_GarrisonUI") or (event=="GARRISON_FOLLOWER_LIST_UPDATE") or (event=="GARRISON_FOLLOWER_REMOVED") or (event=="GARRISON_FOLLOWER_XP_CHANGED") then
+			GetFollowers(self);
 		end
-
-		List_Update();
+	else
+		DisabledByLevel=true;
 	end
 end
 
@@ -1174,7 +1272,9 @@ function FollowerLocationInfoFrame_OnLoad(self)
 	self.ConfigButton:SetScript("OnClick",function(self) configMenu(self,"TOPRIGHT","BOTTOMRIGHT") end);
 
 	-- FLI
+	self:SetUserPlaced(true);
 	self:SetFrameLevel(10);
+	self:SetScript("OnUpdate", FollowerLocaitonInfoFrame_OnUpdate);
 	self:SetScript("OnEvent", FollowerLocationInfoFrame_OnEvent);
 	self:SetScript("OnShow", FollowerLocationInfoFrame_OnShow);
 	self:RegisterEvent("ADDON_LOADED");
@@ -1197,10 +1297,10 @@ function FollowerLocationInfoFrame_OnLoad(self)
 	-- FLI.ListBG / FLI.ListOptionBG
 	self.ListBG:SetFrameLevel(self:GetFrameLevel()-2);
 	self.ListOptionBG:SetFrameLevel(self:GetFrameLevel()-4);
+	self.ListToggle.tooltip = L["Show/Hide follower list"];
 
 	-- FLI.BigModelViewer
 	self.BigModelViewer:SetFrameLevel(self:GetFrameLevel()-4);
-	self.BigModelViewerToggle:SetFrameLevel(self:GetFrameLevel()+1);
 	self.BigModelViewer.Border:SetFrameLevel(self:GetFrameLevel()-2);
 	self.BigModelViewerToggle.tooltip = L["Show/Hide big 3d model viewer"];
 end
@@ -1209,14 +1309,18 @@ end
 --[=[ WorldMap - Hook ]=]
 _G.WorldMapFrame:HookScript("OnShow",function(self)
 	local f = FollowerLocationInfoFrame;
-	f:ClearAllPoints();
-	f:SetPoint("LEFT",self,"RIGHT",30,0);
+	if (not f:IsUserPlaced()) then
+		f:ClearAllPoints();
+		f:SetPoint("LEFT",self,"RIGHT",30,0);
+	end
 end);
 
 _G.WorldMapFrame:HookScript("OnHide",function(self)
 	local f = FollowerLocationInfoFrame;
-	f:ClearAllPoints();
-	f:SetPoint("LEFT",UIParent,"LEFT", 300,0);
+	if (not f:IsUserPlaced()) then
+		f:ClearAllPoints();
+		f:SetPoint("LEFT",UIParent,"LEFT", 300,0);
+	end
 end);
 
 
@@ -1235,6 +1339,8 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		FollowerLocationInfo_PrintMissingData();
 	elseif (cmd=="minimap") then
 		FollowerLocationInfo_MinimapButton();
+	elseif (cmd=="list") then
+		FollowerLocationInfo_ToggleList();
 	elseif (cmd=="reset") then
 		FollowerLocationInfo_ResetConfig();
 	else
@@ -1242,10 +1348,11 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		_print(L["Usage: /fli <command>"]);
 		_print("      "..L["or /followerlocationinfo <command>"]);
 		_print(L["Commands:"]);
-		_print("  toggle    = " .. L["Show/Hide frame."]);
-		_print("  collected = " .. L["Show/Hide collected followers."]);
-		_print("  ids       = " .. L["Show/Hide follower ids."]);
-		_print("  minimap   = " .. L["Show/Hide minimap button."]);
+		_print("  toggle    = " .. L["Show/Hide frame"]);
+		_print("  collected = " .. L["Show/Hide collected followers"]);
+		_print("  ids       = " .. L["Show/Hide follower ids"]);
+		_print("  list      = " .. L["Show/Hide follower list"]);
+		_print("  minimap   = " .. L["Show/Hide minimap button"]);
 		_print("  reset     = " .. L["Reset addon settings."]);
 		_print("~ development commands ~");
 		_print("  missing   = " .. L["Print missing data (follower and npc id's)"]);
@@ -1254,5 +1361,4 @@ end
 
 SLASH_FOLLOWERLOCATIONINFO1 = "/fli";
 SLASH_FOLLOWERLOCATIONINFO2 = "/followerlocationinfo";
-
 

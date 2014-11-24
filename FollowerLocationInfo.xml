@@ -97,7 +97,6 @@
 						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.collected" relativePoint="BOTTOMLEFT" x="-3" />
 					</Anchors>
 				</FontString>
-
 			</Layer>
 		</Layers>
 		<HighlightTexture name="$parentHighlight" parentKey="highlightTex" file="Interface\ClassTrainerFrame\TrainerTextures" alphaMode="BLEND" alpha="0.3">
@@ -184,7 +183,7 @@
 		</Layers>
 	</Frame>
 
-	<Frame name="FollowerLocationInfoFrame" parent="UIParent" enableMouse="true" toplevel="true" hidden="true">
+	<Frame name="FollowerLocationInfoFrame" parent="UIParent" movable="true" enableMouse="true" toplevel="true" hidden="true" clampedToScreen="true">
 		<Size x="538" y="538"/>
 		<Anchors>
 			<Anchor point="LEFT" x="300"/>
@@ -254,7 +253,22 @@
 					</Anchors>
 				</Texture>
 			</Layer>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Warning" inherits="GameFontNormalLarge" hidden="true">
+					<Anchors>
+						<Anchor point="TOP" y="-16" />
+					</Anchors>
+					<Color r="1" g=".2" b=".1" a="1" />
+				</FontString>
+			</Layer>
 		</Layers>
+		<TitleRegion>
+			<Anchors>
+				<Anchor point="TOPLEFT" />
+				<Anchor point="RIGHT" />
+				<Anchor point="BOTTOM" relativeKey="$parent.HeaderBar" relativePoint="TOP" />
+			</Anchors>
+		</TitleRegion>
 		<Frames>
 			<Button parentKey="CloseButton" inherits="UIPanelCloseButton">
 				<Anchors>
@@ -326,7 +340,7 @@
 			</Frame>
 
 			<!-- Follower list - Options area -->
-			<Frame parentKey="ListOptionBG">
+			<Frame parentKey="ListOptionBG" hidden="true">
 				<Size x="290" y="160"/>
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="20" y="-10"/>
@@ -368,7 +382,7 @@
 				</Frames>
 			</Frame>
 
-			<EditBox parentKey="Search" inherits="SearchBoxTemplate" letters="40" hidden="false">
+			<EditBox parentKey="Search" inherits="SearchBoxTemplate" letters="40" hidden="true">
 				<Size x="0" y="20"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.ListOptionBG" x="42" y="-38" />
@@ -385,14 +399,14 @@
 				</Scripts>
 			</EditBox>
 
-			<Frame parentKey="ClassFilter" inherits="FollowerLocationInfoFilterTemplate">
+			<Frame parentKey="ClassFilter" inherits="FollowerLocationInfoFilterTemplate" hidden="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Search" relativePoint="BOTTOMLEFT" y="-4" />
 					<Anchor point="TOPRIGHT" relativeKey="$parent.Search" relativePoint="BOTTOMRIGHT" y="-4" />
 				</Anchors>
 			</Frame>
 
-			<Frame parentKey="AbilityFilter" inherits="FollowerLocationInfoFilterTemplate" hidden="false">
+			<Frame parentKey="AbilityFilter" inherits="FollowerLocationInfoFilterTemplate" hidden="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.ClassFilter" relativePoint="BOTTOMLEFT" y="-4" />
 					<Anchor point="TOPRIGHT" relativeKey="$parent.ClassFilter" relativePoint="BOTTOMRIGHT" y="-4" />
@@ -400,8 +414,7 @@
 			</Frame>
 			<!-- /Follower list - Options area -->
 
-
-			<Frame parentKey="ListBG">
+			<Frame parentKey="ListBG" hidden="true">
 				<Size x="290" y="400"/>
 				<Anchors>
 					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="10" y="20"/>
@@ -455,7 +468,7 @@
 				<Frames>
 				</Frames>
 			</Frame>
-			<ScrollFrame name="$parentList" parentKey="List" inherits="HybridScrollFrameTemplate">
+			<ScrollFrame name="$parentList" parentKey="List" inherits="HybridScrollFrameTemplate" hidden="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.ListBG" x="35" y="-37" />
 					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ListBG" x="-8" y="32" />
@@ -508,6 +521,34 @@
 					</Frame>
 				</ScrollChild>
 			</ScrollFrame>
+
+			<Button parentKey="ListToggle">
+				<Size x="24" y="24" />
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" x="12" y="15" />
+				</Anchors>
+				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Down"/>
+				<HighlightTexture file="Interface\FriendsFrame\UI-FriendsList-Highlight" alphaMode="ADD"/>
+				<Scripts>
+					<OnEnter>
+						if (self.tooltip) then
+							GameTooltip:SetOwner(self,"ANCHOR_LEFT");
+							GameTooltip:SetText(self.tooltip);
+							GameTooltip:Show();
+						end
+					</OnEnter>
+					<OnLeave>
+						if (self.tooltip) then
+							GameTooltip:Hide();
+							GameTooltip:ClearLines();
+						end
+					</OnLeave>
+					<OnClick>
+						FollowerLocationInfo_ToggleList();
+					</OnClick>
+				</Scripts>
+			</Button>
 
 			<!-- BigModelViewer -->
 			<Frame parentKey="BigModelViewer" hidden="true">
@@ -573,7 +614,7 @@
 			<Button parentKey="BigModelViewerToggle">
 				<Size x="24" y="24" />
 				<Anchors>
-					<Anchor point="BOTTOMRIGHT" x="-12" y="12" />
+					<Anchor point="BOTTOMRIGHT" x="-12" y="15" />
 				</Anchors>
 				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
 				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
@@ -607,7 +648,6 @@
 				</Scripts>
 			</Button>
 			<!-- /BigModelViewer -->
-
 		</Frames>
 		<Scripts>
 			<OnLoad function="FollowerLocationInfoFrame_OnLoad"/>
