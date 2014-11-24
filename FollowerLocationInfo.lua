@@ -478,17 +478,24 @@ end
 --[=[ FLI.Desc ]=]
 local DescSelected = false;
 
+local function Desc_TooltipEnter(self)
+	print("?");
+end
+
+local function Desc_TooltipLeave(self)
+end
+
 local function Desc_AddInfo(self, count, objType, ...)
 	local p,objs,_ = self.Child,{...};
 	local obj = objs[1];
 
-	local addLine = function(title, text, img, menu)
+	local addLine = function(title, text, img, menu, tooltip)
 		local l = nil
 
 		count = count + 1;
 
 		if (not self.lines[count]) then
-			self.lines[count] = CreateFrame("Frame",nil,p,"FollowerLocationInfoDescLineTemplate");
+			self.lines[count] = CreateFrame("Frame",nil --[[addon.."DescLine"..count]],p,"FollowerLocationInfoDescLineTemplate");
 			l = self.lines[count];
 		else
 			l = self.lines[count];
@@ -513,10 +520,16 @@ local function Desc_AddInfo(self, count, objType, ...)
 			l.Options:Hide();
 		end
 
+		--[[
+		if (tooltip) then
+			l.tooltip = tooltip;
+		end
+		]]
+
 		l:SetParent(p);
 		l:SetPoint("TOP", (count==1) and p or self.lines[count-1], (count==1) and "TOP" or "BOTTOM", 0, (count==1) and -12 or -6);
-		l:SetPoint("LEFT");
-		l:SetPoint("RIGHT");
+		l:SetPoint("LEFT",self,0,0);
+		l:SetPoint("RIGHT",self,0,0);
 		l:Show();
 	end
 
@@ -644,11 +657,11 @@ local function Desc_AddInfo(self, count, objType, ...)
 			end
 
 			if (npc) and (location) then
-				addLine(title,("%s|n    %s"):format(npc,location), nil, menu);
+				addLine(title,("%s|n    %s"):format(npc,location), nil, menu,{title,npc,location});
 			elseif (npc) then
-				addLine(title,npc);
+				addLine(title,npc,nil,nil,{title,npc});
 			elseif (location) then
-				addLine(title,location, nil, menu);
+				addLine(title,location, nil, menu,{title,location});
 			end
 			title = "";
 		end
@@ -722,6 +735,7 @@ local function Desc_Update()
 		line:Hide();
 		line.text:Hide();
 		line.img:Hide();
+		line.tooltip=nil;
 	end
 
 	Model:Hide();
@@ -1033,6 +1047,7 @@ local function ListEntry_Setup(self,isHeader)
 	self.quality4:Hide();
 	self.selectedTex:Hide();
 	self.followerID:Hide();
+	self.tooltip=nil;
 	self:SetScript("OnClick",nil);
 	self:Disable();
 end
@@ -1056,31 +1071,56 @@ function List_Update()
 			ListEntry_Setup(button,(obj.ZoneName~=nil));
 			if (obj.ZoneName) then
 				button.ZoneName:SetText(obj.ZoneName);
+				--button.tooltip = obj.ZoneName;
+				button.tooltip = {obj.ZoneName,L["Click to expand/collapse"]};
+				--[=[ TODO: add +/- button ]=]
 			else
 				button.info = obj;
 
 				GarrisonFollowerPortrait_Set(button.Portrait,obj.portraitIconID);
 				button.Name:SetText(("|c%s%s|r"):format(obj.classColor,obj.name));
 				button.Level:SetText(obj.level);
-				if (obj.quality) and (button["quality"..obj.quality]) then
-					button["quality"..obj.quality]:Show();
-				end
-				if (obj.collected) then
-					button.collected:Show();
-				elseif (obj.collectGroup) and (collectGroups[obj.collectGroup]==true) then
-					button.notCollectable:Show();
-				end
-				--if (obj.desc) then
-					button:Enable();
-					button:SetScript("OnClick",ListEntries_OnClick);
-					if (ListEntrySelected) and (ListEntrySelected==obj.followerID) then
-						button.selectedTex:Show();
+				button.tooltip={("%s (%d)"):format(obj.name,obj.level)};
+				if (obj.quality) then
+					tinsert(button.tooltip,("%s: %s%s|r"):format(QUALITY,qualities[obj.quality].color.hex,qualities[obj.quality].text));
+					if (button["quality"..obj.quality]) then
+						button["quality"..obj.quality]:Show();
 					end
-				--end
+				end
+
+				if (obj.collectGroup) then
+					if (obj.collected) then
+						button.collected:Show();
+						tinsert(button.tooltip,"|cff44ff44"..L["This follower is member of a collect group and already collected."].."|r");
+					elseif (collectGroups[obj.collectGroup]==true) then
+						button.notCollectable:Show();
+						tinsert(button.tooltip,"|cffff4444"..L["This follower is member of a collect group and is no longer collectable."].."|r");
+					else
+						tinsert(button.tooltip,L["This follower is member of a collect group and is collectable."]);
+					end
+					local members,t,d,c = {strsplit(obj.collectGroup,".")},{};
+					for i,v in ipairs(members) do
+						if (i~=d.followerID) then
+							d = followers[tonumber(v)];
+							tinsert(t,((d.collected) and "|cff44ff44" or "|cffff4444") .. d.name .. "|r");
+						end
+					end
+					tinsert(button.tooltip,L["The other member of the collect group:"] .. " " .. table.concat(", ",t));
+				end
 				if (FollowerLocationInfoDB.ShowFollowerID) then
 					button.followerID:SetText("ID: "..obj.followerID);
 					button.followerID:Show();
+					tinsert(button.tooltip,"|cffbbbbbb"..L["FollowerID"]..": "..obj.followerID.."|r");
 				end
+				button:SetScript("OnClick",ListEntries_OnClick);
+				if (ListEntrySelected) and (ListEntrySelected==obj.followerID) then
+					button.selectedTex:Show();
+				end
+				button:Enable();
+			end
+
+			if (obj.tooltip) then
+				button.tooltip=obj.tooltip;
 			end
 
 			button:Show();
