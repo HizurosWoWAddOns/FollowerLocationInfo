@@ -106,6 +106,28 @@
 			</Anchors>
 			<TexCoords left="0.00195313" right="0.57421875" top="0.75390625" bottom="0.84570313"/>
 		</HighlightTexture>
+		<Scripts>
+			<OnEnter>
+				if (self.tooltip) then
+					GameTooltip:SetOwner(self,"ANCHOR_RIGHT");
+					if (type(self.tooltip)=="string") then
+						GameTooltip:SetText(self.tooltip);
+					elseif (type(self.tooltip)=="table") and (#self.tooltip>0) then
+						GameTooltip:SetText(self.tooltip[1]);
+						for i=2, #self.tooltip do
+							GameTooltip:AddLine(self.tooltip[i],1,1,1,1);
+						end
+					end
+					GameTooltip:Show();
+				end
+			</OnEnter>
+			<OnLeave>
+				if (self.tooltip) then
+					GameTooltip:Hide();
+					GameTooltip:ClearLines();
+				end
+			</OnLeave>
+		</Scripts>
 	</Button>
 
 	<Frame name="FollowerLocationInfoDescLineTemplate" hidden="false" virtual="true">
@@ -142,6 +164,28 @@
 				<HighlightTexture file="Interface\FriendsFrame\UI-FriendsList-Highlight" alphaMode="ADD"/>
 			</Button>
 		</Frames>
+		<Scripts>
+			<OnEnter>
+				if (self.tooltip) then
+					GameTooltip:SetOwner(self,"ANCHOR_RIGHT");
+					if (type(self.tooltip)=="string") then
+						GameTooltip:SetText(self.tooltip);
+					elseif (type(self.tooltip)=="table") and (#self.tooltip>0) then
+						GameTooltip:SetText(self.tooltip[1]);
+						for i=2, #self.tooltip do
+							GameTooltip:AddLine(self.tooltip[i],1,1,1,1);
+						end
+					end
+					GameTooltip:Show();
+				end
+			</OnEnter>
+			<OnLeave>
+				if (self.tooltip) then
+					GameTooltip:Hide();
+					GameTooltip:ClearLines();
+				end
+			</OnLeave>
+		</Scripts>
 	</Frame>
 
 	<Frame name="FollowerLocationInfoFilterTemplate" virtual="true">
@@ -534,7 +578,14 @@
 					<OnEnter>
 						if (self.tooltip) then
 							GameTooltip:SetOwner(self,"ANCHOR_LEFT");
-							GameTooltip:SetText(self.tooltip);
+							if (type(self.tooltip)=="string") then
+								GameTooltip:SetText(self.tooltip);
+							elseif (type(self.tooltip)=="table") and (#self.tooltip>0) then
+								GameTooltip:SetText(self.tooltip[1]);
+								for i=2, #self.tooltip do
+									GameTooltip:AddLine(self.tooltip[i],1,1,1,1);
+								end
+							end
 							GameTooltip:Show();
 						end
 					</OnEnter>
@@ -623,7 +674,14 @@
 					<OnEnter>
 						if (self.tooltip) then
 							GameTooltip:SetOwner(self,"ANCHOR_LEFT");
-							GameTooltip:SetText(self.tooltip);
+							if (type(self.tooltip)=="string") then
+								GameTooltip:SetText(self.tooltip);
+							elseif (type(self.tooltip)=="table") and (#self.tooltip>0) then
+								GameTooltip:SetText(self.tooltip[1]);
+								for i=2, #self.tooltip do
+									GameTooltip:AddLine(self.tooltip[i],1,1,1,1);
+								end
+							end
 							GameTooltip:Show();
 						end
 					</OnEnter>
