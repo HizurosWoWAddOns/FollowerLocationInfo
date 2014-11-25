@@ -342,12 +342,12 @@ local function GetFollowers(self)
 			v.collected = true;
 		end
 
+		v.desc = {};
 		if (ns.followers[v.followerID]) then
 			-- add zone
 			v.zone = ns.followers[v.followerID].zone;
 
 			-- add descriptions without zone
-			v.desc = {};
 			for _,d in ipairs(ns.followers[v.followerID]) do tinsert(v.desc,d); end
 
 			-- member of a collectGroup? [only one of the group is collectable]
@@ -383,12 +383,13 @@ local function GetFollowers(self)
 					description = C_Garrison.GetFollowerAbilityDescription(V),
 					icon     = C_Garrison.GetFollowerAbilityIcon(V),
 					isTrait  = C_Garrison.GetFollowerAbilityIsTrait(V),
-					counters = C_Garrison.GetFollowerAbilityCounterMechanicInfo(V),
+					counters = {C_Garrison.GetFollowerAbilityCounterMechanicInfo(V)},
 					link     = C_Garrison.GetFollowerAbilityLink(V)
 				};
 				abilityNames[d.name] = {d.name,d.isTrait};
 				tinsert(v.abilities,d);
 			end
+			tinsert(v.desc,{"abilities",v.abilities});
 		end
 		followers[v.followerID] = v;
 	end
@@ -720,7 +721,17 @@ local function Desc_AddInfo(self, count, objType, ...)
 		end
 		addLine("Achievement", str, nil, {});
 	elseif (objType=="abilities") then
-		local title = L["Basic abilities"];
+		local text = {};
+		for i,v in pairs(obj) do
+			if (#v.counters>0) then
+				tinsert(text,("|T%s:0|t %s (|T%s:0|t %s)"):format(v.icon,v.name,v.counters[3],v.counters[2]));
+			else
+				tinsert(text,("|T%s:0|t %s"):format(v.icon,v.name));
+			end
+		end
+		if (#text>0) then
+			addLine(L["Basic abilities"],table.concat(text,"|n"));
+		end
 	elseif (objType=="custom") then
 		addLine(L[obj[1]], L[obj[2]]);
 	end
@@ -928,26 +939,56 @@ local function List_ClassFilter(self)
 end
 
 local function List_AbilityFilter(self)
-	local menu = {
-		{ label = "Choose", title = true },
-		{ separator = true },
-		{ label = "Traits", childs={} },
-		{ label = "Abilities", childs={} },
-	};
+	local Abs,Traits = {},{};
 
+	local entries,cMax,page = {},20,1;
 	for i,v in pairsByKeys(abilityNames) do
-		tinsert(menu[ (v[2]) and 3 or 4].childs, {
-			label = v[1],
-			func=function()
-				AbilityFilter = v[1];
-				local f = FollowerLocationInfoFrame.AbilityFilter; f.Text:SetText(v[1]);
-				f.Remove:Show();
-				List_Update();
+		if (v[2]) then
+			tinsert(Traits,{
+				label = v[1],
+				func = function()
+					AbilityFilter = v[1];
+					local f = FollowerLocationInfoFrame.AbilityFilter;
+					f.Text:SetText(v[1]);
+					f.Remove:Show();
+					List_Update();
+				end
+			});
+		else
+			if (Abs[page]==nil) then Abs[page]={}; end
+			tinsert(Abs[page],{
+				label = v[1],
+				func = function()
+					AbilityFilter = v[1];
+					local f = FollowerLocationInfoFrame.AbilityFilter;
+					f.Text:SetText(v[1]);
+					f.Remove:Show();
+					List_Update();
+				end
+			});
+			if (#Abs[page]==cMax) then
+				page = page+1;
 			end
-		});
+		end
 	end
+	
+	if (#Traits>0) or (#Abs>0) then
+		local menu = {
+			{ label = "Choose", title = true },
+			{ separator = true },
+			
+		};
+		if (#Traits>0) then
+			tinsert(menu,{ label = "Traits", childs=Traits });
+		end
+		if (#Abs>0) then
+			for i,v in ipairs(Abs) do
+				tinsert(menu,{ label = L["Abilities (page %d)"]:format(i), childs=v });
+			end
+		end
 
-	createMenu(self,menu,"TOPLEFT","TOPRIGHT");
+		createMenu(self,menu,"TOPLEFT","TOPRIGHT");
+	end
 end
 
 local function ListEntries_Update()
