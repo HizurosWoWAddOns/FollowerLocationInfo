@@ -363,7 +363,7 @@ local function GetFollowers(self)
 		v.race = getFollowerBasics(v.followerID,"race");
 		v.level = getFollowerBasics(v.followerID,"level");
 		v.quality = getFollowerBasics(v.followerID,"quality");
-		v.abilities = C_Garrison.GetFollowerAbilities(v.followerID);
+		local abilities = getFollowerBasics(v.followerID,"abilities");
 		local _,class = strsplit("-",v.classAtlas);
 		v.class = class;
 		local c = classes[v.class:upper()];
@@ -374,10 +374,22 @@ local function GetFollowers(self)
 		classNames2[v.class] = {_G.LOCALIZED_CLASS_NAMES_MALE[v.class:upper()],v.class:lower()};
 
 		-- get abilities and add it to filter table
-		for _,V in ipairs(v.abilities) do
-			abilityNames[V.name] = {V.name,V.isTrait};
+		v.abilities = {};
+		if (abilities) then
+			for _,V in ipairs(abilities) do
+				local d = {
+					id = V,
+					name = C_Garrison.GetFollowerAbilityName(V),
+					description = C_Garrison.GetFollowerAbilityDescription(V),
+					icon     = C_Garrison.GetFollowerAbilityIcon(V),
+					isTrait  = C_Garrison.GetFollowerAbilityIsTrait(V),
+					counters = C_Garrison.GetFollowerAbilityCounterMechanicInfo(V),
+					link     = C_Garrison.GetFollowerAbilityLink(V)
+				};
+				abilityNames[d.name] = {d.name,d.isTrait};
+				tinsert(v.abilities,d);
+			end
 		end
-
 		followers[v.followerID] = v;
 	end
 
@@ -707,6 +719,8 @@ local function Desc_AddInfo(self, count, objType, ...)
 			str = L["Can't get achievement data. %d isn't an achievement id?"]:format(obj);
 		end
 		addLine("Achievement", str, nil, {});
+	elseif (objType=="abilities") then
+		local title = L["Basic abilities"];
 	elseif (objType=="custom") then
 		addLine(L[obj[1]], L[obj[2]]);
 	end
@@ -1090,15 +1104,20 @@ function List_Update()
 					end
 				end
 
-				if (obj.collectGroup) then
-					if (obj.collected) then
-						button.collected:Show();
+				if (obj.collected) then
+					button.collected:Show();
+					if (obj.collectGroup) then
 						tinsert(button.tooltip,"|cff44ff44"..L["This follower is member of a collect group and already collected."].."|r");
-					elseif (collectGroups[obj.collectGroup]==true) then
-						button.notCollectable:Show();
-						tinsert(button.tooltip,"|cffff4444"..L["This follower is member of a collect group and is no longer collectable."].."|r");
-					elseif (collectGroups[obj.collectGroup]==false) then
-						tinsert(button.tooltip,L["This follower is member of a collect group and is collectable."]);
+					end
+				end
+				if (obj.collectGroup) then
+					if (not obj.collected) then
+						if (collectGroups[obj.collectGroup]==true) then
+							button.notCollectable:Show();
+							tinsert(button.tooltip,"|cffff4444"..L["This follower is member of a collect group and is no longer collectable."].."|r");
+						else
+							tinsert(button.tooltip,L["This follower is member of a collect group and is collectable."]);
+						end
 					end
 					local members,t,d,c = {strsplit(".",obj.collectGroup)},{};
 					for i,v in ipairs(members) do
