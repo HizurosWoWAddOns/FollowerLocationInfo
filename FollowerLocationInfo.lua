@@ -1078,9 +1078,11 @@ function List_Update()
 				button.info = obj;
 
 				GarrisonFollowerPortrait_Set(button.Portrait,obj.portraitIconID);
+
 				button.Name:SetText(("|c%s%s|r"):format(obj.classColor,obj.name));
 				button.Level:SetText(obj.level);
 				button.tooltip={("%s (%d)"):format(obj.name,obj.level)};
+
 				if (obj.quality) then
 					tinsert(button.tooltip,("%s: %s%s|r"):format(QUALITY,qualities[obj.quality].color.hex,qualities[obj.quality].text));
 					if (button["quality"..obj.quality]) then
@@ -1095,23 +1097,28 @@ function List_Update()
 					elseif (collectGroups[obj.collectGroup]==true) then
 						button.notCollectable:Show();
 						tinsert(button.tooltip,"|cffff4444"..L["This follower is member of a collect group and is no longer collectable."].."|r");
-					else
+					elseif (collectGroups[obj.collectGroup]==false) then
 						tinsert(button.tooltip,L["This follower is member of a collect group and is collectable."]);
 					end
-					local members,t,d,c = {strsplit(obj.collectGroup,".")},{};
+					local members,t,d,c = {strsplit(".",obj.collectGroup)},{};
 					for i,v in ipairs(members) do
-						if (i~=d.followerID) then
-							d = followers[tonumber(v)];
-							tinsert(t,((d.collected) and "|cff44ff44" or "|cffff4444") .. d.name .. "|r");
+						v=tonumber(v);
+						if (v~=obj.followerID) then
+							d = followers[v];
+							if (d) then
+								tinsert(t,((d.collected) and "|cff44ff44" or "|cffff4444") .. d.name .. "|r");
+							end
 						end
 					end
-					tinsert(button.tooltip,L["The other member of the collect group:"] .. " " .. table.concat(", ",t));
+					tinsert(button.tooltip,L["In group with:"] .. " " .. table.concat(t,", "));
 				end
+
 				if (FollowerLocationInfoDB.ShowFollowerID) then
 					button.followerID:SetText("ID: "..obj.followerID);
 					button.followerID:Show();
 					tinsert(button.tooltip,"|cffbbbbbb"..L["FollowerID"]..": "..obj.followerID.."|r");
 				end
+
 				button:SetScript("OnClick",ListEntries_OnClick);
 				if (ListEntrySelected) and (ListEntrySelected==obj.followerID) then
 					button.selectedTex:Show();
@@ -1159,16 +1166,17 @@ function FollowerLocationInfo_ResetConfig()
 end
 
 function FollowerLocationInfo_MinimapButton()
-	if (initState.minimap) then
-		FollowerLocationInfoDB.Minimap.enabled = not FollowerLocationInfoDB.Minimap.enabled;
-		if (not FollowerLocationInfoDB.Minimap.enabled) then
+	if (lDBI:IsRegistered(addon)) then
+		if (FollowerLocationInfoDB.Minimap.enabled) then
 			lDBI:Hide(addon);
+			FollowerLocationInfoDB.Minimap.enabled = false;
 		else
 			lDBI:Show(addon);
+			FollowerLocationInfoDB.Minimap.enabled = true;
 		end
 	else
-		minimapInit();
 		FollowerLocationInfoDB.Minimap.enabled = true;
+		minimapInit();
 	end
 end
 
