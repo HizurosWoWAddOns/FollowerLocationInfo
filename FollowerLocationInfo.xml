@@ -7,6 +7,7 @@
 	<Include file="locale\load.xml" />
 
 	<Script  file="db_follower_basics.lua" />
+	<Script  file="db_follower_locales.lua" />
 	<Script  file="db_factions.lua" />
 	<Script  file="db_npcs.lua" />
 
@@ -333,12 +334,22 @@
 				<DisabledTexture file="Interface\Addons\GuildReport\media\ScenarioIcon-Interact-Disabled" alpha="0.7"/>
 			</Button>
 
+			<Button parentKey="ScaleButton" hidden="true">
+				<Size x="16" y="16" />
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="-8" y="11" />
+				</Anchors>
+				<NormalTexture    file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Up" />
+				<PushedTexture    file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Down" />
+				<HighlightTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Highlight" />
+			</Button>
+
 			<PlayerModel parentKey="Model" inherits="MouseDisabledModelTemplate">
 				<Size x="230" y="0" />
 				<Anchors>
 					<Anchor point="TOP" relativeKey="$parent.HeaderBar" y="-6" />
 					<Anchor point="BOTTOM" relativeKey="$parent.HeaderBar" y="7" />
-					<Anchor point="LEFT" relativeKey="$parent.HeaderBar" x="0" />
+					<Anchor point="LEFT" relativeKey="$parent.HeaderBar" x="5" />
 				</Anchors>
 			</PlayerModel>
 
@@ -571,7 +582,8 @@
 			<Button parentKey="ListToggle">
 				<Size x="24" y="24" />
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" x="12" y="15" />
+					<!-- <Anchor point="BOTTOMLEFT" x="12" y="15" /> -->
+					<Anchor point="RIGHT" relativeKey="$parent.HeaderBar" relativePoint="LEFT" x="5"/>
 				</Anchors>
 				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Up"/>
 				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Down"/>
@@ -579,7 +591,7 @@
 				<Scripts>
 					<OnEnter>
 						if (self.tooltip) then
-							GameTooltip:SetOwner(self,"ANCHOR_LEFT");
+							GameTooltip:SetOwner(self,"ANCHOR_RIGHT");
 							if (type(self.tooltip)=="string") then
 								GameTooltip:SetText(self.tooltip);
 							elseif (type(self.tooltip)=="table") and (#self.tooltip>0) then
@@ -667,7 +679,7 @@
 			<Button parentKey="BigModelViewerToggle">
 				<Size x="24" y="24" />
 				<Anchors>
-					<Anchor point="BOTTOMRIGHT" x="-12" y="15" />
+					<Anchor point="LEFT" relativeKey="$parent.HeaderBar" relativePoint="RIGHT" x="-5"/>
 				</Anchors>
 				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
 				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
