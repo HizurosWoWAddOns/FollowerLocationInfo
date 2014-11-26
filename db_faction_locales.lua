@@ -1,5 +1,5 @@
 
-local addon, ns = ...;
+local _,ns=...;
 
 ns.factions = {
 	[1445] = "Frostwolf Orcs",
