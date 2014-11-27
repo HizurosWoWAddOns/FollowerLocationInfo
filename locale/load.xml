@@ -3,11 +3,19 @@
 
 	<Script file="locale.lua" />
 
+	<!-- interface localizations -->
 	<Script file="enUS.lua" />
-
 	<Script file="deDE.lua" />
 
-	<!--
-	<Script file="<lang>.lua" />
-	-->
+	<!-- interface independent parts -->
+	<Script file="abilities.lua" />
+	<Script file="classspecs.lua" />
+	<Script file="factions.lua" />
+	<Script file="followers.lua" />
+	<!-- <Script file="npcs.lua" /> -->
+	<Script file="zones.lua" />
+
+
+	<Script file="npcs_old.lua" />
+
 </Ui>

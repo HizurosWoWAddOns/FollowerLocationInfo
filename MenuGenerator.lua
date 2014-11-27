@@ -59,7 +59,7 @@ self.InitializeMenu = function()
 	if (not self.frame) then
 		self.frame = CreateFrame("Frame", addon.."EasyMenu", UIParent, "UIDropDownMenuTemplate");
 	end
-	wipe(self.menu);
+	self.menu={};
 end
 
 self.addEntry = function(D,P)

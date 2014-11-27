@@ -8,7 +8,6 @@ ns.followers = {};
 
 FollowerLocationInfo_Toggle, FollowerLocationInfo_ToggleCollected, FollowerLocationInfo_ToggleIDs, FollowerLocationInfo_ResetConfig,FollowerLocationInfo_MinimapButton,FollowerLocationInfo_ToggleList=nil,nil,nil,nil,nil,nil;
 local configMenu, List_Update, FollowerLocationInfoFrame_OnEvent,ExternalURL;
-local lang,_lang=GetLocale(); _lang=lang:sub(1,2);
 local nFaction = (ns.faction=="Alliance") and 1 or 2;
 local followers, zoneNames, classes, collectGroups, classNames1, classNames2, abilityNames = nil,{},{},{},{},{},{};
 local numHidden,numRealFollowers, numKnownFollowers, numCollectedFollowers = (292-48),0,0,0;
@@ -87,10 +86,9 @@ local function dataBrokerInit()
 	end
 end
 local function minimapInit()
-	if (not lDB) or (not lDBI) and (not initState.minimap) then return; end
+	if (not lDB) or (not lDBI) then return; end
 	local obj = lDB:GetDataObjectByName(addon);
 	lDBI:Register(addon, obj, FollowerLocationInfoDB.Minimap);
-	initState.minimap=true;
 end
 
 
@@ -145,66 +143,46 @@ local pairsByKeys = function(t, f)
 	return iter
 end
 
-local function checkLocales(Type,id,value)
-	local l,t,T=false,FLI_tmpDB,ns;
-
-	if (Type=="follower") then
-		l={Type.."_locales",id,lang,nFaction};
-
-	elseif (Type=="classspec") then
-		l={Type.."_locales",id,lang};
-
-	elseif (Type=="ability") then
-		l={Type.."_locales",id,lang};
-
-	elseif (Type=="counter") then
-		l={Type.."_locales",id,lang};
-
+local function getTableTree(_table,keys)
+	assert(type(_table)=="table","argument #1 must be a table, got "..type(_table));
+	assert(type(keys)=="table","argument #2 must be a table, got "..type(keys));
+	local t=_table;
+	for i,v in ipairs(keys) do
+		t[v] = (t[v]) and t[v] or {};
+		t=t[v];
 	end
-
-	if (l) then
-		for i,v in ipairs(l) do
-			if (not t[v]) then t[v]={}; end
-			if (not T[v]) then T[v]={}; end
-			t=t[v]; T=T[v];
-		end
-	end
-
-	if (Type=="follower") then
-		FLI_tmpDB.follower_locales[id][lang][nFaction]=value;
-		ns.follower_locales[id][lang][nFaction]=value;
-
-	elseif (Type=="classspec") then
-		FLI_tmpDB.classspec_locales[id][lang]=value;
-		ns.classspec_locales[id][lang]=value;
-
-	elseif (Type=="ability") then
-		FLI_tmpDB.ability_locales[id][lang]=value;
-		ns.ability_locales[id][lang]=value;
-
-	elseif (Type=="counter") then
-		FLI_tmpDB.counter_locales[id][lang]=value;
-		ns.counter_locales[id][lang]=value;
-
-	end
-
+	return t;
 end
 
-local function getFollowerName(id)
-	id = tostring(id);
-	if (ns.follower_locales[id]) then
-		if (ns.follower_locales[id][_lang]) and (ns.follower_locales[id][_lang][nFaction]) then
-			return ns.follower_locales[id][_lang][nFaction]
-		elseif (ns.follower_locales[id][lang]) and (ns.follower_locales[id][lang][nFaction]) then
-			return ns.follower_locales[id][lang][nFaction]
-		else
-			return ns.follower_locales[id]["en"][nFaction];
-		end
+local function addLocale(Type,id,value)
+	local keys;
+	id=tostring(id)
+	if (Type=="follower") then
+		keys={Type.."_locales",id,ns.language};
+		getTableTree(FLI_tmpDB,keys)[nFaction] = value;
+	else
+		keys={Type.."_locales",id};
+		getTableTree(FLI_tmpDB,keys)[ns.language] = value;
 	end
 end
 
-local function getAbilityName(id)
-	
+local function getLocale(Type,id)
+	local t,keys;
+	id=tostring(id)
+	if (Type=="follower") then
+		keys={Type.."_locales",id,ns.language,nFaction};
+		enKeys={Type.."_locales",id,"enUS",nFaction};
+	else
+		keys={Type.."_locales",id,ns.language};
+		enKeys={Type.."_locales",id,"enUS"};
+	end
+	t=getTableTree(ns,keys);
+	if (type(t)=="string") then return t; end
+	t=getTableTree(FLI_tmpDB,keys);
+	if (type(t)=="string") then return t; end
+	t=getTableTree(ns,enKeys);
+	if (type(t)=="string") then return t; end
+	return false;
 end
 
 local function IsQuestCompleted(QuestID)
@@ -348,7 +326,6 @@ local function GetBlizzardData()
 				FollowersCollected[id] = true;
 				c=c+1;
 			end
-			ID=tostring(id);
 		end
 	end
 	if (numCollectedFollowers~=c) then
@@ -359,87 +336,106 @@ end
 
 local function GetFollowers()
 	followers={};
+	classNames1={};
+	classNames2={};
+	abilityNames={};
+
 	for i,v in pairs(ns.follower_basics) do
 		local d = nil;
-		if (v) then
-			d = {name=getFollowerName(i),followerID=i,collected=false,desc={}};
-			d.level,d.quality,d.portraitIconID,d.displayID,d.abilities,d.race,d.class,d.classSpec = unpack( v[nFaction] );
-			--[[
-			if (d.abilities) then
-				for i,v in ipairs(d.abilities) do
-					
+
+		if (FollowerLocationInfoDB.ShowHiddenFollowers==false) and (not ids[i]) then
+			-- ignore
+		else
+			local abilities={};
+			if (v) then
+				d = {name=getLocale("follower",tostring(i)),followerID=i,collected=false,desc={}};
+				d.level,d.quality,d.classSpec,d.portraitIconID,d.displayID,d.abilities,d.race,d.class = unpack( v[nFaction] );
+				if (type(d.abilities)=="table") then
+					for i,v in ipairs(d.abilities) do
+						v=tostring(v);
+						abilities[v] = ns.ability[v];
+					end
+				elseif (type(d.abilities)=="number") then
+					local v = tostring(d.abilities);
+					abilities[v] = ns.ability[v];
 				end
 			end
-			]]
-		end
 
-		if (d) and (d.name) then
-			-- is collected?
-			if (FollowersCollected[i]==true) then
-				d.collected = true;
-			end
+			if (d) and (d.name) then
+				-- is collected?
+				if (FollowersCollected[i]==true) then
+					d.collected = true;
+				end
 
-			-- add data from descripted follower
-			if (ns.followers[i]) then
-				-- add zone
-				d.zone = ns.followers[i].zone;
+				-- add data from descripted follower
+				if (ns.followers[i]) then
+					-- add zone
+					d.zone = ns.followers[i].zone;
 
-				-- add descriptions without zone
-				for _,D in ipairs(ns.followers[i]) do tinsert(d.desc,D); end
+					-- add descriptions without zone
+					for _,D in ipairs(ns.followers[i]) do tinsert(d.desc,D); end
 
-				-- member of a collectGroup? [only one of the group is collectable]
-				if (ns.followers[i].collectGroup) then
-					d.collectGroup=ns.followers[i].collectGroup;
+					-- member of a collectGroup? [only one of the group is collectable]
+					if (ns.followers[i].collectGroup) then
+						d.collectGroup=ns.followers[i].collectGroup;
+						if (d.collected) then
+							collectGroups[d.collectGroup] = true;
+						end
+					end
+				end
+
+				d.className = getLocale("classspec",tostring(d.classSpec)) or "";
+
+				-- class and specc
+				d.classColor = (classes[d.class:upper()]) and classes[d.class:upper()].colorStr or "";
+
+				-- add class and class specc names to filter table;
+				if (classNames1[d.className:lower()]) then
+					classNames1[d.className:lower()][3] = classNames1[d.className:lower()][3] + 1;
 					if (d.collected) then
-						collectGroups[d.collectGroup] = true;
+						classNames1[d.className:lower()][4] = classNames1[d.className:lower()][4] + 1;
 					end
+				else
+					classNames1[d.className:lower()] = {d.className,d.class:lower(),1,(d.collected) and 1 or 0};
 				end
-			end
 
-			d.className = "";
-
-			-- class and specc
-			d.classColor = (classes[d.class:upper()]) and classes[d.class:upper()].colorStr or "";
-
-			-- add class and class specc names to filter table;
-			--classNames1[v.className:lower()] = {v.className,v.class:lower()};
-			classNames2[d.class] = {_G.LOCALIZED_CLASS_NAMES_MALE[d.class:upper()],d.class:lower()};
-
-			-- get abilities and add it to filter table
-			--[[
-			local D;
-			if (abilities) then
-				for _,V in ipairs(abilities) do
-					if (knownAbilities[V]) then
-						D = knownAbilities[V];
-					else
-						D = {
-							id = V,
-							name = C_Garrison.GetFollowerAbilityName(V),
-							description = C_Garrison.GetFollowerAbilityDescription(V),
-							icon     = C_Garrison.GetFollowerAbilityIcon(V),
-							isTrait  = C_Garrison.GetFollowerAbilityIsTrait(V),
-							counters = {C_Garrison.GetFollowerAbilityCounterMechanicInfo(V)},
-							link     = C_Garrison.GetFollowerAbilityLink(V)
-						};
-						knownAbilities[V] = D;
-						abilityNames[D.name] = {D.name,D.isTrait};
+				if (classNames2[d.class]) then
+					classNames2[d.class][3] = classNames2[d.class][3] + 1;
+					if (d.collected) then
+						classNames2[d.class][4] = classNames2[d.class][4] + 1;
 					end
-					tinsert(d.abilities,D);
+				else
+					classNames2[d.class] = {_G.LOCALIZED_CLASS_NAMES_MALE[d.class:upper()],d.class:lower(),1,(d.collected) and 1 or 0};
 				end
-				tinsert(d.desc,{"abilities",d.abilities});
-			end
-			]]
 
-			if (not ids[i]) then
-				d.hidden=true;
-				ns.followers[i] = {zone=-1};
-			end
-			followers[i] = d;
-		end -- / if (d.name)
-	end -- / for ... pairs(ns.follower_basics);
+				-- get abilities and add it to filter table
+				local name;
+				if (abilities) then
+					for id,V in pairs(abilities) do
+						name = getLocale("ability",tostring(id));
+						if (name) then
+							if (abilityNames[name]) then
+								abilityNames[name][3]=abilityNames[name][3]+1;
+								if (d.collected) then
+									abilityNames[name][4]=abilityNames[name][4]+1;
+								end
+							else
+								abilityNames[name] = {name,V[3],1,(d.collected) and 1 or 0};
+							end
+						end
+					end
+					--tinsert(d.desc,{"abilities",abilities});
+				end
 
-	--List_Update();
+				if (not ids[i]) then
+					-- mark as hidden and add it to special zone
+					d.hidden=true;
+					ns.followers[i] = {zone=-1};
+				end
+				followers[i] = d;
+			end
+		end
+	end
 end
 
 local function MenuEntry_AddWaypoint(menu,zone,x,y,title)
@@ -496,12 +492,12 @@ function configMenu(self,anchorA,anchorB)
 			{
 				label = L["Show collected followers"], tooltip = {L["Collected followers"],L["Show/Hide collected and not collectable followers in follower list"]},
 				dbType="bool", keyName="ShowCollectedFollower",
-				event = function() List_Update(); end,
+				event = function() followers=nil; List_Update(); end,
 			},
 			{
 				label = L["Show hidden followers"], tooltip = {L["Hidden followers"],L["Show/Hide hidden followers in follower list"]},
 				dbType="bool", keyName="ShowHiddenFollowers",
-				event = function() List_Update(); end,
+				event = function() followers=nil; List_Update(); end,
 			},
 		--}},
 		{ separator = true },
@@ -943,8 +939,7 @@ local function List_ClassFilter(self)
 	for i,v in pairsByKeys(classNames2) do
 		if (v) then
 			tinsert(t, {
-				label = v[1],
-				colorCode="|c"..classes[v[2]:upper()].colorStr,
+				label = ("|c%s%s|r (|cff%s%s|r/|cff%s%s|r)"):format(classes[v[2]:upper()].colorStr,v[1],(v[4]>0) and "00ff00" or "999999",v[4],"ffee00",v[3]),
 				func=function()
 					ClassFilter = i;
 					local f = FollowerLocationInfoFrame.ClassFilter; f.Text:SetText(v[1]);
@@ -962,8 +957,7 @@ local function List_ClassFilter(self)
 	for i,v in pairsByKeys(classNames1) do
 		if (v) then
 			tinsert(t,{
-				label = v[1],
-				colorCode="|c"..classes[v[2]:upper()].colorStr,
+				label = ("|c%s%s|r (|cff%s%s|r/|cff%s%s|r)"):format(classes[v[2]:upper()].colorStr,v[1],(v[4]>0) and "00ff00" or "999999",v[4],"ffee00",v[3]),
 				func=function()
 					ClassFilter = v[1]:lower();
 					local f = FollowerLocationInfoFrame.ClassFilter;
@@ -990,7 +984,7 @@ local function List_AbilityFilter(self)
 	for i,v in pairsByKeys(abilityNames) do
 		if (v[2]) then
 			tinsert(Traits,{
-				label = v[1],
+				label = ("%s (|cff%s%s|r/|cff%s%s|r)"):format(v[1],(v[4]>0) and "00ff00" or "999999",v[4],"ffee00",v[3]),
 				func = function()
 					AbilityFilter = v[1];
 					local f = FollowerLocationInfoFrame.AbilityFilter;
@@ -1002,7 +996,7 @@ local function List_AbilityFilter(self)
 		else
 			if (Abs[page]==nil) then Abs[page]={}; end
 			tinsert(Abs[page],{
-				label = v[1],
+				label = ("%s (|cff%s%s|r/|cff%s%s|r)"):format(v[1],(v[4]>0) and "00ff00" or "999999",v[4],"ffee00",v[3]),
 				func = function()
 					AbilityFilter = v[1];
 					local f = FollowerLocationInfoFrame.AbilityFilter;
@@ -1036,7 +1030,7 @@ local function List_AbilityFilter(self)
 	end
 end
 
-local function ListEntries_Update()
+local function ListEntries_Update(clear)
 	local zones2follower,tmp,collected,ignore,_ = {},{};
 	wipe(ListEntries);
 
@@ -1068,9 +1062,10 @@ local function ListEntries_Update()
 
 		-- filter 4: Select traint filter
 		if (AbilityFilter~="") then
-			local dontIgnore=false;
-			for I,V in ipairs(v.abilities) do
-				if (V.name==AbilityFilter) then
+			local dontIgnore,name=false;
+			for _,V in ipairs(v.abilities) do
+				name = getLocale("ability",V);
+				if (name==AbilityFilter) then
 					dontIgnore=true;
 				end
 			end
@@ -1350,6 +1345,10 @@ local FollowerLocationInfo_Collector=nil;
 do
 	local f=false;
 	function FollowerLocationInfo_Collector()
+		if (UnitLevel("player")<90) then
+			print("Sorry, the collect function can't work on characters under level 90. blizzards function contains a bug to return wrong data.");
+			return;
+		end
 
 		if (not f) then
 			f = CreateFrame("Frame");
@@ -1388,34 +1387,20 @@ do
 			f.doUpdate = false;
 		end
 
-		if (FLI_tmpDB==nil) then
-			FLI_tmpDB={follower={},ability={},counter={},classSpec={}};
-		else
-			FLI_tmpDB.follower=FLI_tmpDB.follower or {};
-			FLI_tmpDB.ability=FLI_tmpDB.ability or {};
-			FLI_tmpDB.counter=FLI_tmpDB.counter or {};
-			FLI_tmpDB.classSpec=FLI_tmpDB.classSpec or {};
-		end
-		local faction = select(1,UnitFactionGroup("player"))=="Alliance" and 1 or 2;
-		local lang = GetLocale();
-
 		for i=32, 463 do
 			local d=C_Garrison.GetFollowerInfo(i);
 			if (d) and (d.portraitIconID>0) then
-				local id = tostring((d.garrFollowerID) and tonumber(d.garrFollowerID) or d.followerID);
-				if (FLI_tmpDB.follower[id]==nil) then FLI_tmpDB.follower[id]={}; end
-				if (FLI_tmpDB.follower[id][lang]==nil) then FLI_tmpDB.follower[id][lang]={}; end
-				FLI_tmpDB.follower[id][lang][faction]=d.name;
-				FLI_tmpDB.classSpec[tostring(d.classSpec)]=d.className;
+				addLocale("follower",(d.garrFollowerID) and tonumber(d.garrFollowerID) or d.followerID,d.name);
+				addLocale("classspec",tostring(d.classSpec),d.className);
 			end
 			local a=C_Garrison.GetFollowerAbilities(i);
 			if (a) then
 				for k,v in ipairs(a) do
 					if (v) then
-						FLI_tmpDB.ability[tostring(v.id)] = v.name;
+						addLocale("ability",tostring(v.id),v.name);
 						if (v.counters) then
 							for n,d in pairs(v.counters) do
-								FLI_tmpDB.counter[tostring(n)]=d.name;
+								addLocale("counter",tostring(n),d.name);
 							end
 						end
 					end
@@ -1442,7 +1427,8 @@ local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 			ShowCollectedFollower = false,
 			ShowHiddenFollowers = false,
 			ExternalURL = "WoWHead",
-			ListOpen = true
+			ListOpen = true,
+			language = false
 		}) do
 			if (FollowerLocationInfoDB[i]==nil) then
 				FollowerLocationInfoDB[i] = v;
@@ -1459,10 +1445,23 @@ local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
 	if (event=="PLAYER_ENTERING_WORLD") then
 		dataBrokerInit();
 		if (FollowerLocationInfoDB.Minimap.enabled) then
-			FollowerLocationInfo_MinimapButton();
+			minimapInit();
 		end
 		if (FollowerLocationInfoDB.ListOpen) then
 			FollowerLocationInfo_ToggleList(true);
+		end
+		if (FollowerLocationInfoDB.language) then
+			local change=false;
+			for i,v in pairs(ns.languages) do
+				if (FollowerLocationInfoDB.language==i) then
+					change=true;
+				elseif --[[ (not <exclude for later>) and ]] (FollowerLocationInfoDB.language:sub(1,2)==i:sub(1,2)) then
+					change=true
+				end
+			end
+			if (change) then
+				ns.language = FollowerLocationInfoDB.language;
+			end
 		end
 		if (UnitLevel("player")>=90) and (not GarrisonLandingPage) then
 			Garrison_LoadUI();
@@ -1574,10 +1573,10 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		FollowerLocationInfo_ResetConfig();
 	--elseif (cmd=="resetscale") then
 	--	FollowerLocationInfo_ResetScale();
-	--elseif (cmd=="collect") then
-	--	FollowerLocationInfo_Collector();
-	--elseif (cmd=="delcollected") then
-	--	FLI_tmpDB = nil;
+	elseif (cmd=="collect") then
+		FollowerLocationInfo_Collector();
+	elseif (cmd=="delcollected") then
+		FLI_tmpDB = {};
 	else
 		_print(L["Commandline options for %s"]:format(addon));
 		_print(L["Usage: /fli <command>"]);
@@ -1592,8 +1591,8 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		--_print("  resetscale = " .. L["Reset window scaling"]);
 		_print("~ development commands ~");
 		_print("  missing = "    .. L["Print missing data (follower and npc id's)"]);
-		--_print("  collect = "    .. L["Collects localized follower names from one faction. It is recommented to use it on both factions."]);
-		--_print("  delcollected = "..L["Deletes collected localized follower names"]);
+		_print("  collect = "    .. L["Collects localized follower names from one faction. It is recommented to use it on both factions. The character must be level 90 or higher."]);
+		_print("  delcollected = "..L["Deletes collected localized follower names"]);
 	end
 end
 
