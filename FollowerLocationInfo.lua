@@ -156,6 +156,9 @@ end
 
 local function addLocale(Type,id,value)
 	local keys;
+	if (FLI_tmpDB==nil) then
+		FLI_tmpDB = {};
+	end
 	id=tostring(id)
 	if (Type=="follower") then
 		keys={Type.."_locales",id,ns.language};
@@ -1574,9 +1577,9 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		FollowerLocationInfo_ResetConfig();
 	--elseif (cmd=="resetscale") then
 	--	FollowerLocationInfo_ResetScale();
-	elseif (cmd=="collect") then
+	elseif (cmd=="collectlocales") then
 		FollowerLocationInfo_Collector();
-	elseif (cmd=="delcollected") then
+	elseif (cmd=="delcollectedlocales") then
 		FLI_tmpDB = {};
 	else
 		_print(L["Commandline options for %s"]:format(addon));
@@ -1592,8 +1595,8 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		--_print("  resetscale = " .. L["Reset window scaling"]);
 		_print("~ development commands ~");
 		_print("  missing = "    .. L["Print missing data (follower and npc id's)"]);
-		_print("  collect = "    .. L["Collects localized follower names from one faction. It is recommented to use it on both factions. The character must be level 90 or higher."]);
-		_print("  delcollected = "..L["Deletes collected localized follower names"]);
+		_print("  collectlocales = "    .. L["Collects localized follower names from one faction. It is recommented to use it on both factions. The character must be level 90 or higher."]);
+		_print("  delcollectedlocales = "..L["Deletes collected localized follower names"]);
 	end
 end
 
