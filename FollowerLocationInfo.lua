@@ -181,6 +181,7 @@ local function getLocale(Type,id)
 	end
 	t=getTableTree(ns,keys);
 	if (type(t)=="string") then return t; end
+	if (FLI_tmpDB==nil) then FLI_tmpDB={}; end
 	t=getTableTree(FLI_tmpDB,keys);
 	if (type(t)=="string") then return t; end
 	t=getTableTree(ns,enKeys);
