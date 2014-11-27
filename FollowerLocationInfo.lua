@@ -856,7 +856,8 @@ local function Desc_Update()
 				numCollectedFollowers..L[" collected with this character"]
 			},
 			{"Version",GetAddOnMetadata(addon,"Version")},
-			{"Msg from Dev","|cff44eeffGreetings friends...|n|nSorry for the problems. I've removed the under 90 disabling.|n|ncurrently i work on independence from buggy blizzard functions and copied some necessary data into the addon. one part i can't copy. i have no access to some language versions to copy names of follower, abilities and more but i have a plan to get the data.|n|ncurrently the filter 2 has no menu. it will came back in next build and the class specs in filter1 menu too. |n|nHave a nice day|r"}
+			{"slash commands","/fli or /followerlocationinfo"},
+			{"Msg from Dev","|cff44eeffGreetings friends...|n|n(Please let this version working for all... ~.~)|n|nState of Independence > Localized names for follower, abilities, classes and class specs copied into the addon (currently DE,ES,EN,FR,IT,PT).|n|nI need help for ru, kr, cn and tw. How you can help? Use |cff44ff44/fli collect |cff44eeff+ |cff44ff44/reload |cff44eeffand submit your |cffeeee44<WoW folder> \\ WTF \\ <your account> \\ SavedVariables \\ FollowerLocationInfo.lua |cff44eeffin a PM on Curse as attachment.|n|nHave a nice day|r"}
 		};
 
 		for i,v in ipairs(descs) do
