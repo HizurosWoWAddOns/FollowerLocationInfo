@@ -15,7 +15,7 @@ local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButton
 local initState,doRefresh={minimap=false},false;
 local ClassFilterLabel, AbilityFilterLabel = L["Classes & Class speccs"], L["Abilities/Counters & Traits"];
 local ListButtonOffsetX, ListButtonOffsetY = 0,1;
-local updateLock=false;
+local updateLock,warning=false,true;
 local ListEntrySelected, ListEntries = false,{};
 local FollowersCollected,knownAbilities = {},{};
 local SearchStr,ClassFilter,AbilityFilter = "","","";
@@ -1641,7 +1641,10 @@ function FollowerLocationInfoFrame_OnLoad(self)
 	self:SetScript("OnShow", FollowerLocationInfoFrame_OnShow);
 	function self:RegisterEvent(event) end
 	function self:UnregisterEvent(event)
-		print("|cff00ff00"..addon.."|r:","|cffff0000Warning...|r","|cffff6600The use of UnregisterEvent against other addons isn't a well good way of coexistence!|r");
+		if (warning) then
+			print("|cff00ff00"..addon.."|r:","|cffff0000Warning...|r","|cffff6600The use of UnregisterEvent against other addons isn't a well good way of coexistence!|r");
+			warning=false;
+		end
 		-- is a friendly message about performance problems between our addons too difficult?
 	end
 
