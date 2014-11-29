@@ -12,6 +12,8 @@ ns.addFollower(
 		{"desc", {
 			enUS = "Help him to defend himself. Then he is friendly and can be recruited.",
 			deDE = "Helft ihm sich zu verteidigen. Danach wird er freundlich und kann rekrutiert werden.",
+			zhTW = "幫助他與保護他，然後他會是友好的，并且可以被招募。",
+			zhCN = "帮助他与保护他，然后他会是友好的，并且可以被招募。",
 		}}
 	}
 );

@@ -13,6 +13,8 @@ ns.addFollower(
 		{"desc", {
 			enUS = "Romuul starts an event where you have to protect him until he does his work.",
 			deDE = "Romuul startet ein Ereignis, bei dem man ihn beschützen muss bis er seine Arbeit erledigt hat.",
+			zhTW = "羅穆爾開始一個事件時必須要保護他，直到他完成他的工作。",
+			zhCN = "罗穆尔开始一个事件时必须要保护他，直到他完成他的工作。",
 		}},
 		{"img", "1"},
 	},

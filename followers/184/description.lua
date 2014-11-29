@@ -19,6 +19,8 @@ ns.addFollower(
 		},
 		{"desc", {
 			enUS = "Gained afte completing the Elodor questline. You have to choose between Andren, Chel and Onaala. (Tritox/WoWHead)",
+			zhTW = "完成埃羅多爾任務線後獲得的，你需要在三個追隨者之間做出一個選擇。",
+			zhCN = "完成埃罗多尔任务线后获得的，你需要在三个追随者之间做出一个选择。",
 		}},
 	},
 	{

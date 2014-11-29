@@ -6,6 +6,8 @@ local _, ns = ...;
 local desc = {
 	enUS = "After the quest, you get him as a quest reward. The charging process takes a while so you should not run away after completing the quest...",
 	deDE = "Nach der Quest bekommt man ihn als Belohnung. Der Ladevorgang dauert etwas, daher sollte man nach Abschluss des Quests nicht weglaufen...",
+	zhTW = "在此任務之後，您會得到他作為任務獎勵。裝載的過程需要一會兒，所以你不應該在完成任務後跑開...",
+	zhCN = "在此任务之后，您会得到他作为任务奖励。装载的过程需要一会儿，所以你不应该在完成任务后跑开...",
 };
 
 ns.addFollower(

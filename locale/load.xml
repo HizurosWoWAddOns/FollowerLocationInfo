@@ -6,13 +6,15 @@
 	<!-- interface localizations -->
 	<Script file="enUS.lua" />
 	<Script file="deDE.lua" />
+	<Script file="zhTW.lua" />
+	<Script file="zhCN.lua" />
 
 	<!-- interface independent parts -->
 	<Script file="abilities.lua" />
 	<Script file="classspecs.lua" />
 	<Script file="factions.lua" />
 	<Script file="followers.lua" />
-	<!-- <Script file="npcs.lua" /> -->
+	<!-- <Script file="npcs.lua" /> for later use -->
 	<Script file="zones.lua" />
 
 

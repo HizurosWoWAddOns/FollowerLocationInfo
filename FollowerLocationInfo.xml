@@ -133,7 +133,7 @@
 		<Layers>
 			<Layer level="ARTWORK">
 				<FontString parentKey="title" inherits="GameFontNormal" justifyH="RIGHT" nonspacewrap="TRUE">
-					<Size x="120" y="12" />
+					<Size x="120" />
 					<Anchors>
 						<Anchor point="TOPLEFT" />
 					</Anchors>
@@ -718,6 +718,71 @@
 				</Scripts>
 			</Button>
 			<!-- /BigModelViewer -->
+
+			<Frame name="$parentCoordFrame" parent="FollowerLocationInfoFrame" hidden="true" >
+				<Size x="280" y="60" />
+				<Anchors>
+					<Anchor point="TOP" relativeTo="FollowerLocationInfoFrame" relativePoint="TOP" y="22" />
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="interface\Garrison\GarrisonLandingPage">
+							<Size x="280" y="30" />
+							<Anchors> <Anchor point="CENTER" y="13" /> </Anchors>
+							<TexCoords left="0.79296875" right="0.9931640625" top="0.267578125" bottom="0.298828125" />
+						</Texture>
+
+						<Texture file="interface\Garrison\GarrisonLandingPage">
+							<Size x="200" y="60" />
+							<Anchors> <Anchor point="CENTER" y="-3" /> </Anchors>
+							<TexCoords left="0.724609375" right="0.919921875" top="0.05859375" bottom="0.1171875" />
+						</Texture>
+					</Layer>
+					<Layer level="ARTWORK">
+						<Texture parentKey="Portrait" file="interface\garrison\portraits\followerportrait_noportrait">
+							<Size x="38" y="38" />
+							<Anchors>
+								<Anchor point="CENTER" />
+							</Anchors>
+						</Texture>
+						<!--
+						<Texture parentKey="PortraitBorder" setAllPoints="TRUE" file="interface\unitpowerbaralt\Atramedes_Circular_Frame" />
+						-->
+						<FontString parentKey="coords1" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="LEFT" x="0" y="9" />
+								<Anchor point="RIGHT" x="-150" y="9" />
+							</Anchors>
+						</FontString>
+						<FontString parentKey="coords2" inherits="GameFontNormal" text="??.?, ??.?">
+							<Anchors>
+								<Anchor point="LEFT" x="150" y="9" />
+								<Anchor point="RIGHT" x="0" y="9" />
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad>
+						-- interface\store\Store-Main
+						-- interface\PVPFrame\PVP-Conquest-Misc
+						-- interface\Garrison\GarrisonLandingPage
+					</OnLoad>
+					<OnShow>
+						--self:ClearAllPoints();
+						--self:SetPoint("TOP",FollowerLocationInfoFrame,"TOP",0,-30);
+					</OnShow>
+					<OnUpdate>
+						local x,y=GetPlayerMapPosition("player");
+						if (x==0) and (y==0) then
+							self.coords1:SetText("??.?, ??.?");
+						else
+							self.coords1:SetText(("%.1f, %.1f"):format(x*100,y*100));
+						end
+					</OnUpdate>
+				</Scripts>
+			</Frame>
+
 		</Frames>
 		<Scripts>
 			<OnLoad function="FollowerLocationInfoFrame_OnLoad"/>

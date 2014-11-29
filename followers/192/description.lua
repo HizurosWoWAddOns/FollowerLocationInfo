@@ -1,5 +1,5 @@
 --X
--- ID: 192, Name: 
+-- ID: 192, Name: Kimzee Pinchwhistle
 
 local _, ns = ...;
 

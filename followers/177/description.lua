@@ -8,7 +8,7 @@ ns.addFollower(
 	true,
 	{
 		zone = 964,
-		{"pos", {964, "{need coordinations?}"}},
+		{"pos", {964, "Dungeon type: Herioc, coordinations unknown..."}},
 		{"achievement", 9005}
 	}
 );

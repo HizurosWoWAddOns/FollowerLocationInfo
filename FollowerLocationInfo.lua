@@ -9,11 +9,11 @@ ns.followers = {};
 FollowerLocationInfo_Toggle, FollowerLocationInfo_ToggleCollected, FollowerLocationInfo_ToggleIDs, FollowerLocationInfo_ResetConfig,FollowerLocationInfo_MinimapButton,FollowerLocationInfo_ToggleList=nil,nil,nil,nil,nil,nil;
 local configMenu, List_Update, FollowerLocationInfoFrame_OnEvent,ExternalURL;
 local nFaction = (ns.faction=="Alliance") and 1 or 2;
-local followers, zoneNames, classes, collectGroups, classNames1, classNames2, abilityNames = nil,{},{},{},{},{},{};
+local followers, zoneNames, classes, collectGroups, classNames1, classNames2, abilityNames,counterNames = nil,{},{},{},{},{},{},{};
 local numHidden,numRealFollowers, numKnownFollowers, numCollectedFollowers = (292-48),0,0,0;
 local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButtons.ITEM_QUALITY3_DESC,_G.UnitPopupButtons.ITEM_QUALITY4_DESC};
 local initState,doRefresh={minimap=false},false;
-local ClassFilterLabel, AbilityFilterLabel = L["Classes & Class speccs"], L["Abilities & Traits"];
+local ClassFilterLabel, AbilityFilterLabel = L["Classes & Class speccs"], L["Abilities/Counters & Traits"];
 local ListButtonOffsetX, ListButtonOffsetY = 0,1;
 local updateLock=false;
 local ListEntrySelected, ListEntries = false,{};
@@ -52,8 +52,59 @@ local modelPositions={
 
 
 --[=[ Broker & Minimap ]=]
-local lDB = LibStub("LibDataBroker-1.1");
-local lDBI = LibStub("LibDBIcon-1.0");
+
+local broker = {obj=nil,minimap=nil,update=nil,tooltip=nil,click=nil};
+do
+	broker.lDB = LibStub("LibDataBroker-1.1");
+	broker.lDBI = LibStub("LibDBIcon-1.0");
+
+	broker.minimap = function()
+		if (not broker.lDB) or (not broker.lDBI) or (not broker.obj) then return; end
+		broker.lDBI:Register(addon, broker.obj, FollowerLocationInfoDB.Minimap);
+	end
+
+	broker.update = function()
+		-- coords
+		-- follower count / max
+		
+	end
+
+	broker.tooltip = function()
+		-- list of uncollected follower in current zone?
+	end
+
+	broker.click = function(self,button)
+		if (button=="LeftButton") then
+			FollowerLocationInfo_Toggle();
+		elseif (button=="RightButton") then
+			configMenu(self,"TOP","BOTTOM");
+		end
+	end
+
+	broker.init = function()
+		if (not broker.lDB) then return; end
+		broker.obj = broker.lDB:NewDataObject(addon, {
+			type          = "data source",
+			label         = addon,
+			icon          = "Interface\\Icons\\Achievement_GarrisonFollower_Rare",
+			text          = addon,
+			OnClick       = broker.click,
+			--OnTooltipShow = broker.tooltip
+		});
+
+		if (GetAddOnInfo("SlideBar")) then
+			if (GetAddOnEnableState(UnitName("player"),"SlideBar")>1) then
+				local name = addon..".Launcher"
+				local obj = broker.lDB:NewDataObject(name, {
+					type          = "launcher",
+					icon          = "Interface\\Icons\\Achievement_GarrisonFollower_Rare",
+					OnClick       = function(self,button) FollowerLocationInfo_Toggle(); end
+				});
+			end
+		end
+	end
+end
+
 local function dataBrokerInit()
 	if (not lDB) then return; end
 	local obj = lDB:NewDataObject(addon, {
@@ -85,6 +136,7 @@ local function dataBrokerInit()
 		end
 	end
 end
+
 local function minimapInit()
 	if (not lDB) or (not lDBI) then return; end
 	local obj = lDB:GetDataObjectByName(addon);
@@ -111,7 +163,7 @@ local urls = {
 }
 
 StaticPopupDialogs["FLI_URL_DIALOG"] = {
-	text = "URL", button2 = CLOSE, timeout = 0, whileDead = 1, 
+	text = L["URL"], button2 = CLOSE, timeout = 0, whileDead = 1, 
 	hasEditBox = 1, hideOnEscape = 1, maxLetters = 1024, editBoxWidth = 250,
 	OnShow = function(f)
 		local e,b = _G[f:GetName().."EditBox"],_G[f:GetName().."Button2"];
@@ -125,7 +177,7 @@ StaticPopupDialogs["FLI_URL_DIALOG"] = {
 
 
 --[=[ Misc ]=]
-local pairsByKeys = function(t, f)
+local function pairsByKeys(t, f)
 	local a = {}
 	for n in pairs(t) do
 		table.insert(a, n)
@@ -141,6 +193,21 @@ local pairsByKeys = function(t, f)
 		end
 	end
 	return iter
+end
+
+local function tableMerge(t1, t2)
+	for k,v in pairs(t2) do
+		if (type(v)=="table") then
+			if (type(t1[k] or false)=="table") then
+				tableMerge(t1[k] or {}, t2[k] or {});
+			else
+				t1[k]=v;
+			end
+		else
+			t1[k]=v;
+		end
+	end
+	return t1
 end
 
 local function getTableTree(_table,keys)
@@ -171,6 +238,7 @@ end
 
 local function getLocale(Type,id)
 	local t,keys;
+	if (FLI_tmpDB==nil) then FLI_tmpDB={}; end
 	id=tostring(id)
 	if (Type=="follower") then
 		keys={Type.."_locales",id,ns.language,nFaction};
@@ -181,7 +249,6 @@ local function getLocale(Type,id)
 	end
 	t=getTableTree(ns,keys);
 	if (type(t)=="string") then return t; end
-	if (FLI_tmpDB==nil) then FLI_tmpDB={}; end
 	t=getTableTree(FLI_tmpDB,keys);
 	if (type(t)=="string") then return t; end
 	t=getTableTree(ns,enKeys);
@@ -343,6 +410,7 @@ local function GetFollowers()
 	classNames1={};
 	classNames2={};
 	abilityNames={};
+	counterNames={};
 
 	for i,v in pairs(ns.follower_basics) do
 		local d = nil;
@@ -357,11 +425,19 @@ local function GetFollowers()
 				if (type(d.abilities)=="table") then
 					for i,v in ipairs(d.abilities) do
 						v=tostring(v);
-						abilities[v] = ns.ability[v];
+						abilities[v] = { name = getLocale("ability",v), icon = ns.ability[v][2], trait=ns.ability[v][3]};
+						if (ns.ability[v][1]>0) then
+							abilities[v].counter_name=getLocale("counter",ns.ability[v][1]);
+							abilities[v].counter_icon=ns.counter[tostring(ns.ability[v][1])];
+						end
 					end
 				elseif (type(d.abilities)=="number") then
 					local v = tostring(d.abilities);
-					abilities[v] = ns.ability[v];
+					abilities[v] = { name = getLocale("ability",v), icon=ns.ability[v][2], trait=ns.ability[v][3]};
+					if (ns.ability[v][1]>0) then
+						abilities[v].counter_name=getLocale("counter",ns.ability[v][1]);
+						abilities[v].counter_icon=ns.counter[tostring(ns.ability[v][1])];
+					end
 				end
 			end
 
@@ -413,22 +489,29 @@ local function GetFollowers()
 				end
 
 				-- get abilities and add it to filter table
-				local name;
+				local name,data;
 				if (abilities) then
 					for id,V in pairs(abilities) do
-						name = getLocale("ability",tostring(id));
-						if (name) then
-							if (abilityNames[name]) then
-								abilityNames[name][3]=abilityNames[name][3]+1;
+						if (abilityNames[V.name]) then
+							abilityNames[V.name][3]=abilityNames[V.name][3]+1;
+							if (d.collected) then
+								abilityNames[V.name][4]=abilityNames[V.name][4]+1;
+							end
+						else
+							abilityNames[V.name] = {V.name, V.trait, 1, (d.collected) and 1 or 0};
+						end
+						if (V.counter_name) then
+							if (counterNames[V.counter_name]) then
+								counterNames[V.counter_name][2]=counterNames[V.counter_name][2]+1;
 								if (d.collected) then
-									abilityNames[name][4]=abilityNames[name][4]+1;
+									counterNames[V.counter_name][3]=counterNames[V.counter_name][3]+1;
 								end
 							else
-								abilityNames[name] = {name,V[3],1,(d.collected) and 1 or 0};
+								counterNames[V.counter_name]={V.counter_name, 1, (d.collected) and 1 or 0};
 							end
 						end
 					end
-					--tinsert(d.desc,{"abilities",abilities});
+					tinsert(d.desc,{"abilities",abilities});
 				end
 
 				if (not ids[i]) then
@@ -661,7 +744,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 		end
 	elseif (objType=="desc") then
 		local desc = false;
-		local lang = GetLocale();
+		local lang = GetLocale(); -- ns.language?
 
 		if (obj[lang]) then
 			desc = obj[lang];
@@ -718,10 +801,9 @@ local function Desc_AddInfo(self, count, objType, ...)
 			title = "";
 		end
 	elseif (objType=="mission") then
-		local title = L["Mission"];
 		for i,v in ipairs(objs) do
 			if (type(v)=="number") then
-				addLine(title, C_Garrison.GetMissionName(v).."  |cff888888(MissionID: "..v..")|r");
+				addLine(L["Mission"], C_Garrison.GetMissionName(v).."  |cff888888(MissionID: "..v..")|r");
 			end
 		end
 	elseif (objType=="payment") then
@@ -758,18 +840,23 @@ local function Desc_AddInfo(self, count, objType, ...)
 		else
 			str = L["Can't get achievement data. %d isn't an achievement id?"]:format(obj);
 		end
-		addLine("Achievement", str, nil, {});
+		addLine(L["Achievement"], str, nil, {});
 	elseif (objType=="abilities") then
 		local text = {};
-		for i,v in pairs(obj) do
-			if (#v.counters>0) then
-				tinsert(text,("|T%s:0|t %s (|T%s:0|t %s)"):format(v.icon,v.name,v.counters[3],v.counters[2]));
-			else
-				tinsert(text,("|T%s:0|t %s"):format(v.icon,v.name));
+		local media = "interface\\icons\\";
+		if (type(obj)=="table") then
+			for _,data in pairs(obj) do
+				if (data.counter_name) then
+					tinsert(text,("|Tinterface\\icons\\%s:0|t %s (|Tinterface\\icons\\%s:0|t %s)"):format(data.icon, data.name, data.counter_icon, data.counter_name));
+				else
+					tinsert(text,("|Tinterface\\icons\\%s:0|t %s"):format(data.icon or "",data.name));
+				end
 			end
-		end
-		if (#text>0) then
-			addLine(L["Basic abilities"],table.concat(text,"|n"));
+			if (#text>0) then
+				addLine(L["Basic abilities/counters and traits"],table.concat(text,"|n"));
+			end
+		else
+			--addLine(L["Basic abilities/counters and traits"],L["This follower has no basic abilities/counters or traits"]);
 		end
 	elseif (objType=="custom") then
 		addLine(L[obj[1]], L[obj[2]]);
@@ -812,8 +899,6 @@ local function Desc_Update()
 			for i=1, #self.info.desc do
 				count = Desc_AddInfo(self,count,unpack(self.info.desc[i]));
 			end
-		else
-			-- custom message?
 		end
 
 		if (doRefresh) then
@@ -861,7 +946,8 @@ local function Desc_Update()
 			},
 			{"Version",GetAddOnMetadata(addon,"Version")},
 			{"slash commands","/fli or /followerlocationinfo"},
-			{"Msg from Dev","|cff44eeffGreetings friends...|n|n(Please let this version working for all... ~.~)|n|nState of Independence > Localized names for follower, abilities, classes and class specs copied into the addon (currently DE,ES,EN,FR,IT,PT).|n|nI need help for ru, kr, cn and tw. How you can help? Use |cff44ff44/fli collectlocales |cff44eeff+ |cff44ff44/reload |cff44eeffand submit your |cffeeee44<WoW folder> \\ WTF \\ <your account> \\ SavedVariables \\ FollowerLocationInfo.lua |cff44eeffin a PM on Curse as attachment.|n|nHave a nice day|r"}
+			{"Msg from Dev","|cff44eeffHello Friends.|n|nI've added the current state of localization to the addon description on curse/curseforge. Yes and a better way to upload savedvariables. :)|n|nI've added russian and taiwanese names of abilities, counter and class specs. I will add the follower names if i've got both factions (missing russian alliance and taiwanese horde). Oh and missing korean and chinese.|n|nHave a nice day|r"},
+			{"Thanks @", "ditex2009 ruRU locales (horde only) |nShooshpan ruRU locales (horde only) |njerry99spkk zhTW locales (alliance only) |nBNSSNB zhTW locales (alliance only)|nand the nice community :)"}
 		};
 
 		for i,v in ipairs(descs) do
@@ -943,8 +1029,10 @@ local function List_ClassFilter(self)
 	local t={};
 	for i,v in pairsByKeys(classNames2) do
 		if (v) then
+			local colorStr = classes[v[2]:upper()].colorStr
+			if (type(colorStr)~="string") then colorStr="ffffff"; end -- mysteriously... i don't know why but it is unsave to get sometimes class colors from blizzards globals.
 			tinsert(t, {
-				label = ("|c%s%s|r (|cff%s%s|r/|cff%s%s|r)"):format(classes[v[2]:upper()].colorStr,v[1],(v[4]>0) and "00ff00" or "999999",v[4],"ffee00",v[3]),
+				label = ("|c%s%s|r (|cff%s%s|r/|cff%s%s|r)"):format(colorStr,v[1],(v[4]>0) and "00ff00" or "999999",v[4],"ffee00",v[3]),
 				func=function()
 					ClassFilter = i;
 					local f = FollowerLocationInfoFrame.ClassFilter; f.Text:SetText(v[1]);
@@ -983,8 +1071,7 @@ local function List_ClassFilter(self)
 end
 
 local function List_AbilityFilter(self)
-	local Abs,Traits = {},{};
-
+	local Abs,Traits,Counters = {},{},{};
 	local entries,cMax,page = {},20,1;
 	for i,v in pairsByKeys(abilityNames) do
 		if (v[2]) then
@@ -1015,20 +1102,34 @@ local function List_AbilityFilter(self)
 			end
 		end
 	end
-	
-	if (#Traits>0) or (#Abs>0) then
+	for i,v in pairsByKeys(counterNames) do
+		tinsert(Counters,{
+			label = ("%s (|cff%s%s|r/|cff%s%s|r)"):format(v[1], (v[3]>0) and "00ff00" or "999999", v[3],"ffee00",v[2]),
+			func = function()
+				AbilityFilter = v[1];
+				local f = FollowerLocationInfoFrame.AbilityFilter;
+				f.Text:SetText(v[1]);
+				f.Remove:Show();
+				List_Update();
+			end
+		});
+	end
+	if (#Traits>0) or (#Abs>0) or (#Counters>0) then
 		local menu = {
-			{ label = "Choose", title = true },
+			{ label = L["Choose"], title = true },
 			{ separator = true },
 			
 		};
 		if (#Traits>0) then
-			tinsert(menu,{ label = "Traits", childs=Traits });
+			tinsert(menu,{ label = L["Traits"], childs=Traits });
 		end
 		if (#Abs>0) then
 			for i,v in ipairs(Abs) do
 				tinsert(menu,{ label = L["Abilities (page %d)"]:format(i), childs=v });
 			end
+		end
+		if (#Counters>0) then
+			tinsert(menu,{ label = L["Counters"], childs=Counters });
 		end
 
 		createMenu(self,menu,"TOPLEFT","TOPRIGHT");
@@ -1067,10 +1168,16 @@ local function ListEntries_Update(clear)
 
 		-- filter 4: Select traint filter
 		if (AbilityFilter~="") then
-			local dontIgnore,name=false;
+			local dontIgnore,name,cname=false,false,false;
 			for _,V in ipairs(v.abilities) do
+				V=tostring(V);
 				name = getLocale("ability",V);
-				if (name==AbilityFilter) then
+				if (ns.ability[V]) and (ns.ability[V][1]>0) then
+					cname = getLocale("counter",tostring(ns.ability[V][1]));
+				end
+				if (name) and (name==AbilityFilter) then
+					dontIgnore=true;
+				elseif (cname) and (cname==AbilityFilter) then
 					dontIgnore=true;
 				end
 			end
@@ -1250,6 +1357,86 @@ function List_Update()
 end
 
 
+--[=[ event handling ]=]
+local eventFrame=CreateFrame("Frame");
+eventFrame:SetScript("OnEvent", function(self,event,arg1,...)
+	if (event=="ADDON_LOADED") and (arg1==addon) then
+		if (FollowerLocationInfoDB==nil) then
+			FollowerLocationInfoDB={Minimap={enabled=true}};
+		end
+		for i,v in pairs({
+			Minimap = {enabled=true},
+			ShowFollowerID = true,
+			ShowCoordsFrame = true,
+			BrokerTitle_Coords = false,
+			BrokerTitle_NumFollowers = true,
+			ShowCollectedFollower = false,
+			ShowHiddenFollowers = false,
+			ExternalURL = "WoWHead",
+			ListOpen = true,
+			language = false
+		}) do
+			if (FollowerLocationInfoDB[i]==nil) then
+				FollowerLocationInfoDB[i] = v;
+			end
+		end
+		for i,v in pairs(_G.RAID_CLASS_COLORS) do
+			if (_G.CUSTOM_CLASS_COLORS) and (_G.CUSTOM_CLASS_COLORS[i]) and (_G.CUSTOM_CLASS_COLORS[i].colorStr) then
+				classes[i] = _G.CUSTOM_CLASS_COLORS[i];
+			else
+				classes[i] = v;
+			end
+		end
+	end
+
+	if (event=="PLAYER_ENTERING_WORLD") then
+		broker.init();
+		if (FollowerLocationInfoDB.Minimap.enabled) then
+			broker.minimap();
+		end
+		if (FollowerLocationInfoDB.ListOpen) then
+			FollowerLocationInfo_ToggleList(true);
+		end
+		if (FollowerLocationInfoDB.language) then
+			local change=false;
+			for i,v in pairs(ns.languages) do
+				if (FollowerLocationInfoDB.language==i) then
+					change=true;
+				elseif --[[ (not <exclude for later>) and ]] (FollowerLocationInfoDB.language:sub(1,2)==i:sub(1,2)) then
+					change=true
+				end
+			end
+			if (change) then
+				ns.language = FollowerLocationInfoDB.language;
+			end
+		end
+		if (UnitLevel("player")>=90) and (not GarrisonLandingPage) then
+			Garrison_LoadUI();
+			C_Timer.After(30,GetBlizzardData);
+		end
+	end
+
+	if (event=="ADDON_LOADED" and arg1=="Blizzard_GarrisonUI") then
+		GarrisonMissionFrame.MissionTab:HookScript("OnShow", function()
+			updateLock=true;
+		end);
+
+		GarrisonMissionFrame.MissionTab:HookScript("OnHide", function()
+			updateLock=false;
+			eventFrame:GetScript("OnEvent")({},"GARRISON_FOLLOWER_LIST_UPDATE");
+		end);
+	end
+
+	if ((event=="ADDON_LOADED" and arg1=="Blizzard_GarrisonUI") or (event=="GARRISON_FOLLOWER_LIST_UPDATE")) then
+		GetBlizzardData();
+		-- broker.update();
+	end
+end);
+eventFrame:RegisterEvent("ADDON_LOADED");
+eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
+eventFrame:RegisterEvent("GARRISON_FOLLOWER_LIST_UPDATE");
+
+
 --[=[ public functions ]=]
 function FollowerLocationInfo_Toggle()
 	if (FollowerLocationInfoFrame:IsShown()) then
@@ -1275,12 +1462,12 @@ function FollowerLocationInfo_ResetConfig()
 end
 
 function FollowerLocationInfo_MinimapButton()
-	if (lDBI:IsRegistered(addon)) then
+	if (broker.lDBI:IsRegistered(addon)) then
 		if (FollowerLocationInfoDB.Minimap.enabled) then
-			lDBI:Hide(addon);
+			broker.lDBI:Hide(addon);
 			FollowerLocationInfoDB.Minimap.enabled = false;
 		else
-			lDBI:Show(addon);
+			broker.lDBI:Show(addon);
 			FollowerLocationInfoDB.Minimap.enabled = true;
 		end
 	else
@@ -1303,26 +1490,28 @@ function FollowerLocationInfo_ToggleList(force)
 	local self = FollowerLocationInfoFrame;
 	local n, h = self.ListToggle:GetNormalTexture(),self.ListToggle:GetHighlightTexture();
 	if (force==false) or (self.List:IsShown()) then
+		local tx=[[Interface\Buttons\UI-SpellbookIcon-NextPage-Up]];
 		self.List:Hide();
 		self.ListBG:Hide();
 		self.ListOptionBG:Hide()
 		self.Search:Hide();
 		self.ClassFilter:Hide();
 		self.AbilityFilter:Hide();
-		n:SetTexture(gsub(n:GetTexture(),"Next","Prev"));
-		h:SetTexture(gsub(h:GetTexture(),"Next","Prev"));
+		n:SetTexture(tx);
+		h:SetTexture(tx);
 		if (force==nil) then
 			FollowerLocationInfoDB.ListOpen=false;
 		end
 	elseif (force==true) or (not self.List:IsShown()) then
+		local tx = [[Interface\Buttons\UI-SpellbookIcon-NextPage-Up]];
 		self.List:Show();
 		self.ListBG:Show();
 		self.ListOptionBG:Show()
 		self.Search:Show();
 		self.ClassFilter:Show();
 		self.AbilityFilter:Show();
-		n:SetTexture(gsub(n:GetTexture(),"Prev","Next"));
-		h:SetTexture(gsub(h:GetTexture(),"Prev","Next"));
+		n:SetTexture(tx);
+		h:SetTexture(tx);
 		if (force==nil) then
 			FollowerLocationInfoDB.ListOpen=true;
 		end
@@ -1335,7 +1524,7 @@ function FollowerLocationInfo_UpdateLock(bool)
 		updateLock=true;
 	else
 		updateLock=false;
-		FollowerLocationInfoFrame_OnEvent({},"GARRISON_FOLLOWER_LIST_UPDATE")
+		eventFrame({},"GARRISON_FOLLOWER_LIST_UPDATE")
 	end
 end
 
@@ -1418,65 +1607,6 @@ end
 
 
 --[=[ FollowerLocationInfoFrame ]=]
-local function FollowerLocationInfoFrame_OnEvent(self, event, arg1, ...)
-	if (event=="ADDON_LOADED") and (arg1==addon) then
-		if (FollowerLocationInfoDB==nil) then
-			FollowerLocationInfoDB={Minimap={enabled=true}};
-		end
-		for i,v in pairs({
-			Minimap = {enabled=true},
-			ShowFollowerID = true,
-			ShowCoordsFrame = true,
-			BrokerTitle_Coords = false,
-			BrokerTitle_NumFollowers = true,
-			ShowCollectedFollower = false,
-			ShowHiddenFollowers = false,
-			ExternalURL = "WoWHead",
-			ListOpen = true,
-			language = false
-		}) do
-			if (FollowerLocationInfoDB[i]==nil) then
-				FollowerLocationInfoDB[i] = v;
-			end
-		end
-		for i,v in pairs(_G.RAID_CLASS_COLORS) do
-			if (_G.CUSTOM_CLASS_COLORS) and (_G.CUSTOM_CLASS_COLORS[i]) and (_G.CUSTOM_CLASS_COLORS[i].colorStr) then
-				classes[i] = _G.CUSTOM_CLASS_COLORS[i];
-			else
-				classes[i] = v;
-			end
-		end
-	end
-	if (event=="PLAYER_ENTERING_WORLD") then
-		dataBrokerInit();
-		if (FollowerLocationInfoDB.Minimap.enabled) then
-			minimapInit();
-		end
-		if (FollowerLocationInfoDB.ListOpen) then
-			FollowerLocationInfo_ToggleList(true);
-		end
-		if (FollowerLocationInfoDB.language) then
-			local change=false;
-			for i,v in pairs(ns.languages) do
-				if (FollowerLocationInfoDB.language==i) then
-					change=true;
-				elseif --[[ (not <exclude for later>) and ]] (FollowerLocationInfoDB.language:sub(1,2)==i:sub(1,2)) then
-					change=true
-				end
-			end
-			if (change) then
-				ns.language = FollowerLocationInfoDB.language;
-			end
-		end
-		if (UnitLevel("player")>=90) and (not GarrisonLandingPage) then
-			Garrison_LoadUI();
-		end
-	end
-	if ((event=="ADDON_LOADED" and arg1=="Blizzard_GarrisonUI") or (event=="GARRISON_FOLLOWER_LIST_UPDATE")) then
-		GetBlizzardData();
-	end
-end
-
 local function FollowerLocationInfoFrame_OnShow(self)
 	DescSelected=false;
 	ListEntrySelected=false;
@@ -1508,22 +1638,21 @@ function FollowerLocationInfoFrame_OnLoad(self)
 	-- FLI
 	self:SetUserPlaced(true);
 	self:SetFrameLevel(10);
-	self:SetScript("OnEvent", FollowerLocationInfoFrame_OnEvent);
 	self:SetScript("OnShow", FollowerLocationInfoFrame_OnShow);
-	self:RegisterEvent("ADDON_LOADED");
-	self:RegisterEvent("PLAYER_ENTERING_WORLD");
-	self:RegisterEvent("GARRISON_FOLLOWER_LIST_UPDATE");
-	--self:RegisterEvent("GARRISON_FOLLOWER_REMOVED");
-	--self:RegisterEvent("GARRISON_FOLLOWER_XP_CHANGED");
+	function self:RegisterEvent(event) end
+	function self:UnregisterEvent(event)
+		print("|cff00ff00"..addon.."|r:","|cffff0000Warning...|r","|cffff6600The use of UnregisterEvent against other addons isn't a well good way of coexistence!|r");
+		-- is a friendly message about performance problems between our addons too difficult?
+	end
 
 	-- FLI -- FilterElements
 	self.Search:SetScript("OnTextChanged", List_Search);
 	self.ClassFilter.Text:SetText(L[ClassFilterLabel]);
-	self.ClassFilter.Title:SetText("Filter 1");
+	self.ClassFilter.Title:SetText(L["Filter 1"]);
 	self.ClassFilter.Button:SetScript("OnClick", List_ClassFilter);
 	self.ClassFilter.Remove:SetScript("OnClick", List_ClassFilterClear);
 	self.AbilityFilter.Text:SetText(L[AbilityFilterLabel]);
-	self.AbilityFilter.Title:SetText("Filter 2");
+	self.AbilityFilter.Title:SetText(L["Filter 2"]);
 	self.AbilityFilter.Button:SetScript("OnClick", List_AbilityFilter);
 	self.AbilityFilter.Remove:SetScript("OnClick", List_AbilityFilterClear);
 
@@ -1539,7 +1668,7 @@ function FollowerLocationInfoFrame_OnLoad(self)
 end
 
 
---[=[ WorldMap - Hook ]=]
+--[=[ Blizzard environment hooks ]=]
 _G.WorldMapFrame:HookScript("OnShow",function(self)
 	local f = FollowerLocationInfoFrame;
 	if (not f:IsUserPlaced()) then
@@ -1605,4 +1734,4 @@ SLASH_FOLLOWERLOCATIONINFO1 = "/fli";
 SLASH_FOLLOWERLOCATIONINFO2 = "/followerlocationinfo";
 
 
-
+-- if (WoWJapanizer) then ? end

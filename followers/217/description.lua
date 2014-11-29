@@ -14,6 +14,4 @@ ns.addFollower(
 	}
 );
 
-
-
 --local desc = {enUS="",enGB="",deDE="",esES="",esMX="",frFR="",itIT="",koKR="",ptBR="",ruRU="",zhCN="",zhTW=""};
