@@ -3,15 +3,11 @@
 
 	<Include file="libs\load.xml" />
 	<Script  file="MenuGenerator.lua" />
-
 	<Include file="locale\load.xml" />
-
 	<Script  file="db_ability_basics.lua" />
 	<Script  file="db_follower_basics.lua" />
-
+	<Include file="db_follower_desc.lua" />
 	<Script  file="FollowerLocationInfo.lua" />
-
-	<Include file="followers\load.xml" />
 
 	<GameTooltip name="FollowerLocationInfoTooltip" inherits="GameTooltipTemplate" alpha="0" />
 

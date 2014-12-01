@@ -4,20 +4,27 @@
 	<Script file="locale.lua" />
 
 	<!-- interface localizations -->
-	<Script file="enUS.lua" />
-	<Script file="deDE.lua" />
-	<Script file="zhTW.lua" />
-	<Script file="zhCN.lua" />
+	<Script file="locale_enUS.lua" />
+	<Script file="locale_deDE.lua" />
+	<Script file="locale_zhTW.lua" />
+	<Script file="locale_zhCN.lua" />
 
 	<!-- interface independent parts -->
-	<Script file="abilities.lua" />
-	<Script file="classspecs.lua" />
-	<Script file="factions.lua" />
-	<Script file="followers.lua" />
-	<!-- <Script file="npcs.lua" /> for later use -->
-	<Script file="zones.lua" />
+	<Script file="_abilities.lua" />
+	<Script file="_classspecs.lua" />
+	<Script file="_factions.lua" />
+	<Script file="_followers.lua" />
+	<!-- <Script file="_npcs.lua" /> for later use -->
+	<Script file="_zones.lua" />
+	<Script file="_npcs_old.lua" />
 
-
-	<Script file="npcs_old.lua" />
+	<!-- temp -->
+	<!--
+	<Script file="xru_alliance.lua" />
+	<Script file="xru_horde.lua" />
+	<Script file="xcn_Alliance.lua"/>
+	<Script file="xcn_Horde.lua"/>
+	<Script file="xtw_alliance.lua"/>
+	-->
 
 </Ui>

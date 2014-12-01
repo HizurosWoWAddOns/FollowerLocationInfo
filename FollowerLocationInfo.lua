@@ -2,9 +2,13 @@
 local addon,ns = ...;
 local L = ns.locale;
 
+--
+BINDING_HEADER_FOLLOWERLOCATIONINFO		= "FollowerLocationInfo";
+BINDING_NAME_TOGGLEFOLLOWERLOCATIONINFO	= L["Toggle FollowerLocationInfo Display"];
+--
+
 ns.faction, ns.factionLocale = UnitFactionGroup("player"); L[ns.faction] = ns.factionLocale;
 nFaction = ((ns.faction=="Alliance") and 1) or ((ns.faction=="Horde") and 2) or 0;
-ns.followers = {};
 
 FollowerLocationInfo_Toggle, FollowerLocationInfo_ToggleCollected, FollowerLocationInfo_ToggleIDs, FollowerLocationInfo_ResetConfig,FollowerLocationInfo_MinimapButton,FollowerLocationInfo_ToggleList=nil,nil,nil,nil,nil,nil;
 local configMenu, List_Update, FollowerLocationInfoFrame_OnEvent,ExternalURL;
@@ -15,7 +19,7 @@ local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButton
 local initState,doRefresh={minimap=false},false;
 local ClassFilterLabel, AbilityFilterLabel = L["Classes & Class speccs"], L["Abilities/Counters & Traits"];
 local ListButtonOffsetX, ListButtonOffsetY = 0,1;
-local updateLock,warning=false,true;
+local updateLock=false;
 local ListEntrySelected, ListEntries = false,{};
 local FollowersCollected,knownAbilities = {},{};
 local SearchStr,ClassFilter,AbilityFilter = "","","";
@@ -103,44 +107,6 @@ do
 			end
 		end
 	end
-end
-
-local function dataBrokerInit()
-	if (not lDB) then return; end
-	local obj = lDB:NewDataObject(addon, {
-		type          = "data source",
-		label         = addon,
-		icon          = "Interface\\Icons\\Achievement_GarrisonFollower_Rare",
-		text          = addon,
-		--OnEnter       = function(self) end,
-		--OnLeave       = function(self) end,
-		OnClick       = function(self,button)
-			if (button=="LeftButton") then
-				FollowerLocationInfo_Toggle();
-			elseif (button=="RightButton") then
-				configMenu(self,"TOP","BOTTOM");
-			end
-		end,
-		--OnDoubleClick = function(self) end,
-		--OnTooltipShow = function(self) end
-	});
-
-	if (GetAddOnInfo("SlideBar")) then
-		if (GetAddOnEnableState(UnitName("player"),"SlideBar")>1) then
-			local name = addon..".Launcher"
-			local obj = lDB:NewDataObject(name, {
-				type          = "launcher",
-				icon          = "Interface\\Icons\\Achievement_GarrisonFollower_Rare",
-				OnClick       = function(self,button) FollowerLocationInfo_Toggle(); end
-			});
-		end
-	end
-end
-
-local function minimapInit()
-	if (not lDB) or (not lDBI) then return; end
-	local obj = lDB:GetDataObjectByName(addon);
-	lDBI:Register(addon, obj, FollowerLocationInfoDB.Minimap);
 end
 
 
@@ -263,6 +229,7 @@ local function IsQuestCompleted(QuestID)
 	return (questsCompleted.ids[QuestID]==true);
 end
 
+--[=[
 local IsMissing = {npcs={},coords={},zones={},quests={},completed={},descs={}};
 IsMissing.chk=function(id,data)
 	local hasQuests,hasNpcs,hasDesc = false,false,false;
@@ -301,7 +268,8 @@ IsMissing.chk=function(id,data)
 		tinsert(IsMissing.descs,id);
 	end
 end
-
+]=]
+--[[
 ns.addFollower = function(id,neutral,data1,data2,notCount)
 	local Data = ((neutral) and data1) or ((ns.faction=="Alliance") and data1 or data2) or {};
 	if (#Data>0) and (Data.zone~=0) and (not Data.ignore) then
@@ -317,6 +285,7 @@ ns.addFollower = function(id,neutral,data1,data2,notCount)
 		IsMissing.chk(id,Data);
 	end
 end
+]]
 
 local Collector = {data={},hLink=false};
 do
@@ -449,17 +418,25 @@ local function GetFollowers()
 
 				-- add data from descripted follower
 				if (ns.followers[i]) then
-					-- add zone
-					d.zone = ns.followers[i].zone;
+					local x;
+					if (ns.followers[i][1]) then
+						x = ns.followers[i][2];
+					else
+						x = ns.followers[i][nFaction+1];
+					end
+					if (type(x)=="table") and (#x>0) and (not x.ignore) then
+						-- add zone
+						d.zone = x.zone;
 
-					-- add descriptions without zone
-					for _,D in ipairs(ns.followers[i]) do tinsert(d.desc,D); end
+						-- add descriptions without zone
+						for _,D in ipairs(x) do tinsert(d.desc,D); end
 
-					-- member of a collectGroup? [only one of the group is collectable]
-					if (ns.followers[i].collectGroup) then
-						d.collectGroup=ns.followers[i].collectGroup;
-						if (d.collected) then
-							collectGroups[d.collectGroup] = true;
+						-- member of a collectGroup? [only one of the group is collectable]
+						if (x.collectGroup) then
+							d.collectGroup=x.collectGroup;
+							if (d.collected) then
+								collectGroups[d.collectGroup] = true;
+							end
 						end
 					end
 				end
@@ -639,12 +616,13 @@ local function Desc_AddInfo(self, count, objType, ...)
 		l.title:SetText((strlen(title)>0) and title..":" or "");
 
 		if (img) then
-			l.img:SetTexture("Interface\\addons\\"..addon.."\\followers\\"..self.info.followerID.."\\image"..img)
+			l.img:SetTexture("Interface\\addons\\"..addon.."\\media\\follower_"..self.info.followerID.."_"..img)
 			l:SetHeight(l.img:GetHeight()+6);
 			l.img:Show();
 		else
 			l.text:SetText(text);
-			l:SetHeight(l.text:GetHeight()+6);
+			local h1,h2 = l.title:GetHeight(),l.text:GetHeight();
+			l:SetHeight( ((h1>h2) and h1 or h2) + 6);
 			l.text:Show();
 		end
 
@@ -946,8 +924,8 @@ local function Desc_Update()
 			},
 			{"Version",GetAddOnMetadata(addon,"Version")},
 			{"slash commands","/fli or /followerlocationinfo"},
-			{"Msg from Dev","|cff44eeffHello Friends.|n|nI've added the current state of localization to the addon description on curse/curseforge. Yes and a better way to upload savedvariables. :)|n|nI've added russian and taiwanese names of abilities, counter and class specs. I will add the follower names if i've got both factions (missing russian alliance and taiwanese horde). Oh and missing korean and chinese.|n|nHave a nice day|r"},
-			{"Thanks @", "ditex2009 ruRU locales (horde only) |nShooshpan ruRU locales (horde only) |njerry99spkk zhTW locales (alliance only) |nBNSSNB zhTW locales (alliance only)|nand the nice community :)"}
+			--{"Msg from Dev","|cff44eeffHello Friends.|n|nchanged |n|nHave a nice day|r"},
+			{"Thanks @", "ditex2009 ruRU locales (horde) |nShooshpan ruRU locales (horde) |nmichaelselehov ruRU locales (alliance) |njerry99spkk zhTW locales (alliance) |nBNSSNB zhTW locales (alliance)|nananhaid zhCN locales (alliance & horde)|nand the nice community :)"}
 		};
 
 		for i,v in ipairs(descs) do
@@ -1387,6 +1365,19 @@ eventFrame:SetScript("OnEvent", function(self,event,arg1,...)
 				classes[i] = v;
 			end
 		end
+
+		numKnownFollowers = 0;
+		for i,v in pairs(ns.followers) do
+			local Data = ((neutral) and v[2]) or ((ns.faction=="Alliance") and v[2] or v[3]) or {};
+			if (#Data>0) and (Data.zone~=0) and (not Data.ignore) then
+				if (Data.collectGroup) and (collectGroups[Data.collectGroup]==nil) then
+					collectGroups[Data.collectGroup]=false;
+				end
+				if (not notCount) then
+					numKnownFollowers = numKnownFollowers + 1;
+				end
+			end
+		end
 	end
 
 	if (event=="PLAYER_ENTERING_WORLD") then
@@ -1472,7 +1463,7 @@ function FollowerLocationInfo_MinimapButton()
 		end
 	else
 		FollowerLocationInfoDB.Minimap.enabled = true;
-		minimapInit();
+		broker.minimap();
 	end
 end
 
@@ -1608,7 +1599,7 @@ end
 
 --[=[ FollowerLocationInfoFrame ]=]
 local function FollowerLocationInfoFrame_OnShow(self)
-	DescSelected=false;
+	--DescSelected=false;
 	ListEntrySelected=false;
 	List_Update();
 	Desc_Update();
@@ -1639,14 +1630,8 @@ function FollowerLocationInfoFrame_OnLoad(self)
 	self:SetUserPlaced(true);
 	self:SetFrameLevel(10);
 	self:SetScript("OnShow", FollowerLocationInfoFrame_OnShow);
-	function self:RegisterEvent(event) end
-	function self:UnregisterEvent(event)
-		if (warning) then
-			print("|cff00ff00"..addon.."|r:","|cffff0000Warning...|r","|cffff6600The use of UnregisterEvent against other addons isn't a well good way of coexistence!|r");
-			warning=false;
-		end
-		-- is a friendly message about performance problems between our addons too difficult?
-	end
+	function self:RegisterEvent() end
+	function self:UnregisterEvent() end
 
 	-- FLI -- FilterElements
 	self.Search:SetScript("OnTextChanged", List_Search);
@@ -1700,8 +1685,8 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		FollowerLocationInfo_ToggleCollected();
 	elseif (cmd=="ids") then
 		FollowerLocationInfo_ToggleIDs();
-	elseif (cmd=="missing") then
-		FollowerLocationInfo_PrintMissingData();
+	--elseif (cmd=="missing") then
+		--FollowerLocationInfo_PrintMissingData();
 	elseif (cmd=="minimap") then
 		FollowerLocationInfo_MinimapButton();
 	elseif (cmd=="list") then
@@ -1709,7 +1694,7 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 	elseif (cmd=="reset") then
 		FollowerLocationInfo_ResetConfig();
 	--elseif (cmd=="resetscale") then
-	--	FollowerLocationInfo_ResetScale();
+		--FollowerLocationInfo_ResetScale();
 	elseif (cmd=="collectlocales") then
 		FollowerLocationInfo_Collector();
 	elseif (cmd=="delcollectedlocales") then
@@ -1727,7 +1712,7 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		_print("  reset =    "   .. L["Reset addon settings"]);
 		--_print("  resetscale = " .. L["Reset window scaling"]);
 		_print("~ development commands ~");
-		_print("  missing = "    .. L["Print missing data (follower and npc id's)"]);
+		--_print("  missing = "    .. L["Print missing data (follower and npc id's)"]);
 		_print("  collectlocales = "    .. L["Collects localized follower names from one faction. It is recommented to use it on both factions. The character must be level 90 or higher."]);
 		_print("  delcollectedlocales = "..L["Deletes collected localized follower names"]);
 	end
@@ -1737,4 +1722,16 @@ SLASH_FOLLOWERLOCATIONINFO1 = "/fli";
 SLASH_FOLLOWERLOCATIONINFO2 = "/followerlocationinfo";
 
 
--- if (WoWJapanizer) then ? end
+--[[
+function x()
+	local _ = function(n,m)
+		for i,v in pairs(ns[n]) do
+			if (ns[m][n]) and (ns[m][n][i]) then
+				ns[n][i] = v;
+			end
+		end
+	end;
+	_("classspec_locales","cna")
+end
+]]
+
