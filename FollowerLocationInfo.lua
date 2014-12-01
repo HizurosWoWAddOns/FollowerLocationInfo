@@ -1440,12 +1440,16 @@ end
 
 function FollowerLocationInfo_ToggleCollected()
 	FollowerLocationInfoDB.ShowCollectedFollower = not FollowerLocationInfoDB.ShowCollectedFollower;
-	List_Update();
+	if (FollowerLocationInfoFrame:IsShown()) then
+		List_Update();
+	end
 end
 
 function FollowerLocationInfo_ToggleIDs()
 	FollowerLocationInfoDB.ShowFollowerID = not FollowerLocationInfoDB.ShowFollowerID;
-	List_Update();
+	if (FollowerLocationInfoFrame:IsShown()) then
+		List_Update();
+	end
 end
 
 function FollowerLocationInfo_ResetConfig()
