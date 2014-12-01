@@ -392,20 +392,28 @@ local function GetFollowers()
 				d = {name=getLocale("follower",tostring(i)),followerID=i,collected=false,desc={}};
 				d.level,d.quality,d.classSpec,d.portraitIconID,d.displayID,d.abilities,d.race,d.class = unpack( v[nFaction] );
 				if (type(d.abilities)=="table") then
-					for i,v in ipairs(d.abilities) do
-						v=tostring(v);
-						abilities[v] = { name = getLocale("ability",v), icon = ns.ability[v][2], trait=ns.ability[v][3]};
-						if (ns.ability[v][1]>0) then
-							abilities[v].counter_name=getLocale("counter",ns.ability[v][1]);
-							abilities[v].counter_icon=ns.counter[tostring(ns.ability[v][1])];
+					for I,V in ipairs(d.abilities) do
+						V=tostring(V);
+						if (not ns.ability[V]) then
+							print(("Oops, missing an ability. (AbilityID: %d, FollowerID: %d)"):format(V,i));
+						else
+							abilities[V] = {
+								name = getLocale("ability",V),
+								icon = ns.ability[V][2],
+								trait = ns.ability[V][3]
+							};
+							if (ns.ability[V][1]>0) then
+								abilities[V].counter_name=getLocale("counter",ns.ability[V][1]);
+								abilities[V].counter_icon=ns.counter[tostring(ns.ability[V][1])];
+							end
 						end
 					end
 				elseif (type(d.abilities)=="number") then
-					local v = tostring(d.abilities);
-					abilities[v] = { name = getLocale("ability",v), icon=ns.ability[v][2], trait=ns.ability[v][3]};
-					if (ns.ability[v][1]>0) then
-						abilities[v].counter_name=getLocale("counter",ns.ability[v][1]);
-						abilities[v].counter_icon=ns.counter[tostring(ns.ability[v][1])];
+					local V = tostring(d.abilities);
+					abilities[V] = { name = getLocale("ability",V), icon=ns.ability[V][2], trait=ns.ability[V][3]};
+					if (ns.ability[V][1]>0) then
+						abilities[V].counter_name=getLocale("counter",ns.ability[V][1]);
+						abilities[V].counter_icon=ns.counter[tostring(ns.ability[V][1])];
 					end
 				end
 			end

@@ -59,6 +59,7 @@ ns.ability={
 	["108"] = {1,"Ability_Physical_Taunt",false},
 	["114"] = {1,"Spell_Nature_ShamanRage",false},
 	["115"] = {2,"ability_deathknight_boneshield",false},
+	["116"] = {7,"Spell_Shadow_DeathAndDecay",false},
 	["118"] = {10,"INV_Sword_62",false},
 	["120"] = {7,"Ability_Warrior_Cleave",false},
 	["121"] = {8,"INV_Gauntlets_04",false},

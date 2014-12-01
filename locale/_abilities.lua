@@ -285,6 +285,15 @@ ns.counter_locales = {
 };
 
 ns.ability_locales = {
+	["116"] = {
+		deDE="Tod und Verfall",
+		enUS="Death and Decay",
+		esES="Muerte y descomposición",
+		frFR="Mort et décomposition",
+		itIT="Morte e Distruzione",
+		ptBR="Morte e Decomposição",
+		ruRU="Смерть и разложение",
+	},
 	["53"] = {
 		itIT="Erbalismo",
 		ptBR="Herborismo",
