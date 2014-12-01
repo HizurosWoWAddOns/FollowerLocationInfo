@@ -691,11 +691,21 @@ ns.followers = {
 		false,
 		{
 			zone = 949,
+			{"requirements", "Lumber mill in gorgrond outpost"},
 			{"quest", {36828, 85119, 949, 53, 59.4}}
 		},
 		{
 			zone=949,
-			{"quest", {36812, 85077, 949, 46.4, 69.6}}
+			{"requirements", "Lumber mill in gorgrond outpost"},
+			{"questrow", 
+				{35707, 85077, 949, 46.4, 69.6},
+				{35506, 82574, 949, 55.8, 71.4},
+				{35505, 84811, 949, 55.8, 71.4},
+				{35508, 82569, 949, 57, 71.8},
+				{35527, 82569, 949, 57, 71.8},
+				{35524, 82569, 949, 57, 71.8},
+				{36812, 85077, 949, 46.4, 69.6}
+			}
 		}
 	}, --[[ incomplete, missing quest row ]]
 	[212] = { -- 949, 212, Rangari Erdanii (A) / Spirit of Bony Xuk (H)
@@ -810,25 +820,28 @@ ns.followers = {
 
 
 --[=[ some strings for localization collector script ]=]
--- L["Arcane sanctum in talador outpost"]
--- L["Appears on your position"]
--- L["Cave on image 1"]
--- L["Hidden cave"]
--- L["Brewery in Spikes of Arak outpost"]
--- L["Random location"]
--- L["Lumber mill"]
--- L["Lumber mill (Level 3)"]
--- L["Brawler's Guild Rank 5"]
--- L["Trading Post"]
--- L["Trading Post 2"]
--- L["Fishing Shack 3"]
--- L["Fishing skill 700"]
--- L["Lunarfall Inn"]
--- L["Frostwall Tavern"]
--- L["Dungeon type: Herioc, coordinations unknown..."]
--- L["Beginning of the path to blook"]
--- L["Sparring Arena in gorgrond outpost"]
--- L["Abu'Gar's Favorite Lure"]
--- L["Abu'Gar's Vitality"]
--- L["Abu'Gar's Finest Reel"]
--- L["Abu'gar himself"]
+--[[
+	L["Arcane sanctum in talador outpost"]
+	L["Appears on your position"]
+	L["Cave on image 1"]
+	L["Hidden cave"]
+	L["Brewery in Spikes of Arak outpost"]
+	L["Random location"]
+	L["Lumber mill"]
+	L["Lumber mill (Level 3)"]
+	L["Brawler's Guild Rank 5"]
+	L["Trading Post"]
+	L["Trading Post 2"]
+	L["Fishing Shack 3"]
+	L["Fishing skill 700"]
+	L["Lunarfall Inn"]
+	L["Frostwall Tavern"]
+	L["Dungeon type: Herioc, coordinations unknown..."]
+	L["Beginning of the path to blook"]
+	L["Sparring Arena in gorgrond outpost"]
+	L["Abu'Gar's Favorite Lure"]
+	L["Abu'Gar's Vitality"]
+	L["Abu'Gar's Finest Reel"]
+	L["Abu'gar himself"]
+	L["Lumber mill in gorgrond outpost"]
+--]]
