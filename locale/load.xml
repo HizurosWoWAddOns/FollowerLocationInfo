@@ -10,7 +10,6 @@
 	<Script file="locale_zhCN.lua" />
 
 	<!-- interface independent parts -->
-	<Script file="_abilities.lua" />
 	<Script file="_classspecs.lua" />
 	<Script file="_factions.lua" />
 	<Script file="_followers.lua" />

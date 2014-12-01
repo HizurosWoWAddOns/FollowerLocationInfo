@@ -388,32 +388,25 @@ local function GetFollowers()
 			-- ignore
 		else
 			local abilities={};
+
 			if (v) then
 				d = {name=getLocale("follower",tostring(i)),followerID=i,collected=false,desc={}};
 				d.level,d.quality,d.classSpec,d.portraitIconID,d.displayID,d.abilities,d.race,d.class = unpack( v[nFaction] );
+				if (type(d.abilities)=="number") then
+					d.abilities={d.abilities};
+				end
 				if (type(d.abilities)=="table") then
 					for I,V in ipairs(d.abilities) do
 						V=tostring(V);
-						if (not ns.ability[V]) then
-							print(("Oops, missing an ability. (AbilityID: %d, FollowerID: %d)"):format(V,i));
-						else
-							abilities[V] = {
-								name = getLocale("ability",V),
-								icon = ns.ability[V][2],
-								trait = ns.ability[V][3]
-							};
-							if (ns.ability[V][1]>0) then
-								abilities[V].counter_name=getLocale("counter",ns.ability[V][1]);
-								abilities[V].counter_icon=ns.counter[tostring(ns.ability[V][1])];
-							end
+						abilities[V] = {
+							name = C_Garrison.GetFollowerAbilityName(V),
+							icon = C_Garrison.GetFollowerAbilityIcon(V),
+							trait = C_Garrison.GetFollowerAbilityIsTrait(V)
+						};
+						local counter={C_Garrison.GetFollowerAbilityCounterMechanicInfo(V)};
+						if (#counter~=0) then
+							abilities[V].counter_name,abilities[V].counter_icon = counter[2],counter[3];
 						end
-					end
-				elseif (type(d.abilities)=="number") then
-					local V = tostring(d.abilities);
-					abilities[V] = { name = getLocale("ability",V), icon=ns.ability[V][2], trait=ns.ability[V][3]};
-					if (ns.ability[V][1]>0) then
-						abilities[V].counter_name=getLocale("counter",ns.ability[V][1]);
-						abilities[V].counter_icon=ns.counter[tostring(ns.ability[V][1])];
 					end
 				end
 			end
@@ -829,13 +822,12 @@ local function Desc_AddInfo(self, count, objType, ...)
 		addLine(L["Achievement"], str, nil, {});
 	elseif (objType=="abilities") then
 		local text = {};
-		local media = "interface\\icons\\";
 		if (type(obj)=="table") then
 			for _,data in pairs(obj) do
 				if (data.counter_name) then
-					tinsert(text,("|Tinterface\\icons\\%s:0|t %s (|Tinterface\\icons\\%s:0|t %s)"):format(data.icon, data.name, data.counter_icon, data.counter_name));
+					tinsert(text,("|T%s:0|t %s (|T%s:0|t %s)"):format(data.icon, data.name, data.counter_icon, data.counter_name));
 				else
-					tinsert(text,("|Tinterface\\icons\\%s:0|t %s"):format(data.icon or "",data.name));
+					tinsert(text,("|T%s:0|t %s"):format(data.icon or "",data.name));
 				end
 			end
 			if (#text>0) then
@@ -1157,9 +1149,10 @@ local function ListEntries_Update(clear)
 			local dontIgnore,name,cname=false,false,false;
 			for _,V in ipairs(v.abilities) do
 				V=tostring(V);
-				name = getLocale("ability",V);
-				if (ns.ability[V]) and (ns.ability[V][1]>0) then
-					cname = getLocale("counter",tostring(ns.ability[V][1]));
+				name = C_Garrison.GetFollowerAbilityName(V);
+				local counter = {C_Garrison.GetFollowerAbilityCounterMechanicInfo(V)};
+				if (#counter~=0) then
+					cname = counter[2];
 				end
 				if (name) and (name==AbilityFilter) then
 					dontIgnore=true;
