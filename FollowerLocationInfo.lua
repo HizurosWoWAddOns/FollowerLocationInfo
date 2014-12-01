@@ -1512,12 +1512,7 @@ function FollowerLocationInfo_ToggleList(force)
 end
 
 function FollowerLocationInfo_UpdateLock(bool)
-	if (bool) then
-		updateLock=true;
-	else
-		updateLock=false;
-		eventFrame({},"GARRISON_FOLLOWER_LIST_UPDATE")
-	end
+	-- dummy, this function is deprecated
 end
 
 function FollowerLocationInfo_ResetScale()
