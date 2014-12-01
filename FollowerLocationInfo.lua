@@ -1579,19 +1579,6 @@ do
 				addLocale("follower",(d.garrFollowerID) and tonumber(d.garrFollowerID) or d.followerID,d.name);
 				addLocale("classspec",tostring(d.classSpec),d.className);
 			end
-			local a=C_Garrison.GetFollowerAbilities(i);
-			if (a) then
-				for k,v in ipairs(a) do
-					if (v) then
-						addLocale("ability",tostring(v.id),v.name);
-						if (v.counters) then
-							for n,d in pairs(v.counters) do
-								addLocale("counter",tostring(n),d.name);
-							end
-						end
-					end
-				end
-			end
 		end
 		print("collector finished");
 	end
