@@ -1480,6 +1480,8 @@ end
 
 function FollowerLocationInfo_ToggleList(force)
 	local self = FollowerLocationInfoFrame;
+	if (not self:IsShown()) then return end
+
 	local n, h = self.ListToggle:GetNormalTexture(),self.ListToggle:GetHighlightTexture();
 	if (force==false) or (self.List:IsShown()) then
 		local tx=[[Interface\Buttons\UI-SpellbookIcon-NextPage-Up]];
