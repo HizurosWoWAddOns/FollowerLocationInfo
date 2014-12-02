@@ -19,7 +19,7 @@ local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButton
 local initState,doRefresh={minimap=false},false;
 local ClassFilterLabel, AbilityFilterLabel = L["Classes & Class speccs"], L["Abilities/Counters & Traits"];
 local ListButtonOffsetX, ListButtonOffsetY = 0,1;
-local updateLock=false;
+local updateLock,onEvent=false,false;
 local ListEntrySelected, ListEntries = false,{};
 local FollowersCollected,knownAbilities = {},{};
 local SearchStr,ClassFilter,AbilityFilter = "","","";
@@ -343,15 +343,17 @@ do
 		end
 		return nil;
 	end
+	this.clearCache = function()
+		wipe(this.data);
+		collectgarbage("collect");
+	end
 end
 
-local function GetQuestInfo(QuestID)
-	assert(type(tonumber(QuestID))=="number","Usage: GetQuestInfo( <QuestId[number]> )");
-	return Collector.QueryHyperlinkData("quest:"..QuestID);
-end
-
-local function GetUnitInfo(UnitID)
-	return Collector.QueryHyperlinkData("unit:"..UnitID);
+local function GetQuestTitle(QuestID)
+	if (not FollowerLocationInfoDB.questTitles[QuestID]) then
+		FollowerLocationInfoDB.questTitles[QuestID] = Collector.QueryHyperlinkData("quest:"..QuestID);
+	end
+	return FollowerLocationInfoDB.questTitles[QuestID];
 end
 
 local function GetBlizzardData()
@@ -677,7 +679,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 		for i,v in ipairs(objs) do
 			local menu = {};
 			qState, qGiver, qZone, qCoord, str = 0, "", "zone?", "?.?, ?.?", "%s|n  » %s(%s @ %s)" --"%s|n    %s|n    (%s @ %s)"
-			qTitle, qText = GetQuestInfo(v[1]);
+			qTitle = GetQuestTitle(v[1]);
 			qTitle2 = qTitle;
 			if (qTitle) then
 				local qIndex = GetQuestLogIndexByID(v[1]);
@@ -848,6 +850,7 @@ local function Desc_Update()
 	local DescHead = FollowerLocationInfoFrame.DescHeader;
 	local InfoHead = FollowerLocationInfoFrame.InfoHeader;
 	local Model = FollowerLocationInfoFrame.Model;
+	local Loading = FollowerLocationInfoFrame.Loading;
 	local BigModel = FollowerLocationInfoFrame.BigModelViewer.Model;
 	local line,count = nil,0;
 
@@ -856,6 +859,11 @@ local function Desc_Update()
 	end
 
 	-- cleanup
+	self:Hide();
+	Model:Hide();
+	DescHead:Hide();
+	InfoHead:Hide();
+	Loading:Show();
 	for index=1, #self.lines do
 		line = self.lines[index];
 		line:SetParent(UIParent);
@@ -884,6 +892,9 @@ local function Desc_Update()
 			C_Timer.After(0.7, function()
 				Desc_Update();
 			end);
+			return;
+		else
+			Collector.clearCache();
 		end
 
 		-- 3d Models
@@ -934,6 +945,8 @@ local function Desc_Update()
 		DescHead:Hide();
 		InfoHead:Show();
 	end
+	Loading:Hide();
+	self:Show();
 end
 
 local function Desc_OnScroll(self, xrange, yrange)
@@ -1343,6 +1356,13 @@ eventFrame:SetScript("OnEvent", function(self,event,arg1,...)
 		if (FollowerLocationInfoDB==nil) then
 			FollowerLocationInfoDB={Minimap={enabled=true}};
 		end
+		if (FollowerLocationInfoDB.questTitleLocale~=GetLocale()) then
+			FollowerLocationInfoDB.questTitleLocale=GetLocale();
+			FollowerLocationInfoDB.questTitles = {};
+		end
+		if (FollowerLocationInfoDB.questTitles==nil) then
+			FollowerLocationInfoDB.questTitles = {};
+		end
 		for i,v in pairs({
 			Minimap = {enabled=true},
 			ShowFollowerID = true,
@@ -1383,6 +1403,7 @@ eventFrame:SetScript("OnEvent", function(self,event,arg1,...)
 
 	if (event=="PLAYER_ENTERING_WORLD") then
 		broker.init();
+		onEvent=true;
 		if (FollowerLocationInfoDB.Minimap.enabled) then
 			broker.minimap();
 		end
@@ -1406,6 +1427,7 @@ eventFrame:SetScript("OnEvent", function(self,event,arg1,...)
 			Garrison_LoadUI();
 			C_Timer.After(30,GetBlizzardData);
 		end
+		onEvent=false;
 	end
 
 	if (event=="ADDON_LOADED" and arg1=="Blizzard_GarrisonUI") then
@@ -1484,7 +1506,7 @@ end
 
 function FollowerLocationInfo_ToggleList(force)
 	local self = FollowerLocationInfoFrame;
-	if (not self:IsShown()) then return end
+	if (onEvent==false) and (not self:IsShown()) then return end
 
 	local n, h = self.ListToggle:GetNormalTexture(),self.ListToggle:GetHighlightTexture();
 	if (force==false) or (self.List:IsShown()) then
