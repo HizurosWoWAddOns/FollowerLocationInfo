@@ -159,7 +159,7 @@ ns.followers = {
 		{
 			zone=0,
 		}
-	}, --[[ incomplete ]]
+	}, --- incomplete
 
 	--[=[ shadowmoon valley ]=]
 	[179] = { -- 947, 179, Artificer Romuul (A) / Weaponsmith Na'Shral (H)
@@ -180,7 +180,7 @@ ns.followers = {
 			zone = 941,
 			{"quest", {34729, 74977, 941, 65, 39.4}}
 		}
-	}, --[[ horde version incomplete? ]]
+	}, --- horde version incomplete
 	[180] = { -- 947, 180, Fiona (A) / Shadow Hunter Rala (H)
 		false,
 		{
@@ -218,7 +218,7 @@ ns.followers = {
 		{
 			zone = 941,
 		}
-	}, --[[ horde version incomplete? ]]
+	}, --- horde version incomplete
 	[183] = { -- 947, 183, Rulkan (A)
 		false,
 		{
@@ -228,7 +228,8 @@ ns.followers = {
 		{
 			zone = 941,
 		}
-	}, --[[ incomplete ]]
+	}, --- incomplete
+	--[[
 	[186] = { -- 947, 186, Vindicator Onaala (A) / Greatmother Geyah (H)
 		false,
 		{
@@ -262,7 +263,7 @@ ns.followers = {
 				{34124, 76487, 941, 73.4, 58.8},
 			}
 		}
-	}, --[[ horde version incomplete ]]
+	}, --- horde version incomplete
 	[185] = { -- 947, 185, Rangari Chel (A) / Lokra (H)
 		false,
 		{
@@ -296,7 +297,8 @@ ns.followers = {
 				{34124, 76487, 941, 73.4, 58.8},
 			}
 		}
-	}, --[[ horde version incomplete ]]
+	}, --- horde version incomplete
+	--]]
 	[184] = { -- 947, 184, Apprentice Artificer Andren (A) / Kal'gor the Honorable (H)
 		false,
 		{
@@ -330,7 +332,7 @@ ns.followers = {
 				{34124, 76487, 941, 73.4, 58.8},
 			}
 		}
-	}, --[[ horde version incomplete? ]]
+	}, --- horde version incomplete?
 
 	--[=[ spikes of arak ]=]
 	[168] = { -- 948, 168, Unknown...
@@ -341,7 +343,7 @@ ns.followers = {
 		{
 			zone = 948,
 		}
-	}, --[[ incomplete ]]
+	}, --- incomplete
 	[219] = { -- 948, 219,Leorajh
 		true,
 		{
@@ -366,7 +368,7 @@ ns.followers = {
 			{"requirements", "Brewery in Spikes of Arak outpost"},
 			{"quest", {37276, 88179, 948, 40, 43.2}}
 		}
-	}, --[[ incomplete ]]
+	}, --- incomplete
 	[192] = { -- 948, 192, Kimzee Pinchwhistle
 		false,
 		{
@@ -412,7 +414,7 @@ ns.followers = {
 		{
 			zone=948,
 		}
-	}, --[[ incomplete ]]
+	}, --- incomplete
 	[224] = { -- 948, 224, Talon Guard Kurekk
 		true,
 		{
@@ -481,7 +483,7 @@ ns.followers = {
 		{
 			zone = 971,
 			{"desc", {
-				enUS = "Follow the quest row starting with \"Ashran Appearance\" and at the end Delvar Ironfist will offer its followship",
+				enUS = "Follow the quest row starting with \"Ashran Appearance\" and at the end Delvar Ironfist will offer its following",
 			}},
 			{"questrow",
 				{36624, 79953, 971, 40.6, 53.6},
@@ -494,7 +496,7 @@ ns.followers = {
 		{
 			zone = 941,
 			{"desc", {
-				enUS = "Follow the quest row starting with \"Ashran Appearance\" and at the end Vivianne will offer his followship",
+				enUS = "Follow the quest row starting with \"Ashran Appearance\" and at the end Vivianne will offer his following",
 			}},
 			{"questrow", 
 				{36706, 78466, 976, 52.4, 52.8},
@@ -526,7 +528,7 @@ ns.followers = {
 				{34462, 79740, 976, 53.8, 54.2}, -- Warmaster Zog
 			},
 		}
-	}, --[[ incomplete ]]
+	}, --- incomplete
 	[458] = { -- 971/976, 458, Vindicator Heluun / Cacklebone
 		false,
 		{
@@ -563,7 +565,7 @@ ns.followers = {
 		{
 			zone = 0,
 		}
-	}, --[[ incomplete ]]
+	}, --- incomplete
 
 	--[=[ anywhere in draenor ]=]
 	[203] = { -- 962, 203, Meatball
@@ -649,7 +651,7 @@ ns.followers = {
 				{35511, 82338, 949, 47.6, 93.2},
 			},
 		}
-	}, --[[ incomplete ]]
+	}, --- incomplete
 	[176] = { -- 949, 176, Pitfighter Vaandaam (A) / Bruto (H)
 		false,
 		{
@@ -665,7 +667,7 @@ ns.followers = {
 		{
 			zone = 949,
 		}
-	}, --[[ incomplete ]]
+	}, --- incomplete
 	[189] = { -- 949, 189, Blook
 		true,
 		{
@@ -673,7 +675,7 @@ ns.followers = {
 			{"pos", {949, 42.8, 90.9, "Beginning of the path to blook"}},
 			{"quest", {34279, 78030, 949, 41.2, 91.4}},
 		}
-	}, --[[ add screenshots ]]
+	}, --- add screenshots
 	[193] = { -- 949, 193, Tormmok
 		true,
 		{
@@ -686,7 +688,7 @@ ns.followers = {
 				zhCN = "帮助他与保护他，然后他会是友好的，并且可以被招募。",
 			}}
 		}
-	}, --[[ add screenshots ]]
+	}, --- add screenshots
 	[211] = { -- 949, 211, Glirin (A) / Penny Clobberbottom (H)
 		false,
 		{
@@ -707,7 +709,7 @@ ns.followers = {
 				{36812, 85077, 949, 46.4, 69.6}
 			}
 		}
-	}, --[[ incomplete, missing quest row ]]
+	}, --- incomplete, missing quest row
 	[212] = { -- 949, 212, Rangari Erdanii (A) / Spirit of Bony Xuk (H)
 		false,
 		{
@@ -726,24 +728,28 @@ ns.followers = {
 		{
 			zone = 950,
 			modelRace = "OrcM",
-			--{"questrow", 
-				--{34951, 80624, 950, 63.4, 61.8},
-				--{34954, 80161, 950, 85.4, 54.6},
-				--{34955, 80161, 950, 85.4, 54.6, true},
-				--{35148, 79954, 950, 63.4, 61.8, true},
-				--{34593, 79282, 950, 78.8, 69.2},
-				--{34956, 80161, 950, 85.4, 54.6, true},
-				--{35061, 81086, 950, 55.4, 42.2, true},
-				--{34596, 0, 950, 0, 0},
-				--{34957, 80319, 950, 89.8, 55.8, true},
-				--{35062, 0, 950, 0, 0, true},
-				--{35169, 79576, 950, 63.6, 61.8},
-			--},
+			{"questrow", 
+				{34951, 80624, 950, 63.4, 61.8},
+				{34954, 80161, 950, 85.4, 54.6},
+				{34955, 80161, 950, 85.4, 54.6},
+				{35148, 79954, 950, 63.4, 61.8},
+				{34593, 79282, 950, 78.8, 69.2},
+				{34956, 80161, 950, 85.4, 54.6},
+				{35061, 81086, 950, 55.4, 42.2},
+				{34596, 81144, 950, 84, 76.8},
+				{34957, 80319, 950, 89.8, 55.8},
+				{35062, 81039, 950, 62, 40.4},
+				{35169, 79576, 950, 63.6, 61.8},
+			},
+			{"desc", {
+				enUS = "You can find Lantresort after completing the quest line near the outpost.",
+				deDE = "Du findest Lantresor nach Abschluss der Questreihe in der Nähe des Außenpostens.",
+			}}
 		},
 		{
 			zone = 950,
 		}
-	}, --[[ incomplete ]]
+	}, --- incomplete
 	[170] = { -- 950, 170, Goldmane the Skinner
 		true,
 		{
@@ -751,7 +757,7 @@ ns.followers = {
 			{"pos", {950, 40.4, 76.2}},
 			{"quest", {35596, 80083, 950, 40.4, 76.2}},
 			{"desc", {
-				enUS = "Kill Bolkar the Cruel and loot the key for Goldmane's cage. Than open the cage and Goldmane will offer you his followship.",
+				enUS = "Kill Bolkar the Cruel and loot the key for Goldmane's cage. Than open the cage and Goldmane will offer you his following.",
 				deDE = "Töte 'Bolkar der Grausame' und erbeute den Schlüssel zu Goldmähne's Käfig. Dann öffne den Käfig und Goldmähne wird seine Gefolgschaft anbieten."
 			}}
 		}
@@ -767,7 +773,8 @@ ns.followers = {
 				{950, 67.2, 56, "Abu'gar himself"},
 			},
 			{"desc", {
-				enUS = "Collect Abu'Gar's items and go to Abu'Gar",
+				enUS = "Collect Abu'Gar's fishing equipment and bring it him",
+				deDE = "Sammel Abu'gars Angelausrüstung und bringe sie ihm",
 			}}
 		},
 	},
@@ -817,6 +824,10 @@ ns.followers = {
 		}
 	},
 };
+
+-- collection group members data copy
+ns.followers[185] = ns.followers[184];
+ns.followers[186] = ns.followers[184];
 
 
 --[=[ some strings for localization collector script ]=]
