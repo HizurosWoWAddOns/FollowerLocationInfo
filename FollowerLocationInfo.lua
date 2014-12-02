@@ -604,13 +604,13 @@ local function Desc_AddInfo(self, count, objType, ...)
 	local p,objs,_ = self.Child,{...};
 	local obj = objs[1];
 
-	local addLine = function(title, text, img, menu, tooltip)
+	local addLine = function(title, text, img, menu, tooltip, click)
 		local l = nil
 
 		count = count + 1;
 
 		if (not self.lines[count]) then
-			self.lines[count] = CreateFrame("Frame",nil,p,"FollowerLocationInfoDescLineTemplate");
+			self.lines[count] = CreateFrame("Button",nil,p,"FollowerLocationInfoDescLineTemplate");
 			l = self.lines[count];
 		else
 			l = self.lines[count];
@@ -620,12 +620,14 @@ local function Desc_AddInfo(self, count, objType, ...)
 
 		if (img) then
 			l.img:SetTexture("Interface\\addons\\"..addon.."\\media\\follower_"..self.info.followerID.."_"..img)
-			l:SetHeight(l.img:GetHeight()+6);
+			--l.imgText:SetText();
+			l:SetHeight( l.title:GetHeight() + l.img:GetHeight() + 8 );
+
 			l.img:Show();
+			--l.imgText:Show();
 		else
 			l.text:SetText(text);
-			local h1,h2 = l.title:GetHeight(),l.text:GetHeight();
-			l:SetHeight( ((h1>h2) and h1 or h2) + 6);
+			l:SetHeight( l.title:GetHeight() + l.text:GetHeight() + 8 );
 			l.text:Show();
 		end
 
@@ -636,11 +638,15 @@ local function Desc_AddInfo(self, count, objType, ...)
 			l.Options:Hide();
 		end
 
-		--[[
 		if (tooltip) then
 			l.tooltip = tooltip;
 		end
-		]]
+
+		if (click)then
+			l:SetScript("OnClick",click);
+		else
+			l:SetScript("OnClick",nil);
+		end
 
 		l:SetParent(p);
 		l:SetPoint("TOP", (count==1) and p or self.lines[count-1], (count==1) and "TOP" or "BOTTOM", 0, (count==1) and -12 or -6);
@@ -678,7 +684,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 		end
 		for i,v in ipairs(objs) do
 			local menu = {};
-			qState, qGiver, qZone, qCoord, str = 0, "", "zone?", "?.?, ?.?", "%s|n  » %s(%s @ %s)" --"%s|n    %s|n    (%s @ %s)"
+			qState, qGiver, qZone, qCoord, str = 0, "", "zone?", "?.?, ?.?", "%s|n  %s(%s @ %s)" --"%s|n    %s|n    (%s @ %s)"
 			qTitle = GetQuestTitle(v[1]);
 			qTitle2 = qTitle;
 			if (qTitle) then
@@ -712,7 +718,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 					qCoord = L[v[4]];
 				end
 
-				addLine(title, str:format(qTitle2, qGiver.."|n   ", qZone, qCoord),nil,menu);
+				addLine(title, str:format(qTitle2, (qGiver~="") and "» ".. qGiver.."|n   " or " ", qZone, qCoord),nil,menu);
 			elseif v[1]==0 then
 				addLine(title, L["Missing quest..."]);
 			elseif (qTitle==false) then
@@ -773,11 +779,11 @@ local function Desc_AddInfo(self, count, objType, ...)
 			end
 
 			if (npc) and (location) then
-				addLine(title,("%s|n    %s"):format(npc,location), nil, menu,{title,npc,location});
+				addLine(title,("%s|n    %s"):format(npc,location), nil, menu);
 			elseif (npc) then
-				addLine(title,npc,nil,nil,{title,npc});
+				addLine(title,npc,nil,nil);
 			elseif (location) then
-				addLine(title,location, nil, menu,{title,location});
+				addLine(title,location, nil, menu);
 			end
 			title = "";
 		end
@@ -812,16 +818,37 @@ local function Desc_AddInfo(self, count, objType, ...)
 		end
 		addLine(L["Requirements"], table.concat(req,"|n"));
 	elseif (objType=="achievement") then
-		local str = "";
+		local str,lnk = "";
 		local IDNumber, Name, Points, Completed, Month, Day, Year, Description, Flags, Image, RewardText, IsGuild, WasEarnedByMe, EarnedBy = GetAchievementInfo(obj);
 		local Char=UnitName("player");
 		if (IDNumber) then
-			local lnk = GetAchievementLink(obj);
+			lnk = GetAchievementLink(obj);
 			str = lnk;
 		else
 			str = L["Can't get achievement data. %d isn't an achievement id?"]:format(obj);
 		end
-		addLine(L["Achievement"], str, nil, {});
+		addLine(L["Achievement"], str, nil, nil,
+			function(self,tt) -- tooltip
+				tt:SetHyperlink(lnk)
+				--print(obj,lnk)
+			end,
+			function(self,button) -- click
+				if ( not AchievementFrame ) then
+					AchievementFrame_LoadUI();
+				end
+				
+				if ( not AchievementFrame:IsShown() ) then
+					AchievementFrame_ToggleAchievementFrame();
+					AchievementFrame_SelectAchievement(obj);
+				else
+					if ( AchievementFrameAchievements.selection ~= obj ) then
+						AchievementFrame_SelectAchievement(obj);
+					else
+						AchievementFrame_ToggleAchievementFrame();
+					end
+				end
+			end
+		);
 	elseif (objType=="abilities") then
 		local text = {};
 		if (type(obj)=="table") then
@@ -1495,13 +1522,50 @@ function FollowerLocationInfo_MinimapButton()
 end
 
 function FollowerLocationInfo_PrintMissingData()
-	local tmp;
-	for i,v in pairs(IsMissing) do
-		if (type(v)=="table") and (#v>0) then
-			table.sort(v);
-			print("|cffff4444FLI|r","|cffffff00"..i.."?|r", "|cff44aaff"..table.concat(v,"|r, |cff44aaff").."|r");
+	local missing={npcs={},objs={},zones={},descs={}};
+
+	local _=function(followerID,desc)
+		if (not desc.zone) or (desc.zone==0) then
+			missing.zones[followerID]=true;
+		end
+		if (#desc==0) then
+			missing.descs[followerID]=true;
+		else
+			for index, data in ipairs(desc) do
+				if (data[1]=="quest" or data[1]=="questrow" or data[1]=="event") then
+					for i=2,#data do
+						if (type(data[i][2])=="number") and (data[i][2]>0) and (not ns.npcs[data[i][2]]) then
+							missing.npcs[data[i][2]]=true;
+						elseif (type(data[i][2])=="string" and data[i][2]:find("^o")) and (not ns.npcs[data[i][2]]) then
+							missing.objs[gsub(data[i][2],"o","")]=true;
+						end
+						if (type(data[i][8])=="number") and (data[i][8]>0) and (not ns.npcs[data[i][8]]) then
+							missing.npcs[data[i][8]]=true;
+						elseif (type(data[i][8])=="string" and data[i][8]:find("^o")) and (not ns.npcs[data[i][8]]) then
+							missing.objs[gsub(data[i][8],"o","")]=true;
+						end
+					end
+				end
+			end
 		end
 	end
+
+	for followerID,data in pairs(ns.followers) do
+		_(followerID,data[2] or {}); -- neutral or alliance data
+		if (data[1]==false) then
+			_(followerID,data[3] or {}); -- horde data
+		end
+	end
+
+	local x;
+	for i,v in pairs(missing) do
+		x={}; for k in pairs(v) do tinsert(x,k); end
+		if (#x>0) then
+			table.sort(x);
+			print("|cffff4444FLI|r","|cffffff00"..i.."?|r", "|cff44aaff"..table.concat(x,"|r, |cff44aaff").."|r");
+		end
+	end
+	collectgarbage("collect");
 end
 
 function FollowerLocationInfo_ToggleList(force)
@@ -1735,14 +1799,42 @@ SLASH_FOLLOWERLOCATIONINFO2 = "/followerlocationinfo";
 
 --[[
 function x()
-	local _ = function(n,m)
-		for i,v in pairs(ns[n]) do
-			if (ns[m][n]) and (ns[m][n][i]) then
-				ns[n][i] = v;
+	local _;
+
+	_= function(name,source,lang)
+		for index,entries in pairs(ns[name]) do
+			if (ns[source][name]) and (ns[source][name][index]) and (type(ns[source][name][index][lang])=="string") then
+				ns[name][index][lang] = ns[source][name][index][lang];
 			end
 		end
 	end;
-	_("classspec_locales","cna")
+	_("classspec_locales","cna","zhCN");
+	_("classspec_locales","rua","ruRU");
+	_("classspec_locales","twa","zhTW");
+
+
+	_ = function(name,source,lang)
+		for index,entries in pairs(ns[name]) do
+			if (ns[source][name]) and (ns[source][name][index]) and (type(ns[source][name][index][lang])=="table") then
+				if (ns[source][name][index][lang][1]) and (type(ns[source][name][index][lang][1])=="string") then
+					if (ns[name][index][lang]==nil) then ns[name][index][lang]={}; end
+					ns[name][index][lang][1] = ns[source][name][index][lang][1];
+				end
+				if (ns[source][name][index][lang][2]) and (type(ns[source][name][index][lang][2])=="string") then
+					if (ns[name][index][lang]==nil) then ns[name][index][lang]={}; end
+					ns[name][index][lang][2] = ns[source][name][index][lang][2];
+				end
+			end
+		end
+	end
+	_("follower_locales","cna","zhCN");
+	_("follower_locales","cnh","zhCN");
+
+	_("follower_locales","rua","ruRU");
+	_("follower_locales","ruh","ruRU");
+
+	wipe(FLI_tmpDB);
+	FLI_tmpDB.classspec_locales=ns.classspec_locales;
+	FLI_tmpDB.follower_locales=ns.follower_locales;
 end
 ]]
-
