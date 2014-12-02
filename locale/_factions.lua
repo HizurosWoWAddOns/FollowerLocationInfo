@@ -14,107 +14,106 @@ ns.factions = {
 	[1732] = "Steamwheedle Draenor Expedition",
 	[1735] = "Barracks Bodyguards",
 };
+local f=ns.factions;
 
 if LOCALE_deDE then
-	ns.factions[1445] = "Frostwolforcs";
-	ns.factions[1515] = "Ausgestoßene Arakkoa";
-	ns.factions[1520] = "Exilanten des Schattenmondklans";
-	ns.factions[1681] = "Vol'jins Speer";
-	ns.factions[1682] = "Wrynns Vorhut";
-	ns.factions[1708] = "Orcs des Lachenden Schädels";
-	ns.factions[1710] = "Sha'tarverteidigung";
-	ns.factions[1711] = "Werterhaltungsgesellschaft des Dampfdruckkartells";
-	ns.factions[1731] = "Exarchenrat";
-	ns.factions[1732] = "Draenorexpedition des Dampfdruckkartells";
-	ns.factions[1735] = "Kasernenleibwachen";
+	f[1445] = "Frostwolforcs";
+	f[1515] = "Ausgestoßene Arakkoa";
+	f[1520] = "Exilanten des Schattenmondklans";
+	f[1681] = "Vol'jins Speer";
+	f[1682] = "Wrynns Vorhut";
+	f[1708] = "Orcs des Lachenden Schädels";
+	f[1710] = "Sha'tarverteidigung";
+	f[1711] = "Werterhaltungsgesellschaft des Dampfdruckkartells";
+	f[1731] = "Exarchenrat";
+	f[1732] = "Draenorexpedition des Dampfdruckkartells";
+	f[1735] = "Kasernenleibwachen";
 end
 
 if LOCALE_esES or LOCALE_esMX then
-	ns.factions[1445] = "Orcos Lobo Gélido";
-	ns.factions[1515] = "Arakkoa desterrados";
-	ns.factions[1520] = "Exiliados Sombraluna";
-	ns.factions[1681] = "Lanza de Vol'jin";
-	ns.factions[1682] = "Vanguardia de Wrynn";
-	ns.factions[1708] = "Orcos Riecráneos";
-	ns.factions[1710] = "Defensa Sha'tari";
-	ns.factions[1711] = "Sociedad Patrimonial Bonvapor";
-	ns.factions[1731] = "Consejo de Exarcas";
-	ns.factions[1732] = "Expedición Bonvapor de Draenor";
-	ns.factions[1735] = "Guardaespaldas del cuartel";
+	f[1445] = "Orcos Lobo Gélido";
+	f[1515] = "Arakkoa desterrados";
+	f[1520] = "Exiliados Sombraluna";
+	f[1681] = "Lanza de Vol'jin";
+	f[1682] = "Vanguardia de Wrynn";
+	f[1708] = "Orcos Riecráneos";
+	f[1710] = "Defensa Sha'tari";
+	f[1711] = "Sociedad Patrimonial Bonvapor";
+	f[1731] = "Consejo de Exarcas";
+	f[1732] = "Expedición Bonvapor de Draenor";
+	f[1735] = "Guardaespaldas del cuartel";
 end
 
 if LOCALE_frFR then
-	ns.factions[1445] = "Orcs loups-de-givre";
-	ns.factions[1515] = "Parias arakkoa";
-	ns.factions[1520] = "Exilés ombrelunes";
-	ns.factions[1681] = "Lance de Vol’jin";
-	ns.factions[1682] = "Avant-garde de Wrynn";
-	ns.factions[1708] = "Orcs du Crâne-Ricanant";
-	ns.factions[1710] = "Défense sha’tari";
-	ns.factions[1711] = "Société de Conservation de Gentepression";
-	ns.factions[1731] = "Conseil des exarques";
-	ns.factions[1732] = "Expédition de Gentepression en Draenor";
-	ns.factions[1735] = "Gardes du corps de caserne";
+	f[1445] = "Orcs loups-de-givre";
+	f[1515] = "Parias arakkoa";
+	f[1520] = "Exilés ombrelunes";
+	f[1681] = "Lance de Vol’jin";
+	f[1682] = "Avant-garde de Wrynn";
+	f[1708] = "Orcs du Crâne-Ricanant";
+	f[1710] = "Défense sha’tari";
+	f[1711] = "Société de Conservation de Gentepression";
+	f[1731] = "Conseil des exarques";
+	f[1732] = "Expédition de Gentepression en Draenor";
+	f[1735] = "Gardes du corps de caserne";
 end
 
 if LOCALE_itIT then
-	ns.factions[1445] = "Orchi Lupi Bianchi";
-	ns.factions[1515] = "Esiliati Arakkoa";
-	ns.factions[1520] = "Esiliati Torvaluna";
-	ns.factions[1681] = "Lancia di Vol'jin";
-	ns.factions[1682] = "Avanguardia di Wrynn";
-	ns.factions[1708] = "Orchi Teschio Ridente";
-	ns.factions[1710] = "Protettori Sha'tari";
-	ns.factions[1711] = "Società di Preservazione degli Spargifumo";
-	ns.factions[1731] = "Concilio degli Esarchi";
-	ns.factions[1732] = "Spedizione su Draenor degli Spargifumo";
-	ns.factions[1735] = "Guardie del Corpo della Caserma";
+	f[1445] = "Orchi Lupi Bianchi";
+	f[1515] = "Esiliati Arakkoa";
+	f[1520] = "Esiliati Torvaluna";
+	f[1681] = "Lancia di Vol'jin";
+	f[1682] = "Avanguardia di Wrynn";
+	f[1708] = "Orchi Teschio Ridente";
+	f[1710] = "Protettori Sha'tari";
+	f[1711] = "Società di Preservazione degli Spargifumo";
+	f[1731] = "Concilio degli Esarchi";
+	f[1732] = "Spedizione su Draenor degli Spargifumo";
+	f[1735] = "Guardie del Corpo della Caserma";
+end
+
+if LOCALE_ptBR then
+	f[1445] = "Orcs Lobo do Gelo";
+	f[1515] = "Arakkoas Proscritos";
+	f[1520] = "Exilados da Lua Negra";
+	f[1681] = "Lança de Vol'jin";
+	f[1682] = "Vanguarda de Wrynn";
+	f[1708] = "Orcs Cargaveira";
+	f[1710] = "Defesa Sha'tari";
+	f[1711] = "Sociedade de Preservação de Bondebico";
+	f[1731] = "Conselho de Exarcas";
+	f[1732] = "Expedição a Draenor de Bondebico";
+	f[1735] = "Guarda-costas do Quartel";
+end
+
+if LOCALE_ruRU then
+	f[1445] = "Клан Северного Волка";
+	f[1515] = "Араккоа-изгои";
+	f[1520] = "Изгнанники клана Призрачной Луны";
+	f[1681] = "Копье Вол'джина";
+	f[1682] = "Авангард Ринна";
+	f[1708] = "Клан Веселого Черепа";
+	f[1710] = "Защитники Ша'тар";
+	f[1711] = "Археологическое общество Хитрой Шестеренки";
+	f[1731] = "Совет экзархов";
+	f[1732] = "Дренорcкая Экспедиция Хитрой Шестеренки";
+	f[1735] = "Телохранители из казарм";
+end
+
+if LOCALE_zhTW then
+	f[1445] = "霜狼獸人";
+	f[1515] = "阿拉卡流亡者";
+	f[1520] = "影月流亡者";
+	f[1681] = "沃金暗矛部族";
+	f[1682] = "烏瑞恩先鋒軍";
+	f[1708] = "獰笑骷髏獸人";
+	f[1710] = "撒塔斯防禦者";
+	f[1711] = "熱砂保護協會";
+	f[1731] = "主教議會";
+	f[1732] = "熱砂德拉諾遠征軍";
+	f[1735] = "兵營保鏢";
 end
 
 --if LOCALE_koKR then end
 
-if LOCALE_ptBR then
-	ns.factions[1445] = "Orcs Lobo do Gelo";
-	ns.factions[1515] = "Arakkoas Proscritos";
-	ns.factions[1520] = "Exilados da Lua Negra";
-	ns.factions[1681] = "Lança de Vol'jin";
-	ns.factions[1682] = "Vanguarda de Wrynn";
-	ns.factions[1708] = "Orcs Cargaveira";
-	ns.factions[1710] = "Defesa Sha'tari";
-	ns.factions[1711] = "Sociedade de Preservação de Bondebico";
-	ns.factions[1731] = "Conselho de Exarcas";
-	ns.factions[1732] = "Expedição a Draenor de Bondebico";
-	ns.factions[1735] = "Guarda-costas do Quartel";
-end
-
-if LOCALE_ruRU then
-	ns.factions[1445] = "Клан Северного Волка";
-	ns.factions[1515] = "Араккоа-изгои";
-	ns.factions[1520] = "Изгнанники клана Призрачной Луны";
-	ns.factions[1681] = "Копье Вол'джина";
-	ns.factions[1682] = "Авангард Ринна";
-	ns.factions[1708] = "Клан Веселого Черепа";
-	ns.factions[1710] = "Защитники Ша'тар";
-	ns.factions[1711] = "Археологическое общество Хитрой Шестеренки";
-	ns.factions[1731] = "Совет экзархов";
-	ns.factions[1732] = "Дренорcкая Экспедиция Хитрой Шестеренки";
-	ns.factions[1735] = "Телохранители из казарм";
-end
-
-if LOCALE_zhTW then
-	ns.factions[1445] = "霜狼獸人";
-	ns.factions[1515] = "阿拉卡流亡者";
-	ns.factions[1520] = "影月流亡者";
-	ns.factions[1681] = "沃金暗矛部族";
-	ns.factions[1682] = "烏瑞恩先鋒軍";
-	ns.factions[1708] = "獰笑骷髏獸人";
-	ns.factions[1710] = "撒塔斯防禦者";
-	ns.factions[1711] = "熱砂保護協會";
-	ns.factions[1731] = "主教議會";
-	ns.factions[1732] = "熱砂德拉諾遠征軍";
-	ns.factions[1735] = "兵營保鏢";
-end
-
-
--- if LOCALE_zhCN or LOCALE_zhTW then end
 

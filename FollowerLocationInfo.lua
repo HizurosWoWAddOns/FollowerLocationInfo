@@ -392,7 +392,7 @@ local function GetFollowers()
 			local abilities={};
 
 			if (v) then
-				d = {name=getLocale("follower",tostring(i)),followerID=i,collected=false,desc={}};
+				d = {name=ns.follower_locales[tostring(i)][nFaction],followerID=i,collected=false,desc={}};
 				d.level,d.quality,d.classSpec,d.portraitIconID,d.displayID,d.abilities,d.race,d.class = unpack( v[nFaction] );
 				if (type(d.abilities)=="number") then
 					d.abilities={d.abilities};
@@ -444,9 +444,8 @@ local function GetFollowers()
 					end
 				end
 
-				d.className = getLocale("classspec",tostring(d.classSpec)) or "";
-
 				-- class and specc
+				d.className = ns.classspec_locales[tostring(d.classSpec)];
 				d.classColor = (classes[d.class:upper()]) and classes[d.class:upper()].colorStr or "";
 
 				-- add class and class specc names to filter table;
@@ -1797,10 +1796,10 @@ SLASH_FOLLOWERLOCATIONINFO1 = "/fli";
 SLASH_FOLLOWERLOCATIONINFO2 = "/followerlocationinfo";
 
 
---[[
 function x()
 	local _;
 
+	--[[
 	_= function(name,source,lang)
 		for index,entries in pairs(ns[name]) do
 			if (ns[source][name]) and (ns[source][name][index]) and (type(ns[source][name][index][lang])=="string") then
@@ -1832,9 +1831,19 @@ function x()
 
 	_("follower_locales","rua","ruRU");
 	_("follower_locales","ruh","ruRU");
+	]]
+	_=function(name)
+		local tmp={};
+		for id,locales in pairs(ns[name]) do
+			for lang, value in pairs(locales) do
+				if (tmp[lang]==nil) then tmp[lang]={}; end
+				tmp[lang][id] = value;
+			end
+		end
+		FLI_tmpDB[name]=tmp;
+	end
 
 	wipe(FLI_tmpDB);
-	FLI_tmpDB.classspec_locales=ns.classspec_locales;
-	FLI_tmpDB.follower_locales=ns.follower_locales;
+	--_("follower_locales");
 end
-]]
+

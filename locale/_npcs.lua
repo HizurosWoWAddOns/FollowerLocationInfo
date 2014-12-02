@@ -1,193 +1,218 @@
 
 local _,ns=...;
 
-ns.npc_locales["73877"]["enUS"] = "Jarrod Hamby";
-ns.npc_locales["73877"]["itIT"] = "Jarrod Hamby";
-ns.npc_locales["73877"]["ruRU"] = "Джаррод Хэмби";
+ns.npcs = {};
 
-ns.npc_locales["74741"]["deDE"] = "Romuul";
-ns.npc_locales["74741"]["enUS"] = "Romuul";
-ns.npc_locales["74741"]["itIT"] = "Romuul";
-ns.npc_locales["74741"]["ruRU"] = "Ромуул";
+ns.npcs[73877] = "Jarrod Hamby";
+ns.npcs[74741] = "Romuul";
+ns.npcs[75710] = "Hansel Heavyhands";
+ns.npcs[75884] = "Rulkan";
+ns.npcs[76204] = "Fiona";
+ns.npcs[76748] = "Shelly Hamby";
+ns.npcs[77014] = "Bruto";
+ns.npcs[77031] = "Ahm";
+ns.npcs[79159] = "Apprentice Miall";
+ns.npcs[79160] = "Master Smith Ared";
+ns.npcs[79322] = "Gladiator Akaani";
+ns.npcs[79329] = "Miall";
+ns.npcs[79457] = "Vindicator Maraad";
+ns.npcs[79492] = "Dagg";
+ns.npcs[79853] = "Pleasure-Bot 8000";
+ns.npcs[79901] = "Torben Zapblast";
+ns.npcs[79966] = "Lost Packmule";
+ns.npcs[80073] = "Exarch Maladaar";
+ns.npcs[80078] = "Exarch Akama";
+ns.npcs[80163] = "Ken Loggin";
+ns.npcs[80627] = "Miall";
+ns.npcs[80628] = "Miall";
+ns.npcs[80630] = "Miall";
+ns.npcs[80632] = "Alliance Soldier";
+ns.npcs[80672] = "Magister Serena";
+ns.npcs[80727] = "Rangari Arepheon";
+ns.npcs[80968] = "Miall";
+ns.npcs[81076] = "Rangari Jonaa";
+ns.npcs[81588] = "Thaelin Darkanvil";
+ns.npcs[81751] = "Hansel Heavyhands";
+ns.npcs[81772] = "Rangari Kaalya";
+ns.npcs[85119] = "Glirin";
+ns.npcs[85932] = "Vindicator Nuurem";
+ns.npcs[86391] = "Dawn-Seeker Krek";
+ns.npcs[88195] = "Hulda Shadowblade";
+ns.npcs[88482] = "Gazrix Gearlock";
+ns.npcs[76200] = "Prelate Reenu";
+ns.npcs[79978] = "Aeda Brightdawn";
+ns.npcs[79979] = "Defender Illona";
+ns.npcs["o233229"] = "Shadow Council Tome of Curses";
 
-ns.npc_locales["75710"]["enUS"] = "Hansel Heavyhands";
-ns.npc_locales["75710"]["itIT"] = "Hansel Maniforti";
 
-ns.npc_locales["75884"]["enUS"] = "Rulkan";
-ns.npc_locales["75884"]["itIT"] = "Rulkan";
-ns.npc_locales["75884"]["ruRU"] = "Рулкан";
+if LOCALE_deDE then
+	ns.npcs[74741] = "Romuul";
+	ns.npcs[76204] = "Fiona";
+	ns.npcs[77031] = "Ahm";
+	ns.npcs[79159] = "Lehrling Miall";
+	ns.npcs[79160] = "Meisterschmied Ared";
+	ns.npcs[79457] = "Verteidiger Maraad";
+	ns.npcs[79492] = "Dagg";
+	ns.npcs[79853] = "Genussbot 8000";
+	ns.npcs[79901] = "Torben Zischknall";
+	ns.npcs[79966] = "Verirrter Packesel";
+	ns.npcs[80073] = "Exarch Maladaar";
+	ns.npcs[80078] = "Exarch Akama";
+	ns.npcs[80163] = "Ken Kerbe";
+	ns.npcs[80627] = "Miall";
+	ns.npcs[80632] = "Soldatin der Allianz";
+	ns.npcs[80727] = "Rangari Arepheon";
+	ns.npcs[81772] = "Rangari Kaalya";
+	ns.npcs[85119] = "Glirin";
+	ns.npcs[85932] = "Verteidiger Nuurem";
+	ns.npcs[86391] = "Dämmerungssucher Krek";
+	ns.npcs[88482] = "Gazrix Kolbenfresser";
+	ns.npcs[76200] = "Prälat Reenu";
+	ns.npcs["o233229"] = "Fluchfoliant des Schattenrats";
+end
 
-ns.npc_locales["76200"]["deDE"] = "Prälat Reenu";
-ns.npc_locales["76200"]["enUS"] = "Prelate Reenu";
-ns.npc_locales["76200"]["frFR"] = "Prélat Reenu";
-ns.npc_locales["76200"]["itIT"] = "Prelato Reenu";
-ns.npc_locales["76200"]["ptBR"] = "Prelado Reenu";
-ns.npc_locales["76200"]["ruRU"] = "Прелат Рину";
+if LOCALE_esES or LOCALE_esMX then
+	ns.npcs[79160] = "Maestro herrero Ared";
+	ns.npcs[80078] = "Exarca Akama";
+	ns.npcs[80632] = "Soldado de la Alianza";
+end
 
-ns.npc_locales["76204"]["deDE"] = "Fiona";
-ns.npc_locales["76204"]["enUS"] = "Fiona";
-ns.npc_locales["76204"]["frFR"] = "Fiona";
-ns.npc_locales["76204"]["itIT"] = "Fiona";
-ns.npc_locales["76204"]["ruRU"] = "Фиона";
+if LOCALE_frFR then
+	ns.npcs[76204] = "Fiona";
+	ns.npcs[79159] = "Apprentie Miall";
+	ns.npcs[79160] = "Maître forgeron Ared";
+	ns.npcs[79329] = "Miall";
+	ns.npcs[79966] = "Mule de bât perdue";
+	ns.npcs[80078] = "Exarque Akama";
+	ns.npcs[80163] = "Ken Loggin";
+	ns.npcs[80627] = "Miall";
+	ns.npcs[80632] = "Soldat de l’Alliance";
+	ns.npcs[85932] = "Redresseur de torts Nuurem";
+	ns.npcs[86391] = "Traque-aube Krek";
+	ns.npcs[88482] = "Gazrik Verrouage";
+	ns.npcs[76200] = "Prélat Reenu";
+	ns.npcs[79979] = "Défenseur Illona";
+end
 
-ns.npc_locales["76748"]["enUS"] = "Shelly Hamby";
-ns.npc_locales["76748"]["itIT"] = "Shelly Hamby";
-ns.npc_locales["76748"]["ruRU"] = "Шелли Хэмби";
+if LOCALE_itIT then
+	ns.npcs[73877] = "Jarrod Hamby";
+	ns.npcs[74741] = "Romuul";
+	ns.npcs[75710] = "Hansel Maniforti";
+	ns.npcs[75884] = "Rulkan";
+	ns.npcs[76204] = "Fiona";
+	ns.npcs[76748] = "Shelly Hamby";
+	ns.npcs[77031] = "Ahm";
+	ns.npcs[79159] = "Apprendista Miall";
+	ns.npcs[79160] = "Maestro Fabbro Ared";
+	ns.npcs[79322] = "Akaani la Gladiatrice";
+	ns.npcs[79329] = "Miall";
+	ns.npcs[79457] = "Vendicatore Maraad";
+	ns.npcs[79492] = "Dagg";
+	ns.npcs[79853] = "Sollazzo-Bot 8000";
+	ns.npcs[79901] = "Torben Scoppiolampo";
+	ns.npcs[79966] = "Mulo da Soma Perduto";
+	ns.npcs[80073] = "Esarca Maladaar";
+	ns.npcs[80078] = "Esarca Akama";
+	ns.npcs[80163] = "Ken Seghetti";
+	ns.npcs[80627] = "Miall";
+	ns.npcs[80628] = "Miall";
+	ns.npcs[80630] = "Miall";
+	ns.npcs[80632] = "Soldato dell\'Alleanza";
+	ns.npcs[80727] = "Guardaselve Arepheon";
+	ns.npcs[80968] = "Miall";
+	ns.npcs[81588] = "Thaelin Forgiacupa";
+	ns.npcs[81751] = "Hansel Maniforti";
+	ns.npcs[81772] = "Guardaselve Kaalya";
+	ns.npcs[85932] = "Vendicatore Nuurem";
+	ns.npcs[86391] = "Cercatore dell\'Alba Krek";
+	ns.npcs[88195] = "Hulda Lamaombra";
+	ns.npcs[88482] = "Gazrix Sbloccaruote";
+	ns.npcs[76200] = "Prelato Reenu";
+	ns.npcs[79978] = "Aeda Albaluce";
+	ns.npcs[79979] = "Difensore Illona";
+	ns.npcs["o233229"] = "Tomo delle Maledizioni del Concilio dell\'Ombra";
+end
 
-ns.npc_locales["77014"]["enUS"] = "Bruto";
-ns.npc_locales["77014"]["ptBR"] = "Brutus";
+if LOCALE_ptBR then
+	ns.npcs[77014] = "Brutus";
+	ns.npcs[77031] = "Ahm";
+	ns.npcs[79160] = "Mestre Ferreiro Ared";
+	ns.npcs[79966] = "Mula de Carga Perdida";
+	ns.npcs[80163] = "Kleber Loureiro";
+	ns.npcs[80628] = "Miall";
+	ns.npcs[80632] = "Soldado da Aliança";
+	ns.npcs[81772] = "Rangari Kaalya";
+	ns.npcs[76200] = "Prelado Reenu";
+end
 
-ns.npc_locales["77031"]["deDE"] = "Ahm";
-ns.npc_locales["77031"]["enUS"] = "Ahm";
-ns.npc_locales["77031"]["itIT"] = "Ahm";
-ns.npc_locales["77031"]["ptBR"] = "Ahm";
-ns.npc_locales["77031"]["ruRU"] = "Ахм";
+if LOCALE_ruRU then
+	ns.npcs[73877] = "Джаррод Хэмби";
+	ns.npcs[74741] = "Ромуул";
+	ns.npcs[75884] = "Рулкан";
+	ns.npcs[76204] = "Фиона";
+	ns.npcs[76748] = "Шелли Хэмби";
+	ns.npcs[77031] = "Ахм";
+	ns.npcs[79159] = "Ученица Миалла";
+	ns.npcs[79160] = "Мастер-кузнец Аред";
+	ns.npcs[79457] = "Воздаятель Мараад";
+	ns.npcs[79966] = "Потерявшийся вьючный мул";
+	ns.npcs[80073] = "Экзарх Маладаар";
+	ns.npcs[80078] = "Экзарх Акама";
+	ns.npcs[80163] = "Кен Логгин";
+	ns.npcs[80632] = "Солдат Альянса";
+	ns.npcs[80672] = "Магистр Серена";
+	ns.npcs[80727] = "Рангари Арефеон";
+	ns.npcs[81076] = "Рангари Йонаа";
+	ns.npcs[81588] = "Телин Темная Наковальня";
+	ns.npcs[85119] = "Глирин";
+	ns.npcs[85932] = "Воздаятель Нуурем";
+	ns.npcs[86391] = "Искатель зари Крек";
+	ns.npcs[88482] = "Газрикс Замокс";
+	ns.npcs[76200] = "Прелат Рину";
+	ns.npcs[79978] = "Аеда Ясная Заря";
+	ns.npcs[79979] = "Защитница Иллона";
+	ns.npcs["o233229"] = "Фолиант проклятий Совета Теней";
+end
 
-ns.npc_locales["79159"]["deDE"] = "Lehrling Miall";
-ns.npc_locales["79159"]["enUS"] = "Apprentice Miall";
-ns.npc_locales["79159"]["frFR"] = "Apprentie Miall";
-ns.npc_locales["79159"]["itIT"] = "Apprendista Miall";
-ns.npc_locales["79159"]["ruRU"] = "Ученица Миалла";
-
-ns.npc_locales["79160"]["deDE"] = "Meisterschmied Ared";
-ns.npc_locales["79160"]["enUS"] = "Master Smith Ared";
-ns.npc_locales["79160"]["esES"] = "Maestro herrero Ared";
-ns.npc_locales["79160"]["frFR"] = "Maître forgeron Ared";
-ns.npc_locales["79160"]["itIT"] = "Maestro Fabbro Ared";
-ns.npc_locales["79160"]["ptBR"] = "Mestre Ferreiro Ared";
-ns.npc_locales["79160"]["ruRU"] = "Мастер-кузнец Аред";
-
-ns.npc_locales["79322"]["enUS"] = "Gladiator Akaani";
-ns.npc_locales["79322"]["itIT"] = "Akaani la Gladiatrice";
-
-ns.npc_locales["79329"]["enUS"] = "Miall";
-ns.npc_locales["79329"]["frFR"] = "Miall";
-ns.npc_locales["79329"]["itIT"] = "Miall";
-
-ns.npc_locales["79457"]["deDE"] = "Verteidiger Maraad";
-ns.npc_locales["79457"]["enUS"] = "Vindicator Maraad";
-ns.npc_locales["79457"]["itIT"] = "Vendicatore Maraad";
-ns.npc_locales["79457"]["ruRU"] = "Воздаятель Мараад";
-
-ns.npc_locales["79492"]["deDE"] = "Dagg";
-ns.npc_locales["79492"]["enUS"] = "Dagg";
-ns.npc_locales["79492"]["itIT"] = "Dagg";
-
-ns.npc_locales["79853"]["deDE"] = "Genussbot 8000";
-ns.npc_locales["79853"]["enUS"] = "Pleasure-Bot 8000";
-ns.npc_locales["79853"]["itIT"] = "Sollazzo-Bot 8000";
-
-ns.npc_locales["79901"]["deDE"] = "Torben Zischknall";
-ns.npc_locales["79901"]["enUS"] = "Torben Zapblast";
-ns.npc_locales["79901"]["itIT"] = "Torben Scoppiolampo";
-
-ns.npc_locales["79966"]["deDE"] = "Verirrter Packesel";
-ns.npc_locales["79966"]["enUS"] = "Lost Packmule";
-ns.npc_locales["79966"]["frFR"] = "Mule de bât perdue";
-ns.npc_locales["79966"]["itIT"] = "Mulo da Soma Perduto";
-ns.npc_locales["79966"]["ptBR"] = "Mula de Carga Perdida";
-ns.npc_locales["79966"]["ruRU"] = "Потерявшийся вьючный мул";
-
-ns.npc_locales["79978"]["enUS"] = "Aeda Brightdawn";
-ns.npc_locales["79978"]["itIT"] = "Aeda Albaluce";
-ns.npc_locales["79978"]["ruRU"] = "Аеда Ясная Заря";
-
-ns.npc_locales["79979"]["enUS"] = "Defender Illona";
-ns.npc_locales["79979"]["frFR"] = "Défenseur Illona";
-ns.npc_locales["79979"]["itIT"] = "Difensore Illona";
-ns.npc_locales["79979"]["ruRU"] = "Защитница Иллона";
-
-ns.npc_locales["80073"]["deDE"] = "Exarch Maladaar";
-ns.npc_locales["80073"]["enUS"] = "Exarch Maladaar";
-ns.npc_locales["80073"]["itIT"] = "Esarca Maladaar";
-ns.npc_locales["80073"]["ruRU"] = "Экзарх Маладаар";
-
-ns.npc_locales["80078"]["deDE"] = "Exarch Akama";
-ns.npc_locales["80078"]["enUS"] = "Exarch Akama";
-ns.npc_locales["80078"]["esES"] = "Exarca Akama";
-ns.npc_locales["80078"]["frFR"] = "Exarque Akama";
-ns.npc_locales["80078"]["itIT"] = "Esarca Akama";
-ns.npc_locales["80078"]["ruRU"] = "Экзарх Акама";
-
-ns.npc_locales["80163"]["deDE"] = "Ken Kerbe";
-ns.npc_locales["80163"]["enUS"] = "Ken Loggin";
-ns.npc_locales["80163"]["frFR"] = "Ken Loggin";
-ns.npc_locales["80163"]["itIT"] = "Ken Seghetti";
-ns.npc_locales["80163"]["ptBR"] = "Kleber Loureiro";
-ns.npc_locales["80163"]["ruRU"] = "Кен Логгин";
-
-ns.npc_locales["80627"]["deDE"] = "Miall";
-ns.npc_locales["80627"]["enUS"] = "Miall";
-ns.npc_locales["80627"]["frFR"] = "Miall";
-ns.npc_locales["80627"]["itIT"] = "Miall";
-
-ns.npc_locales["80628"]["enUS"] = "Miall";
-ns.npc_locales["80628"]["itIT"] = "Miall";
-ns.npc_locales["80628"]["ptBR"] = "Miall";
-
-ns.npc_locales["80630"]["enUS"] = "Miall";
-ns.npc_locales["80630"]["itIT"] = "Miall";
-
-ns.npc_locales["80632"]["deDE"] = "Soldatin der Allianz";
-ns.npc_locales["80632"]["enUS"] = "Alliance Soldier";
-ns.npc_locales["80632"]["esES"] = "Soldado de la Alianza";
-ns.npc_locales["80632"]["frFR"] = "Soldat de l’Alliance";
-ns.npc_locales["80632"]["itIT"] = "Soldato dell\'Alleanza";
-ns.npc_locales["80632"]["ptBR"] = "Soldado da Aliança";
-ns.npc_locales["80632"]["ruRU"] = "Солдат Альянса";
-
-ns.npc_locales["80672"]["enUS"] = "Magister Serena";
-ns.npc_locales["80672"]["ruRU"] = "Магистр Серена";
-
-ns.npc_locales["80727"]["deDE"] = "Rangari Arepheon";
-ns.npc_locales["80727"]["enUS"] = "Rangari Arepheon";
-ns.npc_locales["80727"]["itIT"] = "Guardaselve Arepheon";
-ns.npc_locales["80727"]["ruRU"] = "Рангари Арефеон";
-
-ns.npc_locales["80968"]["enUS"] = "Miall";
-ns.npc_locales["80968"]["itIT"] = "Miall";
-
-ns.npc_locales["81076"]["enUS"] = "Rangari Jonaa";
-ns.npc_locales["81076"]["ruRU"] = "Рангари Йонаа";
-
-ns.npc_locales["81588"]["enUS"] = "Thaelin Darkanvil";
-ns.npc_locales["81588"]["itIT"] = "Thaelin Forgiacupa";
-ns.npc_locales["81588"]["ruRU"] = "Телин Темная Наковальня";
-
-ns.npc_locales["81751"]["enUS"] = "Hansel Heavyhands";
-ns.npc_locales["81751"]["itIT"] = "Hansel Maniforti";
-
-ns.npc_locales["81772"]["deDE"] = "Rangari Kaalya";
-ns.npc_locales["81772"]["enUS"] = "Rangari Kaalya";
-ns.npc_locales["81772"]["itIT"] = "Guardaselve Kaalya";
-ns.npc_locales["81772"]["ptBR"] = "Rangari Kaalya";
-
-ns.npc_locales["85119"]["deDE"] = "Glirin";
-ns.npc_locales["85119"]["enUS"] = "Glirin";
-ns.npc_locales["85119"]["ruRU"] = "Глирин";
-
-ns.npc_locales["85932"]["deDE"] = "Verteidiger Nuurem";
-ns.npc_locales["85932"]["enUS"] = "Vindicator Nuurem";
-ns.npc_locales["85932"]["frFR"] = "Redresseur de torts Nuurem";
-ns.npc_locales["85932"]["itIT"] = "Vendicatore Nuurem";
-ns.npc_locales["85932"]["ruRU"] = "Воздаятель Нуурем";
-
-ns.npc_locales["86391"]["deDE"] = "Dämmerungssucher Krek";
-ns.npc_locales["86391"]["enUS"] = "Dawn-Seeker Krek";
-ns.npc_locales["86391"]["frFR"] = "Traque-aube Krek";
-ns.npc_locales["86391"]["itIT"] = "Cercatore dell\'Alba Krek";
-ns.npc_locales["86391"]["ruRU"] = "Искатель зари Крек";
-
-ns.npc_locales["88195"]["enUS"] = "Hulda Shadowblade";
-ns.npc_locales["88195"]["itIT"] = "Hulda Lamaombra";
-
-ns.npc_locales["88482"]["deDE"] = "Gazrix Kolbenfresser";
-ns.npc_locales["88482"]["enUS"] = "Gazrix Gearlock";
-ns.npc_locales["88482"]["frFR"] = "Gazrik Verrouage";
-ns.npc_locales["88482"]["itIT"] = "Gazrix Sbloccaruote";
-ns.npc_locales["88482"]["ruRU"] = "Газрикс Замокс";
-
-ns.npc_locales["o233229"]["deDE"] = "Fluchfoliant des Schattenrats";
-ns.npc_locales["o233229"]["enUS"] = "Shadow Council Tome of Curses";
-ns.npc_locales["o233229"]["itIT"] = "Tomo delle Maledizioni del Concilio dell\'Ombra";
-ns.npc_locales["o233229"]["ruRU"] = "Фолиант проклятий Совета Теней";
+if LOCALE_zhTW then
+	ns.npcs[73877] = "Jarrod 漢彼";
+	ns.npcs[74741] = "羅穆爾";
+	ns.npcs[75710] = "漢瑟爾·重拳";
+	ns.npcs[75884] = "蘿坎";
+	ns.npcs[76204] = "菲歐娜";
+	ns.npcs[76748] = "雪莉‧漢彼";
+	ns.npcs[77014] = "布魯托";
+	ns.npcs[77031] = "阿哈姆";
+	ns.npcs[79159] = "見習工藝師 米歐";
+	ns.npcs[79160] = "Master Smith Ared";
+	ns.npcs[79322] = "角鬥士阿卡尼";
+	ns.npcs[79329] = "米歐";
+	ns.npcs[79457] = "復仇者瑪銳德";
+	ns.npcs[79492] = "達戈";
+	ns.npcs[79853] = "快樂機器人 8000";
+	ns.npcs[79901] = "托爾班‧速轟";
+	ns.npcs[79966] = "Lost Packmule";
+	ns.npcs[80073] = "瑪拉達爾主教";
+	ns.npcs[80078] = "阿卡瑪主教";
+	ns.npcs[80163] = "肯 羅金";
+	ns.npcs[80627] = "米歐";
+	ns.npcs[80628] = "米歐";
+	ns.npcs[80630] = "米歐";
+	ns.npcs[80632] = "聯盟士兵";
+	ns.npcs[80672] = "博學者塞瑞娜";
+	ns.npcs[80727] = "遊俠阿爾菲奧";
+	ns.npcs[80968] = "米歐";
+	ns.npcs[81076] = "遊俠喬納";
+	ns.npcs[81588] = "塞林·暗砧";
+	ns.npcs[81751] = "漢瑟爾·重拳";
+	ns.npcs[81772] = "遊俠凱爾雅";
+	ns.npcs[85119] = "葛里林";
+	ns.npcs[85932] = "Vindicator Nuurem";
+	ns.npcs[86391] = "Dawn-Seeker Krek";
+	ns.npcs[88195] = "荷爾達‧影刃";
+	ns.npcs[88482] = "Gazrix Gearlock";
+	ns.npcs[76200] = "Prelate Reenu";
+	ns.npcs[79978] = "愛伊達‧明曦";
+	ns.npcs[79979] = "防衛者伊蘿娜";
+	ns.npcs["o233229"] = "暗影議會詛咒寶典";
+end
