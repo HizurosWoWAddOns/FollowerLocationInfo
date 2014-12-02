@@ -778,6 +778,29 @@
 				</Scripts>
 			</Frame>
 
+			<Frame parentKey="Loading" inherits="LoadingSpinnerTemplate" hidden="true">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.HeaderBar" relativePoint="BOTTOM" y="-20" />
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString parentKey="Label" inherits="GameFontNormalLarge" text="LFG_LIST_LOADING">
+							<Anchors>
+								<Anchor point="TOP" relativePoint="BOTTOM"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnShow>
+						self.Anim:Play();
+					</OnShow>
+					<OnHide>
+						self.Anim:Stop();
+					</OnHide>
+				</Scripts>
+			</Frame>
+
 		</Frames>
 		<Scripts>
 			<OnLoad function="FollowerLocationInfoFrame_OnLoad"/>
