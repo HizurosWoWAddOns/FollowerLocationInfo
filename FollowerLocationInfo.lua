@@ -1449,11 +1449,10 @@ eventFrame:SetScript("OnEvent", function(self,event,arg1,...)
 				ns.language = FollowerLocationInfoDB.language;
 			end
 		end
-		if (UnitLevel("player")>=90) and (not GarrisonLandingPage) then
-			Garrison_LoadUI();
-			C_Timer.After(30,GetBlizzardData);
+		if (UnitLevel("player")>=90) then
+			GetBlizzardData();
+			C_Timer.After(15,GetBlizzardData);
 		end
-		onEvent=false;
 	end
 
 	if (event=="ADDON_LOADED" and arg1=="Blizzard_GarrisonUI") then
@@ -1463,13 +1462,11 @@ eventFrame:SetScript("OnEvent", function(self,event,arg1,...)
 
 		GarrisonMissionFrame.MissionTab:HookScript("OnHide", function()
 			updateLock=false;
-			eventFrame:GetScript("OnEvent")({},"GARRISON_FOLLOWER_LIST_UPDATE");
 		end);
 	end
 
-	if ((event=="ADDON_LOADED" and arg1=="Blizzard_GarrisonUI") or (event=="GARRISON_FOLLOWER_LIST_UPDATE")) then
+	if (event=="GARRISON_FOLLOWER_LIST_UPDATE") then
 		GetBlizzardData();
-		-- broker.update();
 	end
 end);
 eventFrame:RegisterEvent("ADDON_LOADED");
@@ -1704,8 +1701,8 @@ function FollowerLocationInfoFrame_OnLoad(self)
 	self:SetUserPlaced(true);
 	self:SetFrameLevel(10);
 	self:SetScript("OnShow", FollowerLocationInfoFrame_OnShow);
-	function self:RegisterEvent() end
-	function self:UnregisterEvent() end
+	self.RegisterEvent = error;
+	self.UnregisterEvent = error;
 
 	-- FLI -- FilterElements
 	self.Search:SetScript("OnTextChanged", List_Search);
@@ -1796,6 +1793,7 @@ SLASH_FOLLOWERLOCATIONINFO1 = "/fli";
 SLASH_FOLLOWERLOCATIONINFO2 = "/followerlocationinfo";
 
 
+--[=[
 function x()
 	local _;
 
@@ -1846,4 +1844,4 @@ function x()
 	wipe(FLI_tmpDB);
 	--_("follower_locales");
 end
-
+]=]
