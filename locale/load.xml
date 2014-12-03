@@ -15,8 +15,4 @@
 	<Script file="_followers.lua" />
 	<Script file="_npcs.lua" />
 
-	<!-- temp -->
-	<Script file="xtw_alliance.lua"/>
-	<Script file="xtw_horde.lua"/>
-
 </Ui>

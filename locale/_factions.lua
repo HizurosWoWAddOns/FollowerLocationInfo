@@ -114,6 +114,20 @@ if LOCALE_zhTW then
 	f[1735] = "兵營保鏢";
 end
 
+if LOCALE_zhCN then
+	ns.factions[1445] = "霜狼兽人";
+	ns.factions[1515] = "鸦人流亡者";
+	ns.factions[1520] = "影月流亡者";
+	ns.factions[1681] = "沃金之矛";
+	ns.factions[1682] = "乌瑞恩先锋军";
+	ns.factions[1708] = "嘲颅兽人";
+	ns.factions[1710] = "沙塔尔防御者";
+	ns.factions[1711] = "热砂保护协会";
+	ns.factions[1731] = "主教议会";
+	ns.factions[1732] = "热砂港德拉诺探险队";
+	ns.factions[1735] = "要塞保镖";
+end
+
 --if LOCALE_koKR then end
 
 
