@@ -193,7 +193,7 @@
 		</Scripts>
 	</Frame>
 
-	<Frame name="FollowerLocationInfoFilterTemplate" virtual="TRUE">
+	<Frame name="FollowerLocationInfoFilterTemplate" virtual="TRUE" hidden="TRUE">
 		<Size x="0" y="16" />
 		<Frames>
 			<Button parentKey="Button">
@@ -458,19 +458,6 @@
 				</Scripts>
 			</EditBox>
 
-			<Frame parentKey="ClassFilter" inherits="FollowerLocationInfoFilterTemplate" hidden="TRUE">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Search" relativePoint="BOTTOMLEFT" y="-4" />
-					<Anchor point="TOPRIGHT" relativeKey="$parent.Search" relativePoint="BOTTOMRIGHT" y="-4" />
-				</Anchors>
-			</Frame>
-
-			<Frame parentKey="AbilityFilter" inherits="FollowerLocationInfoFilterTemplate" hidden="TRUE">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.ClassFilter" relativePoint="BOTTOMLEFT" y="-4" />
-					<Anchor point="TOPRIGHT" relativeKey="$parent.ClassFilter" relativePoint="BOTTOMRIGHT" y="-4" />
-				</Anchors>
-			</Frame>
 			<!-- /Follower list - Options area -->
 
 			<Frame parentKey="ListBG" hidden="TRUE">
