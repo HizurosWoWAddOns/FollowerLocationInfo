@@ -4,7 +4,9 @@ ignore:
 	- .pkgmeta
 
 tools-used:
-	- libstub
+	- data-tools
+	- dlcount
+	- findglobals
 
 externals:
     libs/LibStub:
