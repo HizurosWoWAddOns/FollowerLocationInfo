@@ -213,7 +213,7 @@ self.ShowMenu = function(parent, anchorA, anchorB, parentX, parentY)
 	end
 
 	self.addEntry({separator=true});
-	self.addEntry({label=CLOSE, func=function() self.frame:Hide(); end});
+	self.addEntry({label=CANCEL.."/"..CLOSE, func=function() self.frame:Hide(); end});
 
 	UIDropDownMenu_Initialize(self.frame, EasyMenu_Initialize, displayMode, nil, self.menu);
 	ToggleDropDownMenu(1, nil, self.frame, anchor, x, y, self.menu, nil, nil);
