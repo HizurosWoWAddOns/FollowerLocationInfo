@@ -21,5 +21,8 @@ externals:
     libs/LibDBIcon-1.0:
         url: svn://svn.wowace.com/wow/libdbicon-1-0/mainline/trunk/LibDBIcon-1.0
         tag: latest
+    libs/LibColors-1.0:
+        url: git://git.curseforge.net/wow/libstringcoloring-1-0/mainline.git
+        tag: latest
 
 enable-nolib-creation: no
