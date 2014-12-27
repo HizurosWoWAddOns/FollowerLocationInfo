@@ -10,7 +10,7 @@ BINDING_NAME_TOGGLEFOLLOWERLOCATIONINFO	= L["Toggle FollowerLocationInfo Display
 ns.faction, ns.factionLocale = UnitFactionGroup("player"); L[ns.faction] = ns.factionLocale;
 nFaction = ((ns.faction=="Alliance") and 1) or ((ns.faction=="Horde") and 2) or 0;
 
-FollowerLocationInfo_Toggle, FollowerLocationInfo_ToggleCollected, FollowerLocationInfo_ToggleIDs, FollowerLocationInfo_ResetConfig,FollowerLocationInfo_MinimapButton,FollowerLocationInfo_ToggleList=nil,nil,nil,nil,nil,nil;
+FollowerLocationInfo_Toggle, FollowerLocationInfo_ToggleCollected, FollowerLocationInfo_ToggleIDs, FollowerLocationInfo_ResetConfig,FollowerLocationInfo_MinimapButton,FollowerLocationInfo_ToggleList,Desc_Update=nil,nil,nil,nil,nil,nil,nil;
 local NUM_FILTERS = 3;
 local configMenu, List_Update, FollowerLocationInfoFrame_OnEvent,ExternalURL;
 local nFaction = (ns.faction=="Alliance") and 1 or 2;
@@ -24,6 +24,7 @@ local updateLock,onEvent=false,false;
 local ListEntrySelected, ListEntries = false,{};
 local FollowersCollected,knownAbilities = {},{};
 local SearchStr,Filters,ClassFilter,AbilityFilter = "",{},"","";
+local ExternalURLValues = {WoWHead = "WoWHead",WoWDB = "WoWDB (english only)",Buffed = "Buffed"}
 local ids = {[32]=true,[34]=true,[153]=true,[154]=true,[155]=true,[157]=true,[159]=true,[168]=true,[170]=true,[171]=true,[176]=true,[177]=true,[178]=true,[179]=true,[180]=true,[182]=true,[183]=true,[184]=true,[185]=true,[186]=true,[189]=true,[190]=true,[192]=true,[193]=true,[194]=true,[195]=true,[202]=true,[203]=true,[204]=true,[205]=true,[207]=true,[208]=true,[209]=true,[211]=true,[212]=true,[216]=true,[217]=true,[218]=true,[219]=true,[224]=true,[225]=true,[453]=true,[455]=true,[458]=true,[459]=true,[460]=true,[462]=true,[463]=true};
 local factionZoneOrder = (ns.faction:lower()=="alliance") and {962,947,971,949,946,948,950,941,978,1009,964,969,984,987,988,989,993,994,995,1008,-1,0}
 														   or {962,941,976,949,946,948,950,947,978,1011,964,969,984,987,988,989,993,994,995,1008,-1,0};
@@ -517,20 +518,16 @@ function configMenu(self,anchorA,anchorB)
 				--event  = function() end,
 				disabled = true
 			},
-			--[[
 			{
-				--name = "questIdUrl",
-				label = L["Fav. website"],
-				tooltip = {L["Fav. website"],L["Choose your favorite website for further informations to a quest."]},
-				dbType="select", keyName="questIdUrl
+				label = L["Favorite website"],
+				tooltip = {L["Favorite website"],L["Choose your favorite website for further informations to a quest."]},
+				dbType="select", keyName="ExternalURL",
 				default = "WoWHead",
-				values = {
-					WoWHead = "WoWHead",
-					WoWDB = "WoWDB (english only)",
-					Buffed = "Buffed"
-				}
+				values = ExternalURLValues,
+				event = function()
+					Desc_Update()
+				end
 			}
-			]]
 		--}}
 	},anchorA,anchorB);
 end
@@ -639,7 +636,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 				elseif (IsQuestCompleted(v[1])) then
 					qTitle2 = qTitle .. " |cff888888"..L["(Completed)"].."|r"
 				end
-				tinsert(menu,{ label = L["On WoWHead"], func=function()
+				tinsert(menu,{ label = L["On %s"]:format(ExternalURLValues[FollowerLocationInfoDB.ExternalURL]), func=function()
 					ExternalURL = urls[FollowerLocationInfoDB.ExternalURL]("q",v[1]);
 					StaticPopup_Show("FLI_URL_DIALOG");
 				end });
@@ -814,7 +811,7 @@ local function Desc_AddInfo(self, count, objType, ...)
 	return count;
 end
 
-local function Desc_Update()
+function Desc_Update()
 	local self = FollowerLocationInfoFrame.Desc;
 	local DescHead = FollowerLocationInfoFrame.DescHeader;
 	local InfoHead = FollowerLocationInfoFrame.InfoHeader;

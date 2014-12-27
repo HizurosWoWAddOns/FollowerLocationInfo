@@ -9,6 +9,25 @@ local UIDROPDOWNMENU_OPEN_MENU;
 local self = ns.MenuGenerator;
 self.menu = {};
 self.controlGroups = {};
+
+local function pairsByKeys(t, f)
+	local a = {}
+	for n in pairs(t) do
+		table.insert(a, n)
+	end
+	table.sort(a, f)
+	local i = 0      -- iterator variable
+	local iter = function ()   -- iterator function
+		i = i + 1
+		if a[i] == nil then
+			return nil
+		else
+			return a[i], t[a[i]]
+		end
+	end
+	return iter
+end
+
 local cvarTypeFunc = {
 	bool = function(d)
 		if (type(d.cvar)=="table") then
@@ -44,6 +63,11 @@ local dbTypeFunc = {
 		end
 		return d;
 	end,
+	selectChild = function(d)
+		d.checked = function() return (FollowerLocationInfoDB[d.keyName]==d.valStr); end
+		d.func = function(self) FollowerLocationInfoDB[d.keyName] = d.valStr; self:GetParent():Hide(); end
+		return d;
+	end,
 	slider = function(d)
 		return d;
 	end,
@@ -51,6 +75,8 @@ local dbTypeFunc = {
 		return d;
 	end,
 	str = function(d)
+		d.checked = function() return (FollowerLocationInfoDB[d.keyName]==d.valStr); end
+		d.func = function() FollowerLocationInfoDB[d.keyName] = d.valStr; end
 		return d;
 	end
 };
@@ -75,6 +101,20 @@ self.addEntry = function(D,P)
 		local parent = self.addEntry({ label=D.label, arrow=true },P);
 		for i,v in ipairs(D.childs) do
 			self.addEntry(v,parent);
+		end
+		return;
+
+	elseif (D.dbType=="select") then
+		local parent = self.addEntry({ label=D.label, arrow=true },P);
+		for k,v in pairsByKeys(D.values) do
+			self.addEntry({
+				label = v,
+				dbType = "selectChild",
+				keyName = D.keyName,
+				valStr = k,
+				event = D.event,
+				radio = true,
+			},parent);
 		end
 		return;
 
@@ -173,6 +213,7 @@ end
 
 self.addEntries = self.addEntry;
 
+--[[
 self.addConfigElements = function(modName,separator)
 	if (separator) then
 		self.addEntry({ separator = true });
@@ -197,9 +238,28 @@ self.addConfigElements = function(modName,separator)
 				tooltip = {v.label,desc},
 				--disabled = (type(v.disabled)=="function") and v.disabled() or v.disabled
 			});
+		elseif (v.type=="select") then
+			local p = self.addEntry({
+				label = L[v.label],
+				tooltip = {v.label,v.tooltip},
+				arrow = true
+			});
+			for valKey,valLabel in ns.pairsByKeys(v.values) do
+				self.addEntry({
+					label = L[valLabel],
+					radio = valKey,
+					keepShown = false,
+					checked = function() return (Broker_EverythingDB[modName][v.name]==valKey); end,
+					func = function(self)
+						Broker_EverythingDB[modName][v.name] = valKey;
+						self:GetParent():Hide();
+					end
+				},p);
+			end
 		end
 	end
 end
+]]
 
 self.ShowMenu = function(parent, anchorA, anchorB, parentX, parentY)
 	local anchor, x, y, displayMode = "cursor", nil, nil, "MENU"
