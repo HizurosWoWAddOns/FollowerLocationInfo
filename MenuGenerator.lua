@@ -98,14 +98,14 @@ self.addEntry = function(D,P)
 		return;
 
 	elseif (D.childs) then -- child elements
-		local parent = self.addEntry({ label=D.label, arrow=true },P);
+		local parent = self.addEntry({ label=D.label, arrow=true, tooltip=D.tooltip },P);
 		for i,v in ipairs(D.childs) do
 			self.addEntry(v,parent);
 		end
 		return;
 
 	elseif (D.dbType=="select") then
-		local parent = self.addEntry({ label=D.label, arrow=true },P);
+		local parent = self.addEntry({ label=D.label, arrow=true, tooltip=D.tooltip },P);
 		for k,v in pairsByKeys(D.values) do
 			self.addEntry({
 				label = v,
@@ -164,8 +164,6 @@ self.addEntry = function(D,P)
 		end
 
 		if (D.tooltip) and (type(D.tooltip)=="table") then
-			--entry.tooltipTitle = ns.LC.color("dkyellow",D.tooltip[1]);
-			--entry.tooltipText = ns.LC.color("white",D.tooltip[2]);
 			entry.tooltipTitle = D.tooltip[1];
 			entry.tooltipText = D.tooltip[2];
 			entry.tooltipOnButton=1;
@@ -212,54 +210,6 @@ self.addEntry = function(D,P)
 end
 
 self.addEntries = self.addEntry;
-
---[[
-self.addConfigElements = function(modName,separator)
-	if (separator) then
-		self.addEntry({ separator = true });
-	end
-	self.addEntry({ label = L["Options"], title = true });
-	self.addEntry({ separator = true });
-	for i,v in ipairs(ns.modules[modName].config.elements) do
-		if (v.disabled) then
-			-- do nothing
-		elseif (v.type=="check") then
-			local desc = v.desc;
-			if (type(desc)=="function") then
-				desc = v.desc();
-			end
-			self.addEntry({
-				label = gsub(L[v.label],"|n"," "),
-				checked = function() return FollowerLocationInfoDB[modName][v.name]; end,
-				func  = function()
-					FollowerLocationInfoDB[modName][v.name] = not FollowerLocationInfoDB[modName][v.name];
-					if (v.event) then ns.modules[modName].onevent({},"BE_DUMMY_EVENT"); end
-				end,
-				tooltip = {v.label,desc},
-				--disabled = (type(v.disabled)=="function") and v.disabled() or v.disabled
-			});
-		elseif (v.type=="select") then
-			local p = self.addEntry({
-				label = L[v.label],
-				tooltip = {v.label,v.tooltip},
-				arrow = true
-			});
-			for valKey,valLabel in ns.pairsByKeys(v.values) do
-				self.addEntry({
-					label = L[valLabel],
-					radio = valKey,
-					keepShown = false,
-					checked = function() return (Broker_EverythingDB[modName][v.name]==valKey); end,
-					func = function(self)
-						Broker_EverythingDB[modName][v.name] = valKey;
-						self:GetParent():Hide();
-					end
-				},p);
-			end
-		end
-	end
-end
-]]
 
 self.ShowMenu = function(parent, anchorA, anchorB, parentX, parentY)
 	local anchor, x, y, displayMode = "cursor", nil, nil, "MENU"
