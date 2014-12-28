@@ -472,63 +472,61 @@ end
 --[=[[ Configurations ]=]
 function configMenu(self,anchorA,anchorB)
 	createMenu(self,{
-		--{ label = SETTINGS, title = true },
-		--{ separator = true },
-		{ label = "DataBroker", title=true }, --childs = {
-			{
-				label = L["Show minimap button"], tooltip = {L["Minimap"],L["Show/Hide minimap button"]},
-				checked = function() return FollowerLocationInfoDB.Minimap.enabled; end,
-				--func  = function() FollowerLocationInfoDB.Minimap.enabled = not FollowerLocationInfoDB.Minimap.enabled; if (not FollowerLocationInfoDB.Minimap.enabled) then lDBI:Hide(addon); else lDBI:Show(addon); end end
-				func = function() FollowerLocationInfo_MinimapButton(); end
-			},
-			{
-				label = L["Show coordinations on broker"], --tooltip={L[""],L[""]},
-				dbType="bool", keyName="BrokerTitle_Coords",
-				disabled = true
-			},
-			{
-				label = L["Show follower count on broker"], --tooltip={L[""],L[""]},
-				dbType="bool", keyName="BrokerTitle_NumFollowers",
-				disabled = true
-			},
-		--}},
+		{ label = "DataBroker", title=true },
+		{
+			label = L["Show minimap button"], tooltip = {L["Minimap"],L["Show/Hide minimap button"]},
+			checked = function() return FollowerLocationInfoDB.Minimap.enabled; end,
+			func = function() FollowerLocationInfo_MinimapButton(); end
+		},
+		{
+			label = L["Show coordinations on broker"], tooltip={L["Coordinations on broker"],L["Show your coordinations of your current position on broker button"]},
+			dbType="bool", keyName="BrokerTitle_Coords",
+			disabled = true
+		},
+		{
+			label = L["Show follower count on broker"], tooltip={L["Follower count on broker"],L["Show count of collected and available followers on broker button"]},
+			dbType="bool", keyName="BrokerTitle_NumFollowers",
+			disabled = true
+		},
 		{ separator = true },
-		{ label = "Follower list", title=true }, --childs = {
-			{
-				label = L["Show FollowerID"], tooltip={L["Follower ID"],L["Show/Hide followerID's in follower list"]},
-				dbType="bool", keyName="ShowFollowerID",
-				event = function() List_Update(); end
-			},
-			{
-				label = L["Show collected followers"], tooltip = {L["Collected followers"],L["Show/Hide collected and not collectable followers in follower list"]},
-				dbType="bool", keyName="ShowCollectedFollower",
-				event = function() followers=nil; List_Update(); end,
-			},
-			{
-				label = L["Show hidden followers"], tooltip = {L["Hidden followers"],L["Show/Hide hidden followers in follower list"]},
-				dbType="bool", keyName="ShowHiddenFollowers",
-				event = function() followers=nil; List_Update(); end,
-			},
-		--}},
+		{ label = "Follower list", title=true },
+		{
+			label = L["Show FollowerID"], tooltip={L["Follower ID"],L["Show followerID's in follower list"]},
+			dbType="bool", keyName="ShowFollowerID",
+			event = function() List_Update(); end
+		},
+		{
+			label = L["Show collected followers"], tooltip = {L["Collected followers"],L["Show collected and not collectable followers in follower list"]},
+			dbType="bool", keyName="ShowCollectedFollower",
+			event = function() followers=nil; List_Update(); end,
+		},
+		{
+			label = L["Show hidden followers"], tooltip = {L["Hidden followers"],L["Show hidden followers in follower list"]},
+			dbType="bool", keyName="ShowHiddenFollowers",
+			event = function() followers=nil; List_Update(); end,
+		},
 		{ separator = true },
-		{ label = "Misc.", title=true },--childs = {
-			{
-				label = L["Show coordination frame"], --tooltip = {L[""],L[""]},
-				dbType="bool", keyName="ShowCoordsFrame",
-				--event  = function() end,
-				disabled = true
-			},
-			{
-				label = L["Favorite website"],
-				tooltip = {L["Favorite website"],L["Choose your favorite website for further informations to a quest."]},
-				dbType="select", keyName="ExternalURL",
-				default = "WoWHead",
-				values = ExternalURLValues,
-				event = function()
-					Desc_Update()
+		{ label = "Misc.", title=true },
+		{
+			label = L["Show coordination frame"], tooltip = {L["Coordination frame"],L["Show the coordination frame"]},
+			dbType="bool", keyName="ShowCoordsFrame",
+			event  = function()
+				if (FollowerLocationInfoDB.ShowCoordsFrame) then
+					FollowerLocationInfoCoordFrame:Show();
+				else
+					FollowerLocationInfoCoordFrame:Hide();
 				end
-			}
-		--}}
+			end
+		},
+		{
+			label = L["Favorite website"], tooltip = {L["Favorite website"],L["Choose your favorite website for further informations to a quest."]},
+			dbType="select", keyName="ExternalURL",
+			default = "WoWHead",
+			values = ExternalURLValues,
+			event = function()
+				Desc_Update()
+			end
+		}
 	},anchorA,anchorB);
 end
 
