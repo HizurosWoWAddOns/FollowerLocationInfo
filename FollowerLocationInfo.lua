@@ -16,7 +16,7 @@ local configMenu, List_Update, FollowerLocationInfoFrame_OnEvent,ExternalURL;
 local nFaction = (ns.faction=="Alliance") and 1 or 2;
 local followers, zoneNames, classes, collectGroups, classNames1, classNames2, abilityNames,counterNames = nil,{},{},{},{},{},{},{};
 local numHidden,numRealFollowers, numKnownFollowers, numCollectedFollowers = (292-48),0,0,0;
-local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButtons.ITEM_QUALITY3_DESC,_G.UnitPopupButtons.ITEM_QUALITY4_DESC};
+local qualities = {nil,_G.UnitPopupButtons.ITEM_QUALITY2_DESC,_G.UnitPopupButtons.ITEM_QUALITY3_DESC,_G.UnitPopupButtons.ITEM_QUALITY4_DESC,_G.UnitPopupButtons.ITEM_QUALITY5_DESC};
 local initState,doRefresh={minimap=false},false;
 local ClassFilterLabel, AbilityFilterLabel = L["Classes & Class speccs"], L["Abilities/Counters & Traits"];
 local ListButtonOffsetX, ListButtonOffsetY = 0,1;
