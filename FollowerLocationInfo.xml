@@ -4,6 +4,7 @@
 	<Include file="libs\load.xml" />
 	<Script  file="MenuGenerator.lua" />
 	<Include file="locale\load.xml" />
+	<!-- <Script file="basic_generator.lua" /> -->
 	<Script  file="db_follower_basics.lua" />
 	<Include file="db_follower_desc.lua" />
 	<Script  file="FollowerLocationInfo.lua" />
@@ -15,16 +16,20 @@
 		<Anchors><Anchor point="LEFT" /><Anchor point="RIGHT" x="-10"/></Anchors>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="0">
-				<Texture file="Interface\Garrison\GarrisonToast" parentKey="quality3" setAllPoints="TRUE" hidden="FALSE" alpha="1">
-					<TexCoords left="0.486328125" right="0.76171875" top="0.65625" bottom="0.765625"/>
+				<Texture file="Interface\Addons\FollowerLocationInfo\media\ButtonQualityBg" parentKey="quality2" setAllPoints="TRUE" hidden="TRUE" alpha="1">
+					<TexCoords left="0" right="0.63671" top="0" bottom="0.21875"/>
 					<Color r=".57" g=".49" b=".39" />
 				</Texture>
-				<Texture file="Interface\Garrison\GarrisonToast" parentKey="quality4" setAllPoints="TRUE" hidden="TRUE" alpha="1">
-					<TexCoords left="0.0546875" right="0.330078125" top="0.65625" bottom="0.765625"/>
+				<Texture file="Interface\Addons\FollowerLocationInfo\media\ButtonQualityBg" parentKey="quality3" setAllPoints="TRUE" hidden="TRUE" alpha="1">
+					<TexCoords left="0" right="0.63671" top="0.21875" bottom="0.4375"/>
 					<Color r=".57" g=".49" b=".39" />
 				</Texture>
-				<Texture file="Interface\Garrison\GarrisonToast" parentKey="quality2" setAllPoints="TRUE" hidden="TRUE" alpha="1">
-					<TexCoords left="0.0546875" right="0.330078125" top="0.765625" bottom="0.875"/>
+				<Texture file="Interface\Addons\FollowerLocationInfo\media\ButtonQualityBg" parentKey="quality4" setAllPoints="TRUE" hidden="TRUE" alpha="1">
+					<TexCoords left="0" right="0.63671" top="0.4375" bottom="0.65625"/>
+					<Color r=".57" g=".49" b=".39" />
+				</Texture>
+				<Texture file="Interface\Addons\FollowerLocationInfo\media\ButtonQualityBg" parentKey="quality5" setAllPoints="TRUE" hidden="TRUE" alpha="1">
+					<TexCoords left="0" right="0.63671" top="0.65625" bottom="0.875"/>
 					<Color r=".57" g=".49" b=".39" />
 				</Texture>
 				<Texture file="Interface\common\NameShadow" parentKey="headerBG" setAllPoints="TRUE" hidden="TRUE" alpha="1" >
@@ -514,6 +519,7 @@
 				<Frames>
 				</Frames>
 			</Frame>
+
 			<ScrollFrame name="$parentList" parentKey="List" inherits="HybridScrollFrameTemplate" hidden="TRUE">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.ListBG" x="35" y="-37" />
@@ -601,6 +607,26 @@
 					<OnClick>
 						FollowerLocationInfo_ToggleList();
 					</OnClick>
+				</Scripts>
+			</Button>
+
+			<Button parentKey="TrackingToggle" inherits="UIPanelButtonTemplate" hidden="TRUE">
+				<Size x="100" y="20"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.HeaderBar" relativePoint="BOTTOMRIGHT" x="-7" y="3" />
+				</Anchors>
+				<HighlightTexture file="Interface\Buttons\UI-Panel-Button-Highlight" alphaMode="ADD" desaturated="true">
+					<TexCoords left="0" right="0.625" top="0" bottom="0.6875"/>
+				</HighlightTexture>
+				<Scripts>
+					<OnShow>
+						local p = self:GetParent();
+						p.Desc:SetPoint("TOPLEFT", p.HeaderBar, "BOTTOMLEFT", 2, -20);
+					</OnShow>
+					<OnHide>
+						local p = self:GetParent();
+						p.Desc:SetPoint("TOPLEFT", p.HeaderBar, "BOTTOMLEFT", 2, 0);
+					</OnHide>
 				</Scripts>
 			</Button>
 
@@ -740,11 +766,10 @@
 	</Frame>
 
 	<Frame name="FollowerLocationInfoCoordFrame" parent="UIParent" movable="TRUE" enableMouse="TRUE" toplevel="TRUE" hidden="TRUE" clampedToScreen="TRUE">
-		<Size x="120" y="42" />
+		<Size x="140" y="42" />
 		<Anchors>
 			<Anchor point="TOP" relativeTo="FollowerLocationInfoFrame" relativePoint="TOP" y="22" />
 		</Anchors>
-		<TitleRegion setAllPoints="true"/>
 		<Backdrop bgFile="Interface\Buttons\UI-SliderBar-Background" edgeFile="Interface\Buttons\UI-SliderBar-Border" tile="TRUE">
 			<EdgeSize val="8" />
 			<TileSize val="8" />
@@ -754,7 +779,7 @@
 			<Layer level="ARTWORK" texturesublevel="2">
 				<Texture parentKey="PortraitBG" file="interface\garrison\GarrisonBuildingUI">
 					<Size x="46" y="46" />
-					<Anchors> <Anchor point="LEFT" x="-10" /> </Anchors>
+					<Anchors> <Anchor point="LEFT" x="-8" /> </Anchors>
 					<TexCoords left="0.46484375" right="0.51953125" top="0.451171875" bottom="0.560546875" />
 				</Texture>
 			</Layer>
@@ -769,17 +794,19 @@
 				<Texture parentKey="Portrait" file="interface\garrison\portraits\followerportrait_noportrait" hidden="true">
 					<Size x="38" y="38" />
 					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent.PortraitBG" />
+						<Anchor point="CENTER" relativeKey="$parent.PortraitBG" x="" />
 					</Anchors>
 				</Texture>
 				<FontString parentKey="Coords1" inherits="GameFontNormal" text="−−.−, −−.−">
 					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent.PortraitBG" relativePoint="RIGHT" x="9" y="7" />
+						<Anchor point="LEFT" x="38" y="7" />
+						<Anchor point="RIGHT" x="-7" y="7" />
 					</Anchors>
 				</FontString>
 				<FontString parentKey="Coords2" inherits="GameFontNormal" text="−−.−, −−.−">
 					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent.PortraitBG" relativePoint="RIGHT" x="9" y="-7" />
+						<Anchor point="LEFT" x="38" y="-7" />
+						<Anchor point="RIGHT" x="-7" y="-7" />
 					</Anchors>
 				</FontString>
 			</Layer>
