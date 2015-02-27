@@ -19,6 +19,10 @@ local desc = {
 		deDE = "Barov liegt an einer zufälligen Position in Draenor unter einem gefällten Baum. Mit der Fähigkeit des Sägewerks kannst du Barov befreien. Danach bietet er seine Gefolgschaft an.",
 		zhTW = "巴羅夫位於在一個隨機的位置，在德拉諾一棵伐倒的樹之下。使用伐木的技能你可以解放巴羅夫。然後他會追隨你。",
 		zhCN = "巴罗夫位于在一个随机的位置，在德拉诺一棵伐倒的树之下。使用伐木的技能你可以解救巴罗夫。然后他会追随你。",
+	},
+	[467] = {
+		enUS = "Talk with him... :)",
+		deDE = "Sprich mit ihm... :)",
 	}
 };
 
@@ -126,17 +130,36 @@ ns.followers = {
 		}
 	},
 	[205] = { -- 946, 205, Soulbinder Tuulani
-		true,
+		false,
 		{
-			zone=0,
-			-- 34458,
-			-- 35249,
-			-- 34351,
+			zone=946,
+			{"questrow", 
+				{34240, 75250, 946, 57.2, 77},
+				{33958, 75256, 946, 57.2, 76.8},
+				{34508, 77869, 946, 50.4, 87.4},
+				{33976, 77082, 946, 44.8, 90.6},
+				{34326, 77082, 946, 44.8, 90.6},
+				{34092, 77799, 946, 43.4, 76},
+				{34157, 75392, 946, 43, 76},
+				{34154, 77582, 946, 31.2, 73.6},
+				{36512, 79434, 946, 46.2, 74},
+			}
 		},
 		{
-			zone=0,
+			zone = 946,
+			{"questrow",
+				{34242, 75246, 946, 61, 72.4},
+				{33958, 75256, 946, 57.2, 76.8},
+				{34508, 77869, 946, 50.4, 87.4},
+				{33976, 77082, 946, 44.8, 90.6},
+				{34326, 77082, 946, 44.8, 90.6},
+				{34092, 77799, 946, 43.4, 76},
+				{34157, 75392, 946, 43, 76},
+				{34154, 77582, 946, 31.2, 73.6},
+				{36512, 79434, 946, 46.2, 74},
+			}
 		}
-	}, --- incomplete
+	},
 	[207] = { -- 946, 207, Defender Illona (A) / Aeda Brightdawn (H)
 		false,
 		{
@@ -180,7 +203,7 @@ ns.followers = {
 			zone = 941,
 			{"quest", {34729, 74977, 941, 65, 39.4}}
 		}
-	}, --- horde version incomplete
+	},
 	[180] = { -- 947, 180, Fiona (A) / Shadow Hunter Rala (H)
 		false,
 		{
@@ -217,8 +240,11 @@ ns.followers = {
 		},
 		{
 			zone = 941,
+			{"quest",
+				{34732, 79047, 941, 30.6, 41.4}
+			}
 		}
-	}, --- horde version incomplete
+	},
 	[183] = { -- 947, 183, Rulkan (A)
 		false,
 		{
@@ -227,6 +253,7 @@ ns.followers = {
 		},
 		{
 			zone = 941,
+			{"quest", {35341, 79229, 941, 59.4, 31.8}}
 		}
 	}, --- incomplete
 	[184] = { -- 947, 184, Apprentice Artificer Andren (A) / Kal'gor the Honorable (H)
@@ -253,7 +280,7 @@ ns.followers = {
 			collectGroup="184.185.186",
 			zone=941,
 			{"questrow", 
-				{33828, 72940, 941, nil, nil},
+				{33828, 72940, 941, nil, nil, "The Frostwolf Champion will follow you in frostfire ridge"}, -- ?
 				{33493, 72940, 941, nil, nil},
 				{37291, 74163, 976, 50, 38.4},
 				{34722, 74163, 976, 50, 38.4},
@@ -271,11 +298,19 @@ ns.followers = {
 		false,
 		{
 			zone = 948,
+			{"requirements", "Smuggler Run in Spikes of Arak outpost"},
+			{"vendor", {82459, 948, "summoned in near of the player position"}},
+			{"item", 116915},
+			{"price", {"gold", 4000000}},
 		},
 		{
 			zone = 948,
+			{"requirements", "Smuggler Run in Spikes of Arak outpost"},
+			{"vendor", {82459, 948, "summoned in near of the player position"}},
+			{"item", 116915},
+			{"price", {"gold", 4000000}},
 		}
-	}, --- incomplete
+	},
 	[192] = { -- 948, 192, Kimzee Pinchwhistle
 		false,
 		{
@@ -321,11 +356,26 @@ ns.followers = {
 		false,
 		{
 			zone=948,
+			{"questrow",
+				{35293, 81949, 948, 39.8, 60.6},
+				{35322, 81961, 948, 39.2, 48.8},
+				{35329, 81960, 948, 39, 48.8},
+				{35339, 82100, 948, 39, 48.8},
+				{35353, 82124, 948, 37.6, 51},
+				{35380, 82126, 948, 37.6, 50.8},
+				{35407, 82194, 948, 37.6, 53.8},
+				{35408, 82212, 948, 37.6, 53.8},
+				{35482, 82278, 948, 37.6, 53.8},
+				{35549, 82403, 948, 36.8, 56.8},
+				{36353, 85050, 948, 40, 60.6}
+			}
 		},
 		{
 			zone=948,
+			--{"questrow", },
+			{"pos", {948, 35.8, 52.2}},
 		}
-	}, --- incomplete
+	}, --- horde version incomplete
 	[218] = { -- 948, 218, Talonpriest Ishaal
 		true,
 		{
@@ -455,13 +505,15 @@ ns.followers = {
 		false,
 		{
 			zone=949,
+			{"requirements", "Sparring Arena in gorgrond outpost"},
 			{"quest", {36833, 85278, 949, 53.2, 59.8}} -- Quest: Eiserne Ketten ?
 		},
 		{
 			zone=949,
+			{"requirements", "Sparring Arena in gorgrond outpost"},
 			{"quest", {36832, 85980, 949, 44, 48.8}} --  Quest: Ist Xais egal ?
 		}
-	},
+	}, --- incomplete, mission quest row
 
 	--[=[ nagrand ]=]
 	[157] = { -- 950, 157, Lantresor of the Blade
@@ -469,11 +521,14 @@ ns.followers = {
 		{
 			zone = 950,
 			{"questrow", 
-				{34951, 80624, 950, 63.4, 61.8},
-				{34954, 80161, 950, 85.4, 54.6},
-				{34955, 80161, 950, 85.4, 54.6},
-				{34956, 80161, 950, 85.4, 54.6},
-				{34957, 80319, 950, 89.8, 55.8},
+				{34951, 80624, 950, 63.4, 61.8}, -- travel to hallvalor
+				{34954, 80161, 950, 85.4, 54.6}, -- the blade itself
+				{34955, 80161, 950, 85.4, 54.6}, -- not without my honer
+				{35143, 80161, 950, 85.4, 54.6}, -- Blood of the Burning Blade
+				{34956, 80161, 950, 85.4, 54.6}, -- meet me in the cavern
+				{34957, 80319, 950, 89.8, 55.8}, -- Challenge of the Masters
+
+				{34747, 81790, 950, 64, 59}, -- The Honor of a Blademaster
 			},
 			{"desc", {
 				enUS = "You can find Lantresort after completing the quest line near the outpost.",
@@ -483,8 +538,18 @@ ns.followers = {
 		},
 		{
 			zone = 950,
+			{"questrow",
+				{34818, 80140, 950, 82.8, 44.2}, -- travel to hallvalor
+				{34849, 80161, 950, 85.4, 54.6}, -- the blade itself
+				{34850, 80161, 950, 85.4, 54.6}, -- not without my honer
+				{34953, 80161, 950, 85.4, 54.6}, -- Blood of the Burning Blade
+				{34866, 80161, 950, 85.4, 54.6}, -- meet me in the cavern
+				{34868, 80319, 950, 89.8, 55.8}, -- Challenge of the Masters
+
+				{34770, 81790, 950, 82.6, 46.6}, -- The Honor of a Blademaster
+			}
 		}
-	}, --- incomplete
+	}, --- can i copy the description for horde version?
 	[170] = { -- 950, 170, Goldmane the Skinner
 		true,
 		{
@@ -526,7 +591,6 @@ ns.followers = {
 		{
 			zone = 976,
 			{"questrow",
-				{33868, 0, 976, 0, 0}, 
 				{33815, 76411, 976, 49.2, 50}, -- Farseeker Drek'Thar
 				{34402, 78272, 941, 41.8, 69.6}, -- Durotan
 				{34364, 70859, 941, 48.6, 65.2}, -- Thrall
@@ -538,7 +602,7 @@ ns.followers = {
 				{34462, 79740, 976, 53.8, 54.2}, -- Warmaster Zog
 			},
 		}
-	}, --- incomplete
+	},
 	[153] = { -- 971/976, 153, Bruma Swiftstone (A) / Ka'la (H)
 		false,
 		{
@@ -607,6 +671,10 @@ ns.followers = {
 		},
 		{
 			zone = 976,
+			{"questrow",
+				{34228, 72836, 971, 31.8, 11.8},
+				{34229, 72837, 971, 31.8, 11.8}
+			}
 		}
 	}, --- incomplete
 	[455] = { -- 971/976, 455, Millhouse Manastorm
@@ -629,14 +697,14 @@ ns.followers = {
 			{"vendor", {85427, 971, "Trading Post"}},
 			{"requirements", "Trading Post 2"},
 			{"reputation", {1710, 7}},
-			{"payment", {"gold", 50000000}},
+			{"price", {"gold", 50000000}},
 		},
 		{
 			zone = 976,
 			{"vendor", {88493, 976, "Trading Post"}},
 			{"requirements", "Trading Post 2"},
 			{"reputation", {1708, 7}},
-			{"payment", {"gold", 50000000}},
+			{"price", {"gold", 50000000}},
 		}
 	},
 	[463] = { -- 971/976, 463, Daleera Moonfang (A) / Ulna Thresher (H)
@@ -709,7 +777,7 @@ ns.followers = {
 		{
 			zone = 962,
 		}
-	},
+	}, --- incomplete, questline missing
 
 	--[=[ raids ]=]
 	[225] = { -- 988, 225, Aknor Steelbringer
@@ -725,14 +793,15 @@ ns.followers = {
 		true,
 		{
 			zone = 964,
-			{"pos", {964, "Dungeon type: Herioc, coordinations unknown..."}},
+			{"requirements", "Dungeon type: Herioc"},
 			{"achievement", 9005}
 		}
-	}, --- change dungeon type to requirements!
+	},
 	[178] = { -- 995, 178, Leeroy Jenkins
 		true,
 		{
 			zone = 995,
+			{"requirements", "Dungeon type: Herioc"},
 			{"achievement", 9058}
 		}
 	},
@@ -745,13 +814,13 @@ ns.followers = {
 			zone = 1009,
 			{"vendor", {85932, 1009, 46.6, 76.2}},
 			{"reputation", {1731, 7}},
-			{"payment", {"gold", 50000000}},
+			{"price", {"gold", 50000000}},
 		},
 		{
 			zone = 1011,
 			{"vendor", {86036, 1011, 53.4, 62.6}},
 			{"reputation", {1445, 7}},
-			{"payment", {"gold", 50000000}},
+			{"price", {"gold", 50000000}},
 		}
 	},
 	[460] = { -- 1009/1011, 460, Felbast
@@ -760,13 +829,13 @@ ns.followers = {
 			zone = 1009,
 			{"vendor", {88482, 1009, 43.2, 77.4}},
 			{"reputation", {1711, 7}},
-			{"payment", {"gold", 50000000}},
+			{"price", {"gold", 50000000}},
 		},
 		{
 			zone = 1011,
 			{"vendor", {88493, 1011, 53.8, 60.8}},
 			{"reputation", {1711, 7}},
-			{"payment", {"gold", 50000000}},
+			{"price", {"gold", 50000000}},
 		}
 	},
 	[462] = { -- 1009/1011, 462, Dawnseeker Rukaryx
@@ -774,12 +843,12 @@ ns.followers = {
 		{
 			zone = 1009,
 			{"vendor", {86391, 1009, 49.9, 61.4}},
-			{"payment", {823,5000}, {"gold", 50000000}},
+			{"price", {823,5000}, {"gold", 50000000}},
 		},
 		{
 			zone = 1011,
 			{"vendor", {86382, 1011, 64.6, 61.8}},
-			{"payment", {823,5000}, {"gold", 50000000}},
+			{"price", {823,5000}, {"gold", 50000000}},
 		}
 	},
 	[467] = { -- 1009/1011, 467, Fen Tao
@@ -787,16 +856,12 @@ ns.followers = {
 		{
 			zone = 1009,
 			{"pos", {1009, 45.3, 70.5}},
-			{"desc", {
-				enUS = "?", --"Talk with him and will offer his followship",
-			}}
+			{"desc", desc[467]}
 		},
 		{
 			zone = 1011,
 			{"pos", {1011, 46.9, 45.2}},
-			{"desc",{
-				enUS = "?"
-			}}
+			{"desc", desc[467]}
 		}
 	},
 };
@@ -813,6 +878,7 @@ ns.followers[186] = ns.followers[184];
 	L["Cave on image 1"]
 	L["Hidden cave"]
 	L["Brewery in Spikes of Arak outpost"]
+	L["Smuggler Run in Spikes of Arak outpost"]
 	L["Random location"]
 	L["Lumber mill"]
 	L["Lumber mill (Level 3)"]
@@ -823,7 +889,7 @@ ns.followers[186] = ns.followers[184];
 	L["Fishing skill 700"]
 	L["Lunarfall Inn"]
 	L["Frostwall Tavern"]
-	L["Dungeon type: Herioc, coordinations unknown..."]
+	L["Dungeon type: Herioc"]
 	L["Beginning of the path to blook"]
 	L["Sparring Arena in gorgrond outpost"]
 	L["Abu'Gar's Favorite Lure"]
