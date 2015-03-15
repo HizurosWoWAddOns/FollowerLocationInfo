@@ -1987,6 +1987,12 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		FollowerLocationInfo_ResetConfig();
 	--elseif (cmd=="resetscale") then
 		--FollowerLocationInfo_ResetScale();
+	elseif (cmd=="resetframe") then
+		local f=FollowerLocationInfoFrame;
+		f:SetUserPlaced(false);
+		f:ClearAllPoints();
+		f:SetPoint("LEFT",300,0);
+		f:SetUserPlaced(true);
 	elseif (cmd=="genbasics") and (ns.generate_basics) then
 		ns.generate_basics();
 	elseif (cmd=="collectlocales") then
@@ -2005,6 +2011,7 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 		_print("  minimap = "    .. L["Show/Hide minimap button"]);
 		_print("  reset =    "   .. L["Reset addon settings"]);
 		--_print("  resetscale = " .. L["Reset window scaling"]);
+		_print("  resetframe = " .. L["Reset frame position"]);
 		_print("~ development commands ~");
 		--_print("  missing = "    .. L["Print missing data (follower and npc id's)"]);
 		_print("  collectlocales = "    .. L["Collects localized follower names from one faction. It is recommented to use it on both factions. The character must be level 90 or higher."]);
