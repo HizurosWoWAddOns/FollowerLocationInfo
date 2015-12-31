@@ -21,7 +21,7 @@ externals:
         tag: latest
 
 move-folders:
-    FollowerLocationInfo_Core/Journal: FollowerLocationInfo_Journal
-#    FollowerLocationInfo_Core/Tracker: FollowerLocationInfo_Tracker
+    FollowerLocationInfo/Journal: FollowerLocationInfo_Journal
+#    FollowerLocationInfo/Tracker: FollowerLocationInfo_Tracker
 
 enable-nolib-creation: no
