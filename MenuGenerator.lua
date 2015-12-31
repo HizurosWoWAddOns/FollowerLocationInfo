@@ -98,14 +98,14 @@ self.addEntry = function(D,P)
 		return;
 
 	elseif (D.childs) then -- child elements
-		local parent = self.addEntry({ label=D.label, arrow=true, tooltip=D.tooltip },P);
+		local parent = self.addEntry({ label=D.label, arrow=true, tooltip=D.tooltip, disabled=D.disabled },P);
 		for i,v in ipairs(D.childs) do
 			self.addEntry(v,parent);
 		end
 		return;
 
 	elseif (D.dbType=="select") then
-		local parent = self.addEntry({ label=D.label, arrow=true, tooltip=D.tooltip },P);
+		local parent = self.addEntry({ label=D.label, arrow=true, tooltip=D.tooltip, disabled=D.disabled },P);
 		for k,v in pairsByKeys(D.values) do
 			self.addEntry({
 				label = v,

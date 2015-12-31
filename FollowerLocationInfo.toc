@@ -1,10 +1,9 @@
-## Interface: 60100
-## Title: Follower Location Info
+## Interface: 60200
+## Title: FollowerLocationInfo
 ## Version: @project-version@
-## Title-zhTW: 追隨者位置資訊
-## Notes-zhTW: 追隨者位置資訊
-## Author: Hizuro @ Der Mithrilorden EU
-## SavedVariables: FollowerLocationInfoDB, FLI_tmpDB
+## Title-zhTW: 追隨者位置資訊 [Core]
+## Notes-zhTW: 追隨者位置資訊 [Core]
+## Author: Hizuro
+## SavedVariables: FollowerLocationInfoDB
 
-FollowerLocationInfo.xml
-
+Core.xml
