@@ -885,7 +885,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 		if(type(coordX)=="number" and type(coordY)=="number")then
 			position = ("%1.1f, %1.1f"):format(coordX,coordY);
 			if TomTom and TomTom.AddMFWaypoint then
-				tomtom = ("|cff33aaff|Htomtom:%d:%1.2f:%1.2f:%s|h[%s]|h|r"):format(zoneId,coordX,coordY,tomtomLabel or "-",L["Add to TomTom"]);
+				tomtom = ("|cff33aaff|Htomtom:%d:%1.2f:%1.2f:%s|h[%s]|h|r"):format(zoneId,coordX,coordY,tomtomLabel or "-",L["Add waypoint to TomTom"]);
 			end
 		end
 
@@ -932,7 +932,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 
 		if Desc.collectGroup then
 			local group,members,ID={},{};
-			local color,msg = "blue", L["If you collect one of this group makes it the other uncollectable."];
+			local color,msg = "blue", L["If you collect one of this group makes it the other unavailable."];
 			local collected=0;
 			for i=1, #Desc.collectGroup do
 				if D.collected[Desc.collectGroup[i]] then
@@ -942,10 +942,11 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 			for i=1, #Desc.collectGroup do
 				ID = Desc.collectGroup[i];
 				if ID==id and collected~=0 then
+					local already = L["follower_"..collected].." "..L["is already your follower."].." ";
 					if D.collected[id] then
-						color,msg = "green", L["%s is already your follower. The other members no longer collectable."]:format(L["follower_"..collected]);
+						color,msg = "green", already..L[" The other members aren't longer collectable."];
 					else
-						color,msg = "red", L["%s is already your follower. This follower is no longer collectable."]:format(L["follower_"..collected]);
+						color,msg = "red", already..L["This follower isn't longer collectable."];
 					end
 				else
 					tinsert(members,("|cff%s%s|r"):format(
@@ -1046,7 +1047,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 
 						local status = STATUS..": |cff%s%s|r";
 						if(index and index>0)then
-							tinsert(quest,status:format("ffee00",L["In Questlog"]));
+							tinsert(quest,status:format("ffee00",L["In your Questlog"]));
 						elseif IsQuestFlaggedCompleted(v[1]) then
 							tinsert(quest,status:format("00aa00",AUCTION_TIME_LEFT0)..checked);
 						else
@@ -1084,7 +1085,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 							tinsert(missionData,"|n"..REWARDS..":|n"..tconcat(rewards,"|n"));
 						end
 						if false then
-							--- STATUS .. ": " .. L["Owned"] .. checked
+							--- STATUS .. ": " .. "Owned" .. checked
 						end
 						tinsert(cnt,p:format(tconcat(missionData,"|n")));
 					end
