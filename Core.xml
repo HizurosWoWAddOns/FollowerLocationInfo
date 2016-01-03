@@ -10,7 +10,6 @@
 	<Script file="MenuGenerator.lua" />
 	<Script file="Data.lua" />
 	<Script file="Core.lua" />
-	<Script file="Collector.lua"/>
 	<Script file="DataBroker.lua"/>
 	<Script file="ExternalURL.lua"/>
 	<Script file="SlashCommand.lua"/>
@@ -114,7 +113,6 @@
 			</ScrollFrame>
 		</Frames>
 		<Scripts>
-			<OnUpdate function="FollowerLocationInfo_OnUpdate" />
 			<OnLoad function="FollowerLocationInfo_OnLoad" />
 			<OnEvent function="FollowerLocationInfo_OnEvent" />
 			<OnHide function="FollowerLocationInfo_OnHide" />

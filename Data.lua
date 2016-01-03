@@ -125,6 +125,7 @@ D.counters2ability = {};
 D.traits = {};
 D.errors = {};
 
+D.otherFiltersOrder = {};
 D.otherFilters={
 	Achievements = {},
 	Missions = {},
@@ -250,10 +251,19 @@ do
 				count(D.otherFiltersCount[obj[1]],1,1);
 			end
 		end
-		if( rawget(L,("desc_%d_%s"):format(k,f))~=nil )then
-			tinsert(v,{"Description", f});
-		elseif( rawget(L,("desc_%d_%s"):format(k,"neutral"))~=nil )then
-			tinsert(v,{"Description", "neutral"});
+		local LKeyFormat = "desc_%d_%s";
+		local KeyF,KeyN = LKeyFormat:format(k,f),LKeyFormat:format(k,"neutral");
+		local Key0F,Key0N = LKeyFormat:format(0,f),LKeyFormat:format(0,"neutral");
+		if( rawget(L,KeyF)~=nil )then
+			tinsert(v,{"Description", KeyF});
+		elseif( rawget(L,KeyN)~=nil )then
+			tinsert(v,{"Description", KeyN});
+		elseif( v[isCollectableI]==false )then
+			if( rawget(L,Key0F)~=nil )then
+				tinsert(v,{"Description", Key0F});
+			elseif( rawget(L,Key0N)~=nil )then
+				tinsert(v,{"Description", Key0N});
+			end
 		end
 		rawset(t,k,v);
 	end;
@@ -293,16 +303,24 @@ D.QuestName = setmetatable({},{
 	end
 });
 
+D.NpcTitle = {};
 D.NpcName = setmetatable({},{
 	__index=function(t,k)
 		local v = false;
 		if FollowerLocationInfoDataDB.npcNames[k] then
 			v = FollowerLocationInfoDataDB.npcNames[k];
 		end
+		if FollowerLocationInfoDataDB.npcTitles[k] then
+			D.NpcTitle[k] = FollowerLocationInfoDataDB.npcTitles[k];
+		end
 		local ld = ns.GetLinkData("unit:Creature-0-970-1-1-"..k.."-0");
 		if ld and type(ld[1])=="string" and strlen(ld[1])>0 then
 			v = ld[1];
 			FollowerLocationInfoDataDB.npcNames[k] = ld[1];
+			if type(ld[2])=="string" and not ld[2]:match("^"..LEVEL) then
+				FollowerLocationInfoDataDB.npcTitles[k] = ld[2];
+				D.NpcTitle[k] = ld[2];
+			end
 		end
 		if v then
 			rawset(t,k,v);
@@ -332,3 +350,5 @@ D.ObjectName = setmetatable({},{
 		end
 	end
 });
+
+-- /run GameTooltip:SetHyperlink("unit:GameObject-0-1-1-1-233229-0");

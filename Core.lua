@@ -2,15 +2,13 @@
 FollowerLocationInfoDB = {};
 local addon, ns = ...;
 
-local MIN_DATA_REVISION = 2;
+local MIN_DATA_REVISION = 4;
 
 local D = FollowerLocationInfoData;
 local L = D.Locale;
-local garrLevel = 0;
 local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeightIdx,modelScaleIdx,abilitiesIdx,countersIdx,traitsIdx,isCollectableIdx = 1,2,3,4,5,6,7,8,9,10,11,12; -- table indexes for FollowerLocationInfoData.basics entries.
-local UpdateCallbacks=false;
-local UpdateLock=false;
-local elapsed, isLoaded = 0, false;
+local UpdateCallbacks,UpdateLock,isLoaded=false,false,false;
+local garrLevel = 0;
 
 function ns.print(...)
 	print("|cff00ff00"..addon.."|r",...)
@@ -62,6 +60,13 @@ function ns.GetLinkData(link)
 	return data, line;
 end
 
+local function count(t,v,d)
+	if(t[v]==nil)then t[v]=0; end
+	t[v]=t[v]+d;
+end
+
+--- DataCollector
+-- Collecting localized strings from tooltips
 ns.ttDataCollector = {
 	tt=nil,queries={},data={},tryouts={},
 	GetData = function(self)
@@ -70,7 +75,7 @@ ns.ttDataCollector = {
 		local reg,data,line = {self:GetRegions()},{},0;
 		for k, v in ipairs(reg) do
 			if (v~=nil) and (v:GetObjectType()=="FontString") then
-				str = v:GetText();
+				local str = v:GetText();
 				if (str~=nil) and (strtrim(str)~="") then
 					tinsert(data,str);
 					line = line + 1;
@@ -124,27 +129,6 @@ ns.ttDataCollector = {
 		return nil;
 	end
 };
-
-local function count(t,v,d)
-	if(t[v]==nil)then t[v]=0; end
-	t[v]=t[v]+d;
-end
-
-function FollowerLocationInfo_RegisterUpdateCallback(func)
-	if(not UpdateCallbacks)then UpdateCallbacks={}; end
-	local funcID = tostring(func);
-	if(not UpdateCallbacks[funcID])then
-		UpdateCallbacks[funcID] = func;
-	end
-end
-
-function FollowerLocationInfo_UnregisterUpdateCallback(func)
-	if(not UpdateCallbacks)then return end
-	local funcID = tostring(func);
-	if(UpdateCallback[funcID])then
-		UpdateCallbacks[funcID] = nil;
-	end
-end
 
 local function UpdateFollowers()
 	if UpdateLock==true then return; end
@@ -367,10 +351,123 @@ local function UpdateFollowers()
 	UpdateLock = false;
 end
 
-local function FollowerLocationInfo_ShowInfoBox(msg)
+local function CheckAndLoadJournal()
+	if(not FollowerLocationInfoJournal)then
+		local _,_,_,_,status = GetAddOnInfo(addon.."_Journal");
+		if status~="MISSING" then
+			EnableAddOn(addon.."_Journal");
+		end
+		LoadAddOn(addon.."_Journal");
+		if( not FollowerLocationInfoJournal)then
+			FollowerLocationInfo_ShowInfoBox("journal not loadable");
+			return false;
+		end
+	end
+	return true;
+end
+
+local function CollectionsJournal_OnShowHook()
+	if not CheckAndLoadJournal() then
+		return;
+	end
+	CollectionsJournal_OnShowHook = function() end;
+end
+
+--[=[ some global accessable functions ]=]
+function FollowerLocationInfo_RegisterUpdateCallback(func)
+	if(not UpdateCallbacks)then UpdateCallbacks={}; end
+	local funcID = tostring(func);
+	if(not UpdateCallbacks[funcID])then
+		UpdateCallbacks[funcID] = func;
+	end
+end
+
+function FollowerLocationInfo_UnregisterUpdateCallback(func)
+	if(not UpdateCallbacks)then return end
+	local funcID = tostring(func);
+	if(UpdateCallback[funcID])then
+		UpdateCallbacks[funcID] = nil;
+	end
+end
+
+function FollowerLocationInfo_OptionMenu(parent,point,relativePoint)
+	PlaySound("igMainMenuOptionCheckBoxOn");
+	ns.MenuGenerator.InitializeMenu();
+	ns.MenuGenerator.addEntry({
+		{ label = "DataBroker", title=true },
+		{
+			label = L["Show minimap button"], tooltip = {L["Minimap"],L["Show/Hide minimap button"]},
+			checked = function() return FollowerLocationInfoDB.LDBi_Enabled; end,
+			func = function() FollowerLocationInfo_MinimapButton(); end
+		},
+		{
+			label = L["Show coordinations on broker"], tooltip={L["Coordinations on broker"],L["Show coordinations of your current position on broker button"]},
+			dbType="bool", keyName="LDB_PlayerCoords",
+			event=function() ns.LDB_Update(); end,
+			disabled = false
+		},
+		--[[
+		{
+			label = L["Show target coordinations on broker"], tooltip={L["Target coordinations on broker"],L["Show coordinations of your current target position on broker button"]},
+			dbType="bool", keyName="LDB_TargetCoords",
+			event=function() ns.LDB_Update(); end,
+			disabled = false
+		},
+		--]]
+		{
+			label = L["Show follower count on broker"], tooltip={L["Follower count on broker"],L["Show count of collected and available followers on broker button"]},
+			dbType="bool", keyName="LDB_NumFollowers",
+			event=function() ns.LDB_Update(); end,
+			disabled = false
+		},
+		{ separator = true },
+		{ label = "Journal", title=true },
+		{
+			label = L["Show FollowerID"], tooltip={L["FollowerID"],L["Show followerID's in follower list"]},
+			dbType="bool", keyName="ShowFollowerID",
+			event = function() FollowerLocationInfoJournalFollowerList_Update(); end
+		},
+		--[[
+		{
+			label = L["Favorite website"], tooltip = {L["Favorite website"],L["Choose your favorite website for further informations to a quest."]},
+			dbType="select", keyName="ExternalURL",
+			default = "WoWHead",
+			values = ns.ExternalURLValues,
+			event = function() FollowerLocationInfoJournalFollowerDesc_Update() end
+		},
+		--]]
+		--[[
+		{ separator = true },
+		{ label = "Tracker.", title=true },
+		{
+			label = L["Show coordination frame"], tooltip = {L["Coordination frame"],L["Show the coordination frame"]},
+			dbType="bool", keyName="ShowCoordsFrame",
+			event  = function()
+				if (FollowerLocationInfoDB.ShowCoordsFrame) then
+					FollowerLocationInfoCoordFrame:Show();
+				else
+					FollowerLocationInfoCoordFrame:Hide();
+				end
+			end
+		},
+		--]]
+	});
+	ns.MenuGenerator.ShowMenu(parent, point or "TOPLEFT", relativePoint or "TOPRIGHT");
+end
+
+--- InfoBox
+-- Display an frame for infomation and error messages
+-- @params:
+-- msg - a string that must be match to an error message entry from table infoBoxErrors.
+local infoBoxErrors = {
+	["missing data"] = L["Your installed version of FollowerLocationInfo requires an additional addon to work.|nPlease install FollowerLocationInfo_Data."],
+	["data too old"] = L["Your installed version of FollowerLocationInfo requires a newer version of FollowerLocationInfo_Data.|nPlease update it..."],
+	["journal not loadable"] = L["FollowerLocationInfo_Journal was not loadable. Please check if FollowerLocationInfo_Data not disabled."]
+}
+function FollowerLocationInfo_ShowInfoBox(msg)
 	local self = FollowerLocationInfo;
-	local message = {};
 	local smallbr,br,deco = "<p>|n</p>","<br />","<p>|TInterface\\AddOns\\FollowerLocationInfo_Data\\media\\%s:15:320:0:12:128:16:24:64:1:16|t</p>";
+	local message,errorMessage = {},{"<h2>|TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:0|t Houston, we have a problem!</h2>",deco:format("red")};
 
 	if(msg=="version")then
 		message = {
@@ -392,15 +489,11 @@ local function FollowerLocationInfo_ShowInfoBox(msg)
 			"<h3>|cffffee00Greetings Hizuro|r</h3>",
 			"<h3>(May the light be with you)</h3>",
 		};
+	elseif(infoBoxErrors[msg])then
+		message = errorMessage;
+		tinsert(message,"<h3>"..infoBoxErrors[msg].."</h3>");
 	else
-		message = {"<h2>|TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:0|t Houston, we have a problem!</h2>",deco:format("red")};
-		if(msg=="missing data")then
-			tinsert(message,"<h3>"..L["Your installed version of FollowerLocationInfo requires an additional addon to work.|nPlease install FollowerLocationInfo_Data."].."</h3>");
-		elseif(msg=="data too old")then
-			tinsert(message,"<h3>"..L["Your installed version of FollowerLocationInfo requires a newer version of FollowerLocationInfo_Data.|nPlease update it..."].."</h3>");
-		elseif(msg=="journal not loadable")then
-			tinsert(message,"<h3>"..L["FollowerLocationInfo_Journal was not loadable. Please check if FollowerLocationInfo_Data not disabled."].."</h3>");
-		end
+		return; -- no match for msg - no infobox :)
 	end
 
 	self.InfoBox:SetText("<html><body>"..smallbr..table.concat(message,"")..smallbr.."</body></html>");
@@ -412,21 +505,7 @@ local function FollowerLocationInfo_ShowInfoBox(msg)
 	self:Show();
 end
 
-local function CheckAndLoadJournal()
-	if(not FollowerLocationInfoJournal)then
-		local _,_,_,_,status = GetAddOnInfo(addon.."_Journal");
-		if status~="MISSING" then
-			EnableAddOn(addon.."_Journal");
-		end
-		LoadAddOn(addon.."_Journal");
-		if( not FollowerLocationInfoJournal)then
-			FollowerLocationInfo_ShowInfoBox("journal not loadable");
-			return false;
-		end
-	end
-	return true;
-end
-
+--[=[ Frame functions ]=]
 function FollowerLocationInfo_ToggleJournal()
 	if(not CollectionsJournal)then
 		LoadAddOn("Blizzard_Collections");
@@ -445,22 +524,6 @@ function FollowerLocationInfo_ToggleJournal()
 	end
 end
 
-local function CollectionsJournal_OnShowHook()
-	if not CheckAndLoadJournal() then
-		return;
-	end
-	CollectionsJournal_OnShowHook = function() end;
-end
-
-function FollowerLoactionInfo_OnUpdate(self,elapse)
-	if not isLoaded then return end
-	elapsedMax = (FollowerLocationInfoDB.BrokerTitle_Coords) and 0.5 or 10;
-	elapsed = elapsed + elapse;
-	if elapse>elapsedMax then
-		ns.LDB_Update();
-	end
-end
-
 function FollowerLocationInfo_OnEvent(self,event,arg1)
 	if event=="ADDON_LOADED" then
 		if arg1==addon then
@@ -470,32 +533,34 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 			end
 			for key,val in pairs({
 				-- LDB Options
-				Minimap = {enabled=true},
-				LDB_OwnCoords = false,
-				LDB_TarCoords = false,
+				LDB_PlayerCoords = false,
+				LDB_TargetCoords = false,
 				LDB_NumFollowers = true,
+				LDBi_Enabled = true,
 
 				-- FLI Options
-				ShowFollowerID = true,
-				ShowCollectedFollower = false,
-				ShowHiddenFollowers = false,
-				ExternalURL = "WoWHead",
-				ListOpen = true,
-				--language = false, -- ?
-				HideInCombat = true,
-				LockedInCombat = true,
 				showInfoBox = true,
+				ShowFollowerID = true,
+				ExternalURL = "WoWHead",
 
-				-- CoordsFrame Options
-				ShowCoordsFrame = true,
-				CoordsFrameTarget = false,
-				TargetMark = false,
-				CoordsFrame_HideInCombat = true,
-				CoordsFrame_LockedInCombat = true
+				-- FLI Tracker options
+				--HideInCombat = true,
+				--LockedInCombat = true,
+				--CoordsFrame Options
+				--ShowCoordsFrame = true,
+				--CoordsFrameTarget = false,
+				--TargetMark = false,
+				--CoordsFrame_HideInCombat = true,
+				--CoordsFrame_LockedInCombat = true
 			}) do
 				if (FollowerLocationInfoDB[key]==nil) then
 					FollowerLocationInfoDB[key]=val;
 				end
+			end
+
+			if FollowerLocationInfoDB.Minimap~=nil and FollowerLocationInfoDB.Minimap.enabled~=nil then
+				FollowerLocationInfoDB.LDBi_Enabled = FollowerLocationInfoDB.Minimap.enabled;
+				FollowerLocationInfoDB.Minimap = nil;
 			end
 
 			local _,_,_,_,status = GetAddOnInfo(addon.."_Data");
@@ -505,7 +570,6 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 				LoadAddOn(addon.."_Data");
 			end
 
-			ns.LDB_Init();
 			ns.print("AddOn loaded...");
 		elseif arg1==addon.."_Data" then
 			-- now localization is part of FollowerLocationInfo_Data.
@@ -513,6 +577,10 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 			BINDING_HEADER_FOLLOWERLOCATIONINFO		= "FollowerLocationInfo";
 			BINDING_NAME_TOGGLEFOLLOWERLOCATIONINFO	= L["Toggle FollowerLocationInfo Journal"];
 			StaticPopupDialogs["FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG"].text = L["URL"];
+
+			for i,v in pairs(D.otherFilters)do
+				tinsert(D.otherFiltersOrder,{i,L[i]});
+			end
 
 			D.Version = {Core=GetAddOnMetadata(addon,"Version"),Data=GetAddOnMetadata(arg1,"Version")};
 
@@ -534,6 +602,7 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 				FollowerLocationInfoDataDB.questNames = {};
 				FollowerLocationInfoDataDB.npcNames = {};
 				FollowerLocationInfoDataDB.objectNames = {};
+				FollowerLocationInfoDataDB.npcTitles = {};
 			end
 
 			if (FollowerLocationInfoDataDB.questNames==nil) then
@@ -542,6 +611,10 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 
 			if (FollowerLocationInfoDataDB.npcNames==nil) then
 				FollowerLocationInfoDataDB.npcNames = {};
+			end
+
+			if (FollowerLocationInfoDataDB.npcTitles==nil) then
+				FollowerLocationInfoDataDB.npcTitles = {};
 			end
 
 			if (FollowerLocationInfoDataDB.objectNames==nil) then
@@ -561,6 +634,7 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 			C_Timer.After(4,function()
 				UpdateFollowers();
 			end);
+			ns.LDB_Init();
 			self:UnregisterEvent(event);
 		elseif event=="GARRISON_FOLLOWER_LIST_UPDATE" and GarrisonMissionFrame and not (GarrisonMissionFrame:IsShown() or GarrisonShipyardFrame:IsShown()) then
 			UpdateFollowers();
