@@ -11,6 +11,8 @@ local searchText,ttShown,timeout = false,false,false;
 local SPECS = LEVEL_UP_SPECIALIZATION_LINK:match("%[(.*)%]");
 local NUM_FILTERS = 3;
 local listPrefix = LOCALE_zhCN and "&#xB7;" or "&#xA0;&#x2022;&#xA0;";
+local filter_collected = nil;
+
 
 ----------------------------
 --- Misc local functions ---
@@ -74,10 +76,12 @@ local function Loading(active,appendMsg,opt)
 	end
 end
 
+
 -----------------------
 --- Search / Filter ---
 -----------------------
 local GetFilterText = {
+	collected = function(i) return i and COLLECTED or NOT_COLLECTED; end,
 	classes   = function(i) return D.classes[i][3]; end,
 	classspec = function(i) return D.classSpec[i][1]; end,
 	qualities = function(i) return D.qualities[i][2]; end,
@@ -110,6 +114,9 @@ end
 
 function FollowerLocationInfoJournal_SetFilter(filterID,filterType,filterValue)
 	activeFilter[filterID]={filterType,filterValue};
+	if filterType=="collected" then
+		filter_collected = filterValue;
+	end
 	FollowerLocationInfoJournal_UpdateFilter();
 end
 
@@ -117,7 +124,11 @@ function FollowerLocationInfoJournal_ClearFilter(self,button)
 	PlaySound("igMainMenuOptionCheckBoxOn");
 	if button=="RightButton" then
 		wipe(activeFilter);
+		filter_collected=nil;
 	else
+		if activeFilter[self:GetParent():GetID()][1]=="collected" then
+			filter_collected=nil;
+		end
 		table.remove(activeFilter,self:GetParent():GetID());
 	end
 	FollowerLocationInfoJournal_UpdateFilter();
@@ -152,7 +163,9 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 
 	local active = {};
 	for i=1, #activeFilter do
-		if active[activeFilter[i][1]]==nil then active[activeFilter[i][1]]={}; end
+		if active[activeFilter[i][1]]==nil then
+			active[activeFilter[i][1]]={};
+		end
 		active[activeFilter[i][1]][activeFilter[i][2]]=true;
 	end
 
@@ -286,16 +299,16 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 	PlaySound("igMainMenuOptionCheckBoxOn");
 	MenuGenerator.InitializeMenu();
 	MenuGenerator.addEntry({
+		{ label = COLLECTED, func=function() FollowerLocationInfoJournal_SetFilter(filterID,"collected",true); end, disabled = filter_collected==true},
+		{ label = NOT_COLLECTED, func=function() FollowerLocationInfoJournal_SetFilter(filterID,"collected",false); end, disabled = filter_collected==false},
+		{ separator = true },
 		{ label = L["Classes"], childs=menus.classes, disabled = disabled.classes },
 		{ label = SPECS, childs=menus.classspec, disabled = disabled.classspec },
-		{ separator = true },
 		{ label = QUALITY, childs=menus.qualities, disabled = disabled.qualities },
 		{ label = GARRISON_TRAITS, childs=menus.traits, disabled = disabled.traits },
-		{ separator = true },
 		{ label = ABILITIES, childs=menus.abilities, disabled = disabled.abilities },
 		{ label = L["Counters"], childs=menus.counters, disabled = disabled.counters },
-		{ separator = true },
-		{ label = L["More filters"], childs=menus.others, disalbed = disabled.others }
+		{ label = L["Collectable by"], childs=menus.others, disalbed = disabled.others }
 	});
 	MenuGenerator.ShowMenu(parent, "TOPLEFT","TOPRIGHT");
 end
@@ -453,6 +466,12 @@ function FollowerLocationInfoJournalFollowerList_UpdateVisibleEntries()
 		local add = true;
 
 		if filter then
+
+			if filter.collected==true and not D.collected[id] then
+				add = false;
+			elseif filter.collected==false and D.collected[id] then
+				add = false;
+			end
 			if filter.classes and filter.classes~=v[classIdx] then
 				add = false;
 			end
@@ -631,7 +650,7 @@ function FollowerLocationInfoJournalFollowerList_Update()
 				end
 
 				button.followerID:SetText("ID: "..id);
-				if (true or FollowerLocationInfoDB.ShowFollowerID) then
+				if (FollowerLocationInfoDB.ShowFollowerID) then
 					button.followerID:Show();
 					tinsert(button.tooltip,"|cffbbbbbb"..L["FollowerID"]..": "..id.."|r");
 				end
@@ -802,6 +821,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 	local p,pl,pr,br,img = "<p>%s</p>","<p align='left'>%s</p>","<p align='right'>%s</p>","<br/>","|cFF33aaff|Himage:%1$s:%2$s|h["..L["Image"].." %2$d]|h|r";
 	local checked = " |TInterface\\Buttons\\UI-CheckBox-Check:14:14:0:0:32:32:3:29:3:29|t";
 	local stateColor = {[0]="ff0000","ff9900","04ff07","ffffff"};
+	local Desc = false;
 	local shared = {};
 
 	shared["Garrison building"]=function(_,id)
@@ -926,10 +946,13 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 		return tconcat(images,delimiter);
 	end;
 
-
 	if(id and D.descriptions[id] and #D.descriptions[id]>0)then
-		local Desc = D.descriptions[id];
+		Desc = D.descriptions[id];
+	elseif(id and D.basics[id][isCollectableIdx]==false)then
+		Desc = D.descriptions[0];
+	end
 
+	if Desc then
 		if Desc.collectGroup then
 			local group,members,ID={},{};
 			local color,msg = "blue", L["If you collect one of this group makes it the other unavailable."];
@@ -953,8 +976,8 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 						(collected==0 and "ffff00")
 						or (collected==ID and "00ff00")
 						or "ff0000",
-						L["follower_"..ID])
-					);
+						L["follower_"..ID]
+					));
 				end
 			end
 			tinsert(
@@ -1092,14 +1115,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 				end
 			elseif(Desc[I][1]=="Description")then
 				title = DESCRIPTION;
-				if(Desc[I][2])then
-					local k = ("desc_%d_%s"):format(id,Desc[I][2]);
-					if rawget(L,k) then
-						tinsert(cnt,p:format(L[k]));
-					end
-				else
-					doRetry = true; -- TODO: really ?
-				end
+				tinsert(cnt,p:format(L[Desc[I][2]]));
 			elseif(Desc[I][1]=="Images")then
 				tinsert(cnt,
 					pr:format("|cffa0a0a0"..L["(mouse over to show image)"].."|r")
@@ -1132,6 +1148,30 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 				end
 				if(#merchants>0)then
 					tinsert(cnt,p:format(tconcat(merchants,"|n|n")));
+				end
+			elseif(Desc[I][1]=="Npc")then
+				Loading(true,L["Query data (npcID: %d)..."]:format(Desc[I][2]));
+				title = L["NPC"];
+				local name,npc = D.NpcName[Desc[I][2]];
+				if(name)then
+					npc = {};
+					tinsert(npc,name);
+					if(D.NpcTitle[Desc[I][2]])then
+						--title = D.NpcTitle[Desc[I][2]];
+						tinsert(npc,UNIT_NAME_PLAYER_TITLE..": "..D.NpcTitle[Desc[I][2]]);
+					end
+
+					local location, tomtom = shared.Location(Desc[I][3],Desc[I][4],Desc[I][5],(type(Desc[I][4])=="table" or type(Desc[I][4])=="string") and Desc[I][4] or nil,name);
+					tinsert(npc,location);
+					if tomtom then
+						tinsert(npc,tomtom);
+					end
+					Loading(true,checked,"nobr");
+				else
+					doRetry = true;
+				end
+				if npc then
+					tinsert(cnt,p:format(tconcat(npc,"|n"..listPrefix)));
 				end
 			elseif(Desc[I][1]=="Spell")then
 				title = SPELLS;
@@ -1388,13 +1428,6 @@ function FollowerLocationInfoJournal_OnShow(self)
 		return;
 	end
 	timeout=false;
-
-	if(not D.otherFiltersOrder)then
-		D.otherFiltersOrder = {};
-		for i,v in pairs(D.otherFilters)do
-			tinsert(D.otherFiltersOrder,{i,L[i]});
-		end
-	end
 
 	CollectionsJournalTitleText:SetText("FollowerLocationInfo");
 	SetPortraitToTexture(CollectionsJournalPortrait, "Interface\\Icons\\Achievement_GarrisonFollower_Rare");
