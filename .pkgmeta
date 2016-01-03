@@ -24,4 +24,7 @@ move-folders:
     FollowerLocationInfo/Journal: FollowerLocationInfo_Journal
 #    FollowerLocationInfo/Tracker: FollowerLocationInfo_Tracker
 
+required-dependencies:
+	- followerlocationinfo_data
+
 enable-nolib-creation: no
