@@ -1,8 +1,8 @@
 ## Interface: 60200
 ## Title: FollowerLocationInfo
 ## Version: @project-version@
-## Title-zhTW: 追隨者位置資訊 [Core]
-## Notes-zhTW: 追隨者位置資訊 [Core]
+## Title-zhTW: 追隨者位置資訊
+## Notes-zhTW: 追隨者位置資訊
 ## Author: Hizuro
 ## SavedVariables: FollowerLocationInfoDB
 
