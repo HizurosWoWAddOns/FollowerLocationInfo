@@ -37,7 +37,7 @@
 		</Frames>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="1">
-				<Texture atlas="PetList-ButtonBackground" parentKey="background">
+				<Texture atlas="PetList-ButtonBackground" parentKey="background" alpha=".64">
 					<Anchors>
 						<Anchor point="TOPLEFT" />
 						<Anchor point="BOTTOMRIGHT" />
@@ -45,12 +45,12 @@
 				</Texture>
 			</Layer>
 			<Layer level="BACKGROUND" textureSubLevel="0">
-				<Texture parentKey="quality">
+				<Texture parentKey="quality" alpha=".32">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeKey="$parent.background" x="2" y="-2"/>
 						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.background" x="-2" y="2"/>
 					</Anchors>
-					<Color r="1" g="1" b="1" a=".7" />
+					<Color r="1" g="1" b="1" />
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY" textureSubLevel="1">
@@ -110,6 +110,8 @@
 				self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
 			</OnLoad>
 			<OnClick function="FollowerLocationInfoJournal_ShowFollower"/>
+			<OnEnter function="FollowerLocationInfoTooltip_OnEnter" />
+			<OnLeave function="FollowerLocationInfoTooltip_OnLeave" />
 		</Scripts>
 	</Button>
 
@@ -167,14 +169,6 @@
 				</FontString>
 			</Layer>
 		</Layers>
-	</Frame>
-
-	<Frame name="FollowerLocationInfoJournalFollowerDesc_EntryTemplate" motionScriptWhileDisabled="true" virtual="true">
-		<Size x="0" y="30" />
-		<Anchors>
-			<Anchor point="LEFT" />
-			<Anchor point="RIGHT" />
-		</Anchors>
 	</Frame>
 
 	<Frame name="FollowerLocationInfoInsetShadowTemplate" virtual="true">
@@ -242,51 +236,13 @@
 		</Layers>
 	</Frame>
 
-	<Frame name="FollowerLocationInfoJournal" parent="CollectionsJournal" setallpoints="true" hidden="true">
+	<Frame name="FollowerLocationInfoJournalCounters" hidden="true">
+		<Size x="400" y="64" />
 		<Frames>
-			<Frame parentKey="TopLeftInset" useParentLevel="true" inherits="InsetFrameTemplate, FollowerLocationInfoInsetShadowTemplate">
-				<Size x="260" y="97"/>
-				<Anchors>
-					<Anchor point="TOPLEFT" x="4" y="-60" />
-				</Anchors>
-			</Frame>
-			<Frame parentKey="BottomLeftInset" useParentLevel="true" inherits="InsetFrameTemplate, FollowerLocationInfoInsetShadowTemplate">
-				<Size x="260" y="396"/>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.TopLeftInset" relativePoint="BOTTOMLEFT" x="0" y="-3" />
-					<Anchor point="BOTTOMLEFT" x="4" y="6" />
-				</Anchors>
-			</Frame>
-			<Frame parentKey="TopRightInset" useParentLevel="true" inherits="InsetFrameTemplate, FollowerLocationInfoInsetShadowTemplate">
-				<Size x="0" y="200" />
-				<Anchors>
-					<Anchor point="TOPRIGHT" x="-6" y="-60" />
-					<Anchor point="LEFT" relativeKey="$parent.TopLeftInset" relativePoint="RIGHT" x="2" />
-				</Anchors>
-			</Frame>
-			<Frame parentKey="BottomRightInset" useParentLevel="true" inherits="InsetFrameTemplate, FollowerLocationInfoInsetShadowTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.TopRightInset" relativePoint="BOTTOMLEFT" x="0" y="-3" />
-					<Anchor point="BOTTOMRIGHT" x="-6" y="6"/>
-				</Anchors>
-			</Frame>
-
-			<Button parentKey="OptionMenu" text="OPTIONS" inherits="UIPanelButtonTemplate">
-				<Size x="120" y="22"/>
-				<Anchors>
-					<Anchor point="TOPRIGHT" x="-25" y="-33" />
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						FollowerLocationInfo_OptionMenu(self,"TOP","BOTTOM");
-					</OnClick>
-				</Scripts>
-			</Button>
-
 			<Frame parentKey="Collectables" useParentLevel="true" inherits="InsetFrameTemplate3">
 				<Size x="140" y="20"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" x="65" y="-33" />
+					<Anchor point="TOPLEFT" />
 				</Anchors>
 				<Layers>
 					<Layer level="ARTWORK">
@@ -326,6 +282,164 @@
 					</Layer>
 				</Layers>
 			</Frame>
+		</Frames>
+	</Frame>
+
+	<Frame name="FollowerLocationInfoJournalFrame" parent="UIParent" enableMouse="true" toplevel="true" hidden="true">
+		<Size x="830" y="638"/>
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="-1">
+				<Texture atlas="GarrLanding-MiddleTile" horizTile="true" vertTile="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="25" y="-25"/>
+						<Anchor point="BOTTOMRIGHT" x="-25" y="25"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="2">
+				<Texture parentKey="TL" atlas="GarrLanding-upperleft" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-2" y="1"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="TR" atlas="GarrLanding-upperright" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPRIGHT" y="1"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BL" atlas="GarrLanding-lowerleft" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="-2" y="-2"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BR" atlas="GarrLanding-lowerright" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" y="-2"/>
+					</Anchors>
+				</Texture>
+				<Texture atlas="GarrLanding-Top" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.TL" relativePoint="TOPRIGHT" y="-1"/> 
+						<Anchor point="TOPRIGHT" relativeKey="$parent.TR" relativePoint="TOPLEFT" y="-1"/>
+					</Anchors>
+				</Texture>
+				<Texture atlas="GarLanding-Bottom" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent.BL" relativePoint="BOTTOMRIGHT" y="2"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BR" relativePoint="BOTTOMLEFT" y="2"/>
+					</Anchors>
+				</Texture>
+				<Texture atlas="GarLanding-Left" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.TL" relativePoint="BOTTOMLEFT" x="2"/>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent.BL" relativePoint="TOPLEFT" x="2"/>
+					</Anchors>
+				</Texture>
+				<Texture atlas="GarLanding-Right" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeKey="$parent.TR" relativePoint="BOTTOMRIGHT" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BR" relativePoint="TOPRIGHT" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER">
+				<Texture parentKey="HeaderBar" atlas="GarrLanding-HeaderBar" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOP" x="0" y="-36"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString inherits="QuestFont_Enormous" text="FollowerLocationInfo">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.HeaderBar" x="26"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="CloseButton" inherits="UIPanelCloseButton">
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="-10" y="-10"/>
+				</Anchors>
+				<Scripts>
+					<OnClick function="FollowerLocationInfo_ToggleJournal" />
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<!--
+			<OnLoad function="FollowerLocationInfoJournalUndocked_OnLoad"/>
+			<OnShow function="FollowerLocationInfoJournalUndocked_OnShow"/>
+			<OnHide function="FollowerLocationInfoJournalUndocked_OnHide"/>
+			-->
+		</Scripts>
+	</Frame>
+
+	<Frame name="FollowerLocationInfoJournal" hidden="true">
+		<Frames>
+			<Frame parentKey="TopLeftInset" useParentLevel="true" inherits="InsetFrameTemplate, FollowerLocationInfoInsetShadowTemplate">
+				<Size x="260" y="97"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" x="4" y="0" />
+				</Anchors>
+			</Frame>
+			<Frame parentKey="BottomLeftInset" useParentLevel="true" inherits="InsetFrameTemplate, FollowerLocationInfoInsetShadowTemplate">
+				<Size x="260" y="396"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.TopLeftInset" relativePoint="BOTTOMLEFT" x="0" y="-3" />
+					<Anchor point="BOTTOMLEFT" x="4" y="6" />
+				</Anchors>
+			</Frame>
+			<Frame parentKey="TopRightInset" useParentLevel="true" inherits="InsetFrameTemplate, FollowerLocationInfoInsetShadowTemplate">
+				<Size x="0" y="200" />
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="-6" y="0" />
+					<Anchor point="LEFT" relativeKey="$parent.TopLeftInset" relativePoint="RIGHT" x="2" />
+				</Anchors>
+			</Frame>
+			<Frame parentKey="BottomRightInset" useParentLevel="true" inherits="InsetFrameTemplate, FollowerLocationInfoInsetShadowTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.TopRightInset" relativePoint="BOTTOMLEFT" x="0" y="-3" />
+					<Anchor point="BOTTOMRIGHT" x="-6" y="6"/>
+				</Anchors>
+			</Frame>
+
+			<Button parentKey="Options">
+				<Size x="33" y="33"/>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentIconTexture" parentKey="texture" file="Interface\Icons\INV_Gizmo_02" setAllPoints="true"/>
+					</Layer>
+					<Layer level="OVERLAY">
+						<Texture parentKey="BlackCover" setAllPoints="true" hidden="true">
+							<Color r="0" g="0" b="0" a="0.6"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="1">
+						<Texture name="$parentBorder" inherits="ActionBarFlyoutButton-IconFrame">
+							<Size x="35" y="35"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentLockIcon" parentKey="LockIcon" file="Interface\PetBattles\PetBattle-LockIcon" setAllPoints="true" hidden="true"/>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad function="FollowerLocationInfo_OptionMenu" />
+					<OnEnter function="FollowerLocationInfoTooltip_OnEnter" />
+					<OnLeave function="FollowerLocationInfoTooltip_OnLeave" />
+					<OnClick>
+						FollowerLocationInfo_OptionMenu(self,"TOP","BOTTOM");
+					</OnClick>
+				</Scripts>
+				<PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>
+				<HighlightTexture name="$parentHighlight" file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+			</Button>
 
 			<Frame name="$parentFilter" parentKey="Filter">
 				<Anchors>
@@ -362,6 +476,7 @@
 			</Frame>
 
 			<ScrollFrame name="$parentFollowerList" parentKey="FollowerList" inherits="FauxScrollFrameTemplate">
+				<Size y="400" />
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.BottomLeftInset" x="0" y="-4"/>
 					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BottomLeftInset" x="-27" y="2"/>

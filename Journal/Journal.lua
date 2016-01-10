@@ -76,6 +76,14 @@ local function Loading(active,appendMsg,opt)
 	end
 end
 
+function CreateExternalURL(Type,Id)
+	local url,Target = nil,Type=="player" and "BattleNet" or FollowerLocationInfoDB.ExternalURL;
+	local uTypes = FollowerLocationInfo.ExternalURL_unsupportedTypes;
+	if not (uTypes[Target] and uTypes[Target][Type]==true) then
+		url = ("|c%s|Hexternalurl:%s:%s|h[%s]|h|r"):format(LC.color("quality5"),Type,Id,L["Link to"].." "..Target);
+	end
+	return url;
+end
 
 -----------------------
 --- Search / Filter ---
@@ -218,7 +226,6 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 
 	-- Traits
 	local lastTitle = false;
-	EXX2 = D.traits;
 	for k,v in pairsByFields(D.traits,"category","name")do
 		--if D.counter.traits[k][1]>0 then
 			if lastTitle~=v.category then
@@ -308,7 +315,7 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 		{ label = GARRISON_TRAITS, childs=menus.traits, disabled = disabled.traits },
 		{ label = ABILITIES, childs=menus.abilities, disabled = disabled.abilities },
 		{ label = L["Counters"], childs=menus.counters, disabled = disabled.counters },
-		{ label = L["Collectable by"], childs=menus.others, disalbed = disabled.others }
+		{ label = L["Obtainable by"], childs=menus.others, disalbed = disabled.others }
 	});
 	MenuGenerator.ShowMenu(parent, "TOPLEFT","TOPRIGHT");
 end
@@ -343,6 +350,14 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 			local _,id,idx = strsplit(":",link);
 			tt:AddLine(("|TInterface\\AddOns\\FollowerLocationInfo_Data\\media\\follower_%s_%s:%d:%d:0:0|t"):format(id,idx,ttImageSize,ttImageSize));
 			forceReload=true;
+		elseif(link:match("^externalurl"))then
+			-- custom hyperlink type "externalurl"
+			if(link:match("player"))then
+				tt:AddLine(L["Link to"].." BattleNet");
+			else
+				tt:AddLine(L["Link to"].." "..FollowerLocationInfoDB.ExternalURL);
+			end
+			tt:AddLine(L["Opening a dialog popup with the web address"]);
 		elseif(link:match("^tomtom"))then
 			-- custom hyperlink type "tomtom"
 			local _, zone, x, y, label = strsplit(":",link);
@@ -378,10 +393,9 @@ function FollowerLocationInfoJournal_OnHyperlinkLeave(self,link,text)
 	GarrisonFollowerAbilityTooltip:Hide();
 end
 
-
 function FollowerLocationInfoJournal_OnHyperlinkClick(self,link,text,button)
 	PlaySound("igMainMenuOptionCheckBoxOn");
-	local customAction,float,Type,buttonCheck={},"%1.1f",link:match("^([a-zA-Z0-9]*):");
+	local Type = link:match("^([a-zA-Z0-9]*):");
 	-- creates an modifier string with fixed order. -- [Alt][Shift][Ctrl]
 	local Modifiers = (IsAltKeyDown() and "Alt" or "") .. (IsShiftKeyDown() and "Shift" or "") .. (IsControlKeyDown() and "Ctrl" or "");
 
@@ -391,8 +405,10 @@ function FollowerLocationInfoJournal_OnHyperlinkClick(self,link,text,button)
 	local customizedHyperlinks = {
 		image=true,
 		tomtom=true,
-		achievement={LeftButton=true}
+		achievement={LeftButton=true},
+		externalurl=true
 	};
+
 	local blizzHyperlinks = {
 		spell=true,
 		unit=true,
@@ -425,12 +441,15 @@ function FollowerLocationInfoJournal_OnHyperlinkClick(self,link,text,button)
 					AchievementFrame_ToggleAchievementFrame();
 				end
 			end
+		elseif Type=="externalurl" then
+			local _, oType, oId, oRealm = strsplit(":",link);
+			StaticPopup_Show("FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG",nil,nil,{oType,oId,oRealm});
 		end
 		-- Type=="image" -- no action
 	elseif blizzHyperlinks[Type]==true then
 		SetItemRef(link,text,button,self);
 	end
-	-- StaticPopup_Show("FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG",nil,nil,{<Target[string]>,<Type[string]>,<Id[number|string]>});
+	-- StaticPopup_Show("FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG",nil,nil,{<Type[string]>,<Id[number|string]>});
 end
 
 
@@ -539,7 +558,7 @@ function FollowerLocationInfoJournalFollowerList_UpdateVisibleEntries()
 				end
 			end
 			if(Zone[zone]==nil)then
-				ns.print(type(zone),zone,from);
+				--ns.print(type(zone),zone,from);
 			end
 			tinsert(Zone[zone],id);
 		end
@@ -612,41 +631,40 @@ function FollowerLocationInfoJournalFollowerList_Update()
 				end
 
 				button.id = id;
-				button.name:SetText(LC.color(D.classes[D.basics[id][classIdx]][2],L["follower_"..id]));
-				button.tooltip={("%s (%d)"):format(L["follower_"..id],D.basics[id][levelIdx])};
+				local name = LC.color(D.classes[D.basics[id][classIdx]][2],L["follower_"..id]);
+				button.name:SetText(name);
+				button.tooltip={name};
 
 				if (D.basics[id][qualityIdx]) then
 					local q = D.basics[id][qualityIdx];
 					local c = ITEM_QUALITY_COLORS[q];
 					tinsert(button.tooltip,("%s: %s%s|r"):format(QUALITY,c.hex, _G[("ITEM_QUALITY%d_DESC"):format(q)]));
-					button.quality:SetVertexColor(c.r, c.g, c.b,1);
+					button.quality:SetVertexColor(c.r, c.g, c.b);
 				end
 
-				local cg = (D.descriptions[id]) and D.descriptions[id].collectGroup;
-
+				-- check collected status
 				if(D.collected[id])then
 					button.collected:Show();
-					if (cg) then
-						tinsert(button.tooltip,"|cff44ff44"..L["This follower is member of a collect group and already collected."].."|r");
-					end
-				elseif (cg) then
-					if (D.collectGroups[cg]) then
-						button.notCollectable:Show();
-						tinsert(button.tooltip,"|cffff4444"..L["This follower is member of a collect group and is no longer collectable."].."|r");
-					else
-						tinsert(button.tooltip,L["This follower is member of a collect group and is collectable."]);
-					end
 				end
 
-				if (cg) then
-					local t,d,c,ID = {};
-					for i=1, #D.descriptions[id].collectGroup do
-						ID = D.descriptions[id].collectGroup[i];
-						if (ID~=id) then
-							tinsert(t,((D.collected[ID]) and "|cff44ff44" or "|cffff4444") .. L["follower_"..ID] .. "|r");
+				-- check collect group membership
+				if ((D.descriptions[id]) and D.descriptions[id].collectGroup) then
+					if(D.collected[id])then
+						tinsert(button.tooltip,"|cff00bb00"..L["This follower is member of a collect group and already collected."].."|r");
+					else
+						local collected = false;
+						for i,v in ipairs(D.descriptions[id].collectGroup)do
+							if D.collected[v] then
+								collected=true;
+							end
+						end
+						if (collected) then
+							button.notCollectable:Show();
+							tinsert(button.tooltip,"|cffee0000"..L["This follower is member of a collect group and isn't longer obtainable."].."|r");
+						else
+							tinsert(button.tooltip,"|cffffcc00"..L["This follower is member of a collect group and is obtainable."].."|r");
 						end
 					end
-					tinsert(button.tooltip,L["In group with:"] .. " " .. tconcat(t,", "));
 				end
 
 				button.followerID:SetText("ID: "..id);
@@ -685,7 +703,11 @@ function FollowerLocationInfoJournalFollowerList_OnLoad(self)
 	self.ScrollBar:SetPoint("BOTTOMLEFT", self, "BOTTOMRIGHT", 8, 16);
 	self.offset = 0;
 	self.buttonHeight = 33;
-	local maxButtons = math.floor(self:GetHeight() / self.buttonHeight);
+
+	local maxButtons = 12;
+	if FollowerLocationInfoData.journalDocked then
+		maxButtons = 13;
+	end
 
 	self.buttons = {};
 	for i=1, maxButtons do
@@ -716,11 +738,19 @@ function FollowerLocationInfoJournalFollowerCard_Update()
 	local id = CurrentFollower;
 	local data = FollowerLocationInfoJournalFollowerCard.Data;
 	local model = FollowerLocationInfoJournalFollowerCard.model;
+	local link;
+
+	if id then
+		link = CreateExternalURL("gf",id) or "|n";
+	else
+		link = CreateExternalURL("player",UnitName("player")) or "|n";
+	end
 
 	local html = "<html><body>"..
 				 "<h1>|c%1$s%2$s|r</h1>"..
 				 "<p>|c%1$s%3$s|r</p>"..
-				 ((LOCALE_zhCN or LOCALE_zhTW) and "<p>|n|n</p>" or "<br /><br/>").. 
+				 "<p>"..link.."</p>"..
+				 ((LOCALE_zhCN or LOCALE_zhTW) and "<p>|n</p>" or "<p>|n</p><br/>").. 
 				 "<h3>|cffffcc00"..LEVEL..":|r %4$s</h3>"..
 				 "<p>|n</p>"..
 				 "<h3>|cffffcc00"..QUALITY..":|r %5$s</h3>"..
@@ -771,12 +801,14 @@ function FollowerLocationInfoJournalFollowerCard_Update()
 		if classID and classSpec and D.playerSpec[classID][classSpec] and D.classSpec[D.playerSpec[classID][classSpec]] then
 			classSpec = D.classSpec[D.playerSpec[classID][classSpec]][1];
 		else
+			--[=[
 			ns.print(
 				classID,
 				classSpec,
 				D.playerSpec[classID][classSpec],
 				D.classSpec[D.playerSpec[classID][classSpec]]
 			);
+			--]=]
 			classSpec = UNKNOWN;
 		end
 
@@ -843,6 +875,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 
 		return	name,
 				LEVEL .." ".. lvl .. (lvl<3 and " " .. L["or higher"] or ""),
+				CreateExternalURL("b",id),
 				{state=state,current=Lvl};
 	end;
 
@@ -857,6 +890,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 		end
 		return	friendName,
 				RANK .. " " .. rank,
+				CreateExternalURL("f",factionId),
 				{state=state,current=("%s ( %d / %d )"):format(friendTextLevel,friendRep-friendThreshold,nextFriendThreshold)}
 	end
 
@@ -879,6 +913,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 		end
 		return	name,
 				SKILL.." "..skillNeed,
+				nil, -- CreateExternalURL("p",),
 				{state=state,current=current};
 	end;
 
@@ -894,6 +929,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 		end
 		return	name,
 				_G["FACTION_STANDING_LABEL"..standingNum],
+				CreateExternalURL("f",id),
 				{state=state,current=current};
 	end;
 
@@ -946,6 +982,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 		return tconcat(images,delimiter);
 	end;
 
+
 	if(id and D.descriptions[id] and #D.descriptions[id]>0)then
 		Desc = D.descriptions[id];
 	elseif(id and D.basics[id][isCollectableIdx]==false)then
@@ -954,42 +991,28 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 
 	if Desc then
 		if Desc.collectGroup then
-			local group,members,ID={},{};
-			local color,msg = "blue", L["If you collect one of this group makes it the other unavailable."];
-			local collected=0;
+			local members,collected = {},0;
 			for i=1, #Desc.collectGroup do
 				if D.collected[Desc.collectGroup[i]] then
 					collected = Desc.collectGroup[i];
 				end
 			end
-			for i=1, #Desc.collectGroup do
-				ID = Desc.collectGroup[i];
-				if ID==id and collected~=0 then
-					local already = L["follower_"..collected].." "..L["is already your follower."].." ";
-					if D.collected[id] then
-						color,msg = "green", already..L[" The other members aren't longer collectable."];
-					else
-						color,msg = "red", already..L["This follower isn't longer collectable."];
-					end
-				else
-					tinsert(members,("|cff%s%s|r"):format(
-						(collected==0 and "ffff00")
-						or (collected==ID and "00ff00")
-						or "ff0000",
-						L["follower_"..ID]
-					));
+			for i,v in ipairs(Desc.collectGroup) do
+				local color, chk = "eeff00", "";
+				if(collected==v)then
+					color, chk = "00ff00", checked;
+				elseif(collected~=0)then
+					color = "888888";
 				end
+				tinsert(members,("|cff%s%s|r"):format(color,L["follower_"..v])..chk);
 			end
-			tinsert(
-				html,
-				h2:format(L["Collect group"],color)
+			tinsert(html,
+				h2:format(L["Collect group"],"blue")
 				..
 				p:format(
-					L["This follower is member of a collect group."]
-					.."|n"..
-					msg
-					.."|n|n"..
-					(#members==#Desc.collectGroup and L["Members"] or L["Other members"]) .. ": " .. "|n".. listPrefix .. tconcat(members,"|n"..listPrefix)
+					L["You can only obtain one follower from this group"]..":"
+					..
+					"|n".. listPrefix .. table.concat(members,"|n".. listPrefix)
 				)
 				..
 				br
@@ -1064,6 +1087,9 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 							tinsert(quest,tomtom);
 						end
 
+						local link = CreateExternalURL("q",v[1]);
+						if link then tinsert(quest,link); end
+
 						if(type(v.Images)=="table")then
 							tinsert(quest,shared.Images(id,v.Images," "));
 						end
@@ -1095,20 +1121,23 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 							numMaxFollower=GARRISON_SHIPYARD_MISSION_TOOLTIP_NUM_REQUIRED_FOLLOWERS;
 						end
 						tinsert(missionData,""..listPrefix..numMaxFollower:format(C_Garrison.GetMissionMaxFollowers(Desc[I][i])));
+						local link = CreateExternalURL("m",Desc[I][i]);
+						if link then tinsert(missionData,listPrefix..link); end
 						local rewardList,rewards = C_Garrison.GetMissionRewardInfo(Desc[I][i]),{};
 						for _,reward in pairs(rewardList)do
 							local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(reward.itemID);
+							local hlink = CreateExternalURL("i",reward.itemID);
 							if link and icon then
-								tinsert(rewards,("|T%s:14:14:0:0:64:64:4:56:4:56|t %s"):format(icon,link));
+								tinsert(rewards,
+									("|T%s:14:14:0:0:64:64:4:56:4:56|t %s"):format(icon,link) ..
+									(hlink~=nil and "|n"..listPrefix..hlink or "")
+								);
 							else
 								--print("Error:", "Mission reward item not found.", "itemID:"..reward.itemID,"missionID:"..Desc[I][i]);
 							end
 						end
 						if(#rewards>0)then
 							tinsert(missionData,"|n"..REWARDS..":|n"..tconcat(rewards,"|n"));
-						end
-						if false then
-							--- STATUS .. ": " .. "Owned" .. checked
 						end
 						tinsert(cnt,p:format(tconcat(missionData,"|n")));
 					end
@@ -1130,16 +1159,15 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 					Loading(true,L["Query data (npcID: %d)..."]:format(Desc[I][i][1]));
 					local merchant = {};
 					local name = D.NpcName[Desc[I][i][1]];
-
 					if(name)then
 						tinsert(merchant,name);
-
 						local location, tomtom = shared.Location(Desc[I][i][2],Desc[I][i][3],Desc[I][i][4],(type(Desc[I][i][3])=="table" or type(Desc[I][i][3])=="string") and Desc[I][i][3] or nil,name);
 						tinsert(merchant,location);
 						if tomtom then
 							tinsert(merchant,tomtom);
 						end
-						
+						local link = CreateExternalURL("n",Desc[I][i][1]);
+						if link then tinsert(merchant,link); end
 						tinsert(merchants,tconcat(merchant,"|n"..listPrefix));
 						Loading(true,checked,"nobr");
 					else
@@ -1166,6 +1194,10 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 					if tomtom then
 						tinsert(npc,tomtom);
 					end
+
+					local link = CreateExternalURL("n",Desc[I][1]);
+					if link then tinsert(npc,link); end
+
 					Loading(true,checked,"nobr");
 				else
 					doRetry = true;
@@ -1175,7 +1207,11 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 				end
 			elseif(Desc[I][1]=="Spell")then
 				title = SPELLS;
-				tinsert(cnt,p:format("|T"..GetSpellTexture(Desc[I][2])..":14:14:0:0|t "..GetSpellLink(Desc[I][2])));
+				local hlink = CreateExternalURL("s",Desc[I][2]);
+				tinsert(cnt,p:format(
+					"|T"..GetSpellTexture(Desc[I][2])..":14:14:0:0|t "..GetSpellLink(Desc[I][2])..
+					(hlink~=nil and "|n"..listPrefix..hlink or "")
+				));
 			elseif(Desc[I][1]=="Items")then
 				title = #Desc[I]>2 and ITEMS or HELPFRAME_ITEM_TITLE;
 				local items = {};
@@ -1195,6 +1231,9 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 							end
 						end
 
+						local link = CreateExternalURL("i",Desc[I][i][1]);
+						if link then tinsert(item,link); end
+
 						if(type(v.Images)=="table")then
 							tinsert(item,shared.Images(id,v.Images," "));
 						end
@@ -1209,7 +1248,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 					local req,v = {},Desc[I][i];
 					if(type(v)=="table" and shared[v[1]])then
 						if v[1]=="Garrison building" or v[1]=="Professions" or v[1]=="Reputation" or v[1]=="Brawler's Guild" then
-							local name, need, data = shared[v[1]](unpack(v));
+							local name, need, url, data = shared[v[1]](unpack(v));
 							local state1 = data.state>=1 and 2 or 0;
 							tinsert(req,titles[v[1]]..":");
 							if v[1]=="Reputation" or v[1]=="Brawler's Guild" then
@@ -1221,6 +1260,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 							if(data.state==1 and data.current)then
 								tinsert(req,("|cff888888%s %s|r"):format(CURRENT_PET,data.current));
 							end
+							tinsert(req,url);
 						else
 							local titles = {Outpost=L["Outpost building"]}
 							local result = {shared[v[1]](unpack(v))};
@@ -1233,10 +1273,14 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 										tinsert(req,result[x]);
 									end
 								end
-							else
-								doRetry=true; -- TODO: really ?
 							end
 						end
+					elseif v[1]=="Unlock" then
+						local color, chk = "yellow","";
+						if(IsQuestFlaggedCompleted(v[2]))then
+							color, chk = "green", checked;
+						end
+						tinsert(req, LC.color(color, L[v[3]])..chk);
 					elseif(type(v)=="string")then
 						tinsert(req,L[v]);
 					end
@@ -1261,6 +1305,9 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 							catId=parentId;
 						end
 						tinsert(achievement,tconcat(cat," &#xBB; "));
+
+						local link = CreateExternalURL("a",Desc[I][i]);
+						if link then tinsert(achievement,link); end
 
 						local status = ("|cff%s%s|r"):format("04ff07",L["Open"]);
 						if completed and wasEarnedByMe then
@@ -1290,12 +1337,16 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 						if name and icon then
 							tinsert(price,link or name);
 							tinsert(price,("%s |T%s:0|t"):format(Desc[I][i][3],icon));
+							local link = CreateExternalURL("c",Desc[I][i][2]);
+							if link then tinsert(price,link); end
 						end
 					elseif Desc[I][i][1] == "Item" then
 						local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(Desc[I][i][2]);
 						if name and icon then
 							tinsert(price,link);
 							tinsert(price,("%s |T%s:0|t"):format(Desc[I][i][3],icon));
+							local link = CreateExternalURL("i",Desc[I][i][2]);
+							if link then tinsert(price,link); end
 						else
 							doRetry = true;
 						end
@@ -1342,7 +1393,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 				follower(L["Recruited"],D.counter.recruitables)
 			),
 			section:format(
-				L["Collectable by"],
+				L["Obtainable by"],
 				"blue",
 				tconcat(collectBy,"|n")
 			),
@@ -1407,8 +1458,7 @@ function FollowerLocationInfoJournal_ShowFollower(self)
 	FollowerLocationInfoJournalFollowerDesc_Update();
 end
 
-function FollowerLocationInfoJournalFollowerDesc_OnLoad(self)
-end
+function FollowerLocationInfoJournalFollowerDesc_OnLoad(self) end
 
 
 -------------------------------
@@ -1436,42 +1486,88 @@ function FollowerLocationInfoJournal_OnShow(self)
 	FollowerLocationInfoJournalFollowerCard_Update();
 	FollowerLocationInfoJournalFollowerDesc_Update();
 
-	self.Collectables.Count:SetText(D.counter.collectables[2].."/"..D.counter.collectables[1]);
-	self.Recruitables.Count:SetText(D.counter.recruitables[2].."/"..D.counter.recruitables[1]);
+	self.counters.Collectables.Count:SetText(D.counter.collectables[2].."/"..D.counter.collectables[1]);
+	self.counters.Recruitables.Count:SetText(D.counter.recruitables[2].."/"..D.counter.recruitables[1]);
+	self.counters:Show();
 end
 
-function FollowerLocationInfoJournal_OnEvent(self,event)
+function FollowerLocationInfoJournal_OnHide()
+	FollowerLocationInfoJournalCounters:Hide();
 end
+
+function FollowerLocationInfoJournal_OnEvent(self,event) end
 
 function FollowerLocationInfoJournal_OnLoad(self)
 	D,L = FollowerLocationInfoData,FollowerLocationInfoData.Locale;
 	LC = FollowerLocationInfo.LibColors;
 
-	local journals = {CollectionsJournal};
-	for i,v in ipairs({CollectionsJournal:GetChildren()})do
-		if(v.GetObjectType and v:GetObjectType("Frame") and v:GetName() and issecurevariable(v:GetName()) and CollectionsJournal:GetHeight()==v:GetHeight())then
-			tinsert(journals,v);
+	self.counters = FollowerLocationInfoJournalCounters;
+	self.counters:SetParent(self);
+
+	if FollowerLocationInfoData.journalDocked then
+		local journals = {CollectionsJournal};
+
+		for i,v in ipairs({CollectionsJournal:GetChildren()})do
+			if(v.GetObjectType and v:GetObjectType("Frame") and v:GetName() and issecurevariable(v:GetName()) and CollectionsJournal:GetHeight()==v:GetHeight())then
+				tinsert(journals,v);
+			end
 		end
+
+		SecureTabs:Startup(unpack(journals));
+		self.Tab = SecureTabs:Add(CollectionsJournal, self, "FollowerLocationInfo", HeirloomsJournal);
+		FollowerLocationInfoData.JournalTabID = self.Tab:GetID();
+
+		CollectionsJournal:HookScript("OnHide",function()
+			FollowerLocationInfoJournalCounters:Hide();
+			FollowerLocationInfoJournal:Hide();
+		end);
+
+		CollectionsJournal:HookScript("OnShow",function(self)
+			C_Timer.After(0.5,function()
+				if self.selectedTab==FollowerLocationInfoData.JournalTabID then
+					FollowerLocationInfoJournalCounters:Show();
+					FollowerLocationInfoJournal:Show();
+				else
+					FollowerLocationInfoJournalCounters:Hide();
+					FollowerLocationInfoJournal:Hide();
+				end
+			end);
+		end);
+
+		if(CollectionsJournal:IsShown())then
+			CollectionsJournal:Hide();
+			CollectionsJournal:Show();
+		end
+
+		self:SetParent(CollectionsJournal);
+		self:SetPoint("TOPLEFT", 0, -60);
+		self:SetPoint("BOTTOMRIGHT");
+		self.counters:SetPoint("TOPLEFT",CollectionsJournal,"TOPLEFT", 65, -33);
+		self.Options:SetPoint("TOPRIGHT",CollectionsJournal,"TOPRIGHT",-6,-26);
+	else
+		self:SetParent(FollowerLocationInfoJournalFrame);
+		self:SetPoint("TOPLEFT",FollowerLocationInfoJournalFrame.HeaderBar,"BOTTOMLEFT",0,-3);
+		self:SetPoint("RIGHT",FollowerLocationInfoJournalFrame.HeaderBar,"RIGHT",0,0);
+		self:SetPoint("BOTTOM",-30,32);
+		self.counters:SetPoint("TOPLEFT",FollowerLocationInfoJournalFrame,"TOPLEFT", 72, -10);
+		self.Options:SetPoint("RIGHT",FollowerLocationInfoJournalFrame.HeaderBar,"RIGHT",-18,0);
+		for key,val in pairs(self)do
+			if tostring(key):match("Inset$") then
+				val.Bg:SetAlpha(.24);
+				for key2,val2 in pairs(val)do
+					if tostring(key2):match("^InsetBorder")then
+						val2:SetAlpha(.7);
+					elseif tostring(key2):match("^OverlayShadow") then
+						val2:SetAlpha(.7);
+					end
+				end
+			end
+		end
+		UIPanelWindows["FollowerLocationInfoJournalFrame"] = { area = "left", pushable = 0, whileDead = 1, width = 830};
 	end
 
-	SecureTabs:Startup(unpack(journals));
-	self.Tab = SecureTabs:Add(CollectionsJournal, self, "FollowerLocationInfo", HeirloomsJournal);
-	FollowerLocationInfoData.JournalTabID = self.Tab:GetID();
-	CollectionsJournal:HookScript("OnHide",function()
-		self:Hide();
-	end);
-	hooksecurefunc("ToggleCollectionsJournal",function(num)
-		if(self.Tab:GetID()~=num)then
-			self:Hide();
-		end
-	end);
-	if(CollectionsJournal:IsShown())then
-		CollectionsJournal:Hide();
-		CollectionsJournal:Show();
-	end
-
-	self.Collectables.Label:SetText(COLLECTED);
-	self.Recruitables.Label:SetText(L["Recruited"]);
+	self.counters.Collectables.Label:SetText(COLLECTED);
+	self.counters.Recruitables.Label:SetText(L["Recruited"]);
 
 	FollowerLocationInfoJournal_UpdateFilter();
 

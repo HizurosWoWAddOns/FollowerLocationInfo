@@ -5,5 +5,6 @@
 ## Notes-zhTW: 追隨者位置資訊
 ## Author: Hizuro
 ## SavedVariables: FollowerLocationInfoDB
+## X-Min-Data-Version: 0.5
 
 Core.xml

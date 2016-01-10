@@ -24,7 +24,7 @@ local cmdList = {
 		func = function() FollowerLocationInfo_MinimapButton() end
 	},
 	reset = {
-		desc = "Reset addon settings |cffff6666and automaticaly reloading the UI!|r",
+		desc = "Reset addon settings |cffff6666and automatically reloading the UI!|r",
 		func = function()
 			--FollowerLocationInfoDB = nil;
 			ReloadUI();
@@ -69,5 +69,5 @@ SLASH_FOLLOWERLOCATIONINFO2 = "/followerlocationinfo";
 L["Show/Hide journal frame"]
 L["Show/Hide followerID in journal"]
 L["Show/Hide minimap button"]
-L["Reset addon settings |cffff6666and automaticaly reloading the UI!|r"]
+L["Reset addon settings |cffff6666and automatically reloading the UI!|r"]
 --]=]

@@ -99,7 +99,7 @@ function ns.LDB_Init()
 			tt:AddDoubleLine(C("hunter",COLLECTED),counter2string(D.counter.collectables));
 			tt:AddDoubleLine(C("hunter",L["Recruited"]),counter2string(D.counter.recruitables));
 			tt:AddLine(" ");
-			tt:AddLine(L["Collectable by"]);
+			tt:AddLine(L["Obtainable by"]);
 			for i,v in pairsByFields(D.otherFiltersOrder,2)do
 				if not (v[1]=="Reputation" or v[1]=="Garrison building" or v[1]=="Outpost") then
 					tt:AddDoubleLine(C("mage",v[2]),counter2string(D.otherFiltersCount[v[1]]));

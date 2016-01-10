@@ -94,11 +94,6 @@
 							<OnLoad>
 								FollowerLocationInfo.InfoBox = self;
 							</OnLoad>
-							<!-- 
-							<OnHyperlinkEnter function=""/>
-							<OnHyperlinkLeave function=""/>
-							<OnHyperlinkClick function=""/>
-							-->
 						</Scripts>
 					</SimpleHTML>
 				</ScrollChild>
