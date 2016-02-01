@@ -585,6 +585,7 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 
 			FollowerLocationInfoData.journalDocked = not FollowerLocationInfoDB.standalone;
 
+			ns.LDB_Init();
 			ns.print("AddOn loaded...");
 		elseif arg1==addon.."_Data" then
 			-- now localization is part of FollowerLocationInfo_Data.
@@ -655,7 +656,6 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 			C_Timer.After(4,function()
 				UpdateFollowers();
 			end);
-			ns.LDB_Init();
 			self:UnregisterEvent(event);
 		elseif event=="GARRISON_FOLLOWER_LIST_UPDATE" and not ((GarrisonMissionFrame and GarrisonMissionFrame:IsShown()) or (GarrisonShipyardFrame and GarrisonShipyardFrame:IsShown())) then
 			UpdateFollowers();
