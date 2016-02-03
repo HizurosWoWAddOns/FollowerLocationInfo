@@ -74,13 +74,30 @@ function ns.LDB_Update()
 	end
 end
 
+local function LDB_Tooltip(tt)
+	if not D then
+		D = FollowerLocationInfoData;
+		L = D.Locale;
+		C = FollowerLocationInfo.LibColors.color;
+	end
+	tt:AddLine(addon);
+	tt:AddDoubleLine(C("hunter",COLLECTED),counter2string(D.counter.collectables));
+	tt:AddDoubleLine(C("hunter",L["Recruited"]),counter2string(D.counter.recruitables));
+	tt:AddLine(" ");
+	tt:AddLine(L["Obtainable by"]);
+	for i,v in pairsByFields(D.otherFiltersOrder,2)do
+		if not (v[1]=="Reputation" or v[1]=="Garrison building" or v[1]=="Outpost") then
+			tt:AddDoubleLine(C("mage",v[2]),counter2string(D.otherFiltersCount[v[1]]));
+		end
+	end
+	tt:AddLine(" ");
+	tt:AddLine(L["Left-click"]..": "..L["Show/Hide journal frame"]);
+	tt:AddLine(L["Right-click"]..": "..L["Open option menu"]);
+end
+
 function ns.LDB_Init()
 	if not (LDB and LDBi) then return end
 	if LDB_Object~=nil then return end
-
-	D = FollowerLocationInfoData;
-	L = D.Locale;
-	C = FollowerLocationInfo.LibColors.color;
 
 	LDB_Object = LDB:NewDataObject(addon, {
 		type = "data source",
@@ -94,21 +111,7 @@ function ns.LDB_Init()
 				FollowerLocationInfo_OptionMenu(self,"TOP","BOTTOM");
 			end
 		end,
-		OnTooltipShow = function(tt)
-			tt:AddLine(addon);
-			tt:AddDoubleLine(C("hunter",COLLECTED),counter2string(D.counter.collectables));
-			tt:AddDoubleLine(C("hunter",L["Recruited"]),counter2string(D.counter.recruitables));
-			tt:AddLine(" ");
-			tt:AddLine(L["Obtainable by"]);
-			for i,v in pairsByFields(D.otherFiltersOrder,2)do
-				if not (v[1]=="Reputation" or v[1]=="Garrison building" or v[1]=="Outpost") then
-					tt:AddDoubleLine(C("mage",v[2]),counter2string(D.otherFiltersCount[v[1]]));
-				end
-			end
-			tt:AddLine(" ");
-			tt:AddLine(L["Left-click"]..": "..L["Show/Hide journal frame"]);
-			tt:AddLine(L["Right-click"]..": "..L["Open option menu"]);
-		end
+		OnTooltipShow = LDB_Tooltip
 	});
 	
 	if GetAddOnInfo("SlideBar") and GetAddOnEnableState(UnitName("player"),"SlideBar")>1 then
@@ -129,11 +132,9 @@ function ns.LDB_Init()
 		FollowerLocationInfoDB.LDBi_Data={};
 	end
 
-	LDBi:Register(addon, LDB_Object, FollowerLocationInfoDB.LDBi_Data);
+	FollowerLocationInfoDB.LDBi_Data.hide = not FollowerLocationInfoDB.LDBi_Enabled;
 
-	if(FollowerLocationInfoDB.LDBi_Enabled==false)then
-		LDBi:Hide(addon);
-	end
+	LDBi:Register(addon, LDB_Object, FollowerLocationInfoDB.LDBi_Data);
 
 	local duration = (FollowerLocationInfoDB.LDB_PlayerCoords and LDB_UpdateShort or LDB_UpdateLong);
 	Ticker = C_Timer.NewTicker(duration, ns.LDB_Update);
