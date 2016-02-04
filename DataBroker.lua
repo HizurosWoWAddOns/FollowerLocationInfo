@@ -42,8 +42,14 @@ function FollowerLocationInfo_MinimapButton()
 end
 
 function ns.LDB_Update()
-	if not LDB_Object then return end
+	if not LDB_Object or not FollowerLocationInfoData then return end
 	local label = {};
+
+	if not D then
+		D = FollowerLocationInfoData;
+		L = D.Locale;
+		C = FollowerLocationInfo.LibColors.color;
+	end
 
 	-- coords
 	if(FollowerLocationInfoDB.LDB_PlayerCoords)then
@@ -75,11 +81,6 @@ function ns.LDB_Update()
 end
 
 local function LDB_Tooltip(tt)
-	if not D then
-		D = FollowerLocationInfoData;
-		L = D.Locale;
-		C = FollowerLocationInfo.LibColors.color;
-	end
 	tt:AddLine(addon);
 	tt:AddDoubleLine(C("hunter",COLLECTED),counter2string(D.counter.collectables));
 	tt:AddDoubleLine(C("hunter",L["Recruited"]),counter2string(D.counter.recruitables));
