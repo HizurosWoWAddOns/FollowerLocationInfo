@@ -2,7 +2,7 @@
 local addon, ns = ...;
 local Addon = gsub(addon,"_Journal","");
 local MenuGenerator = FollowerLocationInfo.MenuGenerator;
-local SecureTabs = LibStub('SecureTabs-1.0');
+local SecureTabs, SecureTabsMinor = LibStub('SecureTabs-1.0');
 local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeightIdx,modelScaleIdx,abilitiesIdx,countersIdx,traitsIdx,isCollectableIdx = 1,2,3,4,5,6,7,8,9,10,11,12; -- table indexes for FollowerLocationInfoData.basics entries.
 local L,D,LC,journalVisibleEntries,activeFilter={},{},{},{},{};
 local tconcat,tsort = table.concat,table.sort;
@@ -1479,8 +1479,11 @@ function FollowerLocationInfoJournal_OnShow(self)
 	end
 	timeout=false;
 
-	CollectionsJournalTitleText:SetText("FollowerLocationInfo");
-	SetPortraitToTexture(CollectionsJournalPortrait, "Interface\\Icons\\Achievement_GarrisonFollower_Rare");
+	if FollowerLocationInfoData.journalDocked then
+		CollectionsJournalTitleText:SetText("FollowerLocationInfo");
+		SetPortraitToTexture(CollectionsJournalPortrait, "Interface\\Icons\\Achievement_GarrisonFollower_Rare");
+	end
+
 	FollowerLocationInfoJournalFollowerList_Update();
 
 	FollowerLocationInfoJournalFollowerCard_Update();
@@ -1504,9 +1507,14 @@ function FollowerLocationInfoJournal_OnLoad(self)
 	self.counters = FollowerLocationInfoJournalCounters;
 	self.counters:SetParent(self);
 
+	-- prevent errors if user open the journal first time in session while in combat. fallback to standalone mode.
+	if FollowerLocationInfoData.journalDocked and InCombatLockdown() then
+		FollowerLocationInfoData.journalDocked = false;
+		ns.print(L["You have opened the collections journal first time this session while you are in combat. FLI fallback into standalone mode to prevent error messages. Don't worry this is temporary."]);
+	end
+
 	if FollowerLocationInfoData.journalDocked then
 		local journals = {CollectionsJournal};
-
 		for i,v in ipairs({CollectionsJournal:GetChildren()})do
 			if(v.GetObjectType and v:GetObjectType("Frame") and v:GetName() and issecurevariable(v:GetName()) and CollectionsJournal:GetHeight()==v:GetHeight())then
 				tinsert(journals,v);
@@ -1517,24 +1525,16 @@ function FollowerLocationInfoJournal_OnLoad(self)
 		self.Tab = SecureTabs:Add(CollectionsJournal, self, "FollowerLocationInfo", HeirloomsJournal);
 		FollowerLocationInfoData.JournalTabID = self.Tab:GetID();
 
-		CollectionsJournal:HookScript("OnHide",function()
-			FollowerLocationInfoJournalCounters:Hide();
-			FollowerLocationInfoJournal:Hide();
-		end);
-
-		CollectionsJournal:HookScript("OnShow",function(self)
-			C_Timer.After(0.5,function()
-				if self.selectedTab==FollowerLocationInfoData.JournalTabID then
-					FollowerLocationInfoJournalCounters:Show();
-					FollowerLocationInfoJournal:Show();
-				else
-					FollowerLocationInfoJournalCounters:Hide();
-					FollowerLocationInfoJournal:Hide();
-				end
-			end);
+		hooksecurefunc("CollectionsJournal_UpdateSelectedTab",function(self)
+			local selected = PanelTemplates_GetSelectedTab(self);
+			local id = FollowerLocationInfoData.JournalTabID;
+			FollowerLocationInfoJournalCounters:SetShown(selected == id);
+			FollowerLocationInfoJournal:SetShown(selected == id);
+			--ConsolePrint("CollectionsJournal_UpdateSelectedTab_Hook",selected,id);
 		end);
 
 		if(CollectionsJournal:IsShown())then
+			-- force update tab size 
 			CollectionsJournal:Hide();
 			CollectionsJournal:Show();
 		end
