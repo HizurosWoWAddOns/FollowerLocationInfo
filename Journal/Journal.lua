@@ -181,18 +181,19 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 	local sortedClasses = CopyTable(D.classes);
 	tsort(sortedClasses,function(a,b) return a[3]<b[3]; end);
 	for i,v in ipairs(sortedClasses) do
-		local childs = {};
-		tinsert(menus.classes,{
-			label = labelStr:format(
-				LC.color(v[2],v[3]),
-				D.counter.class[v[1]][2]>0 and "00ff00" or "999999",
-				D.counter.class[v[1]][2],"ffee00",
-				D.counter.class[v[1]][1]
-			),
-			func=function()
-				FollowerLocationInfoJournal_SetFilter(filterID,"classes",v[1]);
-			end
-		});
+		if D.counter.class[v[1]] then
+			tinsert(menus.classes,{
+				label = labelStr:format(
+					LC.color(v[2],v[3]),
+					D.counter.class[v[1]][2]>0 and "00ff00" or "999999",
+					D.counter.class[v[1]][2],"ffee00",
+					D.counter.class[v[1]][1]
+				),
+				func=function()
+					FollowerLocationInfoJournal_SetFilter(filterID,"classes",v[1]);
+				end
+			});
+		end
 	end
 
 	-- CLASS SPECS
@@ -329,15 +330,20 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 	-- all "garr" prefixed hyperlinks are part of a special tooltip type
 	-- and doesn't work with normal GameTooltip:SetHyperlink().
 	if(link:match("^garr"))then
-		tt=GarrisonFollowerAbilityTooltip;
-		tt:ClearAllPoints();
-		tt:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
-
 		if(link:match("^garrfollowerability"))then
 			local _,id = strsplit(":",link);
-			GarrisonFollowerAbilityTooltip_Show(tonumber(id),LE_FOLLOWER_TYPE_GARRISON_6_0);
-		else
-			-- GarrisonFollowerTooltipShow( ?
+			if D.build>70000000 then
+				local tooltip = _G[GarrisonFollowerOptions[LE_FOLLOWER_TYPE_GARRISON_6_0].abilityTooltipFrame];
+				tooltip:ClearAllPoints();
+				tooltip:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
+				--tooltip:SetPoint("LEFT", self, "RIGHT", 4, 0);
+				GarrisonFollowerAbilityTooltip_Show(tooltip, tonumber(id), LE_FOLLOWER_TYPE_GARRISON_6_0);
+			else
+				tt=GarrisonFollowerAbilityTooltip;
+				tt:ClearAllPoints();
+				tt:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
+				GarrisonFollowerAbilityTooltip_Show(tonumber(id),LE_FOLLOWER_TYPE_GARRISON_6_0);
+			end
 		end
 	else
 		tt=GameTooltip;
@@ -780,6 +786,18 @@ function FollowerLocationInfoJournalFollowerCard_Update()
 			end
 		end
 
+		-- is it really possible? error report on comment #225 looks like an empty D.classSpec[basic[classSpecIdx]]
+		if D.classSpec[basic[classSpecIdx]]==nil then
+			local v = C_Garrison.GetFollowerInfo(id);
+			local class = gsub(v.classAtlas,"GarrMission_ClassIcon%-",""):lower();
+			D.classSpec[basic[classSpecIdx]]={
+				C_Garrison.GetFollowerClassSpecName(id), -- localized class specialization name
+				class, -- englsh class name
+				LOCALIZED_CLASS_NAMES_MALE[class:upper()], -- localized class name
+				D.ClassName2ID[v.class] -- class id
+			};
+		end
+
 		data:SetText(html:format(
 			LC.color(D.classes[basic[classIdx]][2]),
 			L["follower_"..id],
@@ -857,11 +875,11 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 	local shared = {};
 
 	shared["Garrison building"]=function(_,id)
-		local glvl = C_Garrison.GetGarrisonInfo();
+		local glvl = C_Garrison.GetGarrisonInfo(LE_GARRISON_TYPE_6_0);
 		local result,state,Name,Lvl,name,lvl,_= {},0;
 		_,name,_,_,_,lvl = C_Garrison.GetBuildingInfo(id);
 		if glvl~=nil and  glvl>0 then
-			for i,v in ipairs(C_Garrison.GetBuildings())do
+			for i,v in ipairs(C_Garrison.GetBuildings(LE_GARRISON_TYPE_6_0))do
 				_,Name,_,_,_,Lvl = C_Garrison.GetBuildingInfo(v.buildingID);
 				if(v.buildingID==id) or (name==Name)then
 					state = 1;

@@ -8,8 +8,19 @@ local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeight
 local UpdateCallbacks,UpdateLock,isLoaded=false,false,false;
 local garrLevel = 0;
 
-function ns.print(...)
-	print("|cff00ff00"..addon.."|r",...)
+ns.print=function(...)
+	local colors,t,c = {"0099ff","00ff00","ff6060","44ffff","ffff00","ff8800","ff44ff","ffffff"},{},1;
+	for i,v in ipairs({...}) do
+		v = tostring(v);
+		if i==1 and v~="" then
+			tinsert(t,"|cff0099ff"..addon.."|r:"); c=2;
+		end
+		if not v:match("||c") then
+			v,c = "|cff"..colors[c]..v.."|r", c<#colors and c+1 or 1;
+		end
+		tinsert(t,v);
+	end
+	print(unpack(t));
 end
 
 local function count(t,v,d)
@@ -69,10 +80,15 @@ local function UpdateFollowers()
 	-- sometimes blizzards functions returning data from wrong faction.
 	-- 99% chance on characters without own garrison. (too high for a bug)
 	-- 1% chance on characters with garrisons. (maybe a bug)
-	local dataFaction = C_Garrison.GetFollowerInfo(34).displayID==55047 and "Alliance" or "Horde";
+	local dataFaction
+	if D.build>70000000 then
+		dataFaction = C_Garrison.GetFollowerInfo(34).displayIDs[1].id==55047 and "Alliance" or "Horde";
+	else
+		dataFaction = C_Garrison.GetFollowerInfo(34).displayID==55047 and "Alliance" or "Horde";
+	end
 	local blizz = {};
 	local pLevel = UnitLevel("player");
-	garrLevel = (garrLevel>0 and garrLevel) or C_Garrison.GetGarrisonInfo() or 0;
+	garrLevel = (garrLevel>0 and garrLevel) or C_Garrison.GetGarrisonInfo(LE_GARRISON_TYPE_6_0) or 0;
 
 	-- Sometimes PLAYER_ENTERING_WORLD aren't late enough to get some data from blizz.
 	if pLevel>=90 and garrLevel==0 then
@@ -152,7 +168,7 @@ local function UpdateFollowers()
 				C_Garrison.GetFollowerClassSpecName(id), -- localized class specialization name
 				class, -- englsh class name
 				LOCALIZED_CLASS_NAMES_MALE[class:upper()], -- localized class name
-				D.ClassName2ID[v.class] -- class id
+				D.ClassName2ID[class] -- class id
 			};
 		end
 
@@ -255,7 +271,7 @@ local function UpdateFollowers()
 					0, --v.class,
 					v.classSpec,
 					v.portraitIconID,
-					v.displayID,
+					v.displayID or (v.displayIDs and v.displayIDs[1].id) or 0,
 					v.displayHeight,
 					v.displayScale,
 					t.abilities,

@@ -8,6 +8,8 @@ local function count(t,v,d)
 	t[v]=t[v]+d;
 end
 
+D.build = tonumber(gsub(({GetBuildInfo()})[1],"[|.]","")..({GetBuildInfo()})[2])
+
 D.locale = GetLocale();
 
 D.Locale = setmetatable({
