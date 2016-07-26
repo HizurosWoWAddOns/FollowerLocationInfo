@@ -186,7 +186,7 @@ local function UpdateFollowers()
 	end
 
 	if dataFaction==D.Faction then
-		blizz = C_Garrison.GetFollowers(LE_FOLLOWER_TYPE_GARRISON_6_0);
+		blizz = C_Garrison.GetFollowers(LE_FOLLOWER_TYPE_GARRISON_6_0) or {};
 		D.counter.blizz=#blizz;
 	end
 
