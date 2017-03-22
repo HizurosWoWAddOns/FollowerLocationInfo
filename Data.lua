@@ -31,8 +31,8 @@ local L = D.Locale;
 
 -- Fetch some localizations from blizzards functions
 L["Brawler's Guild"] = GetCategoryInfo(15202);
-L["Classes"] = strtrim(gsub(ITEM_CLASSES_ALLOWED, ((LOCALE_zhCN or LOCALE_zhTW) and "\154%%s") or ": %%s", ""));
-L["Requirements"] = strtrim(gsub(QUEST_TOOLTIP_REQUIREMENTS, ((LOCALE_zhCN or LOCALE_zhTW) and "\154") or ":", ""));
+L["Classes"] = strtrim(gsub(ITEM_CLASSES_ALLOWED, (LOCALE_zhCN or LOCALE_zhTW) and "\239\188\154%%s" or ": %%s", ""));
+L["Requirements"] = strtrim(gsub(QUEST_TOOLTIP_REQUIREMENTS, (LOCALE_zhCN or LOCALE_zhTW) and "\239\188\154" or ":", ""));
 --
 
 D.Faction = UnitFactionGroup("player");
