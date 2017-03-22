@@ -214,14 +214,7 @@ D.basics = setmetatable({},{
 	end
 });
 
-D.outposts = setmetatable({},{
-	__newindex=function(t,k,v)
-		rawset(t,k,{
-			buildingName = D.Locale[v[1]],
-			Location = {k,v[2],v[3],GetMapNameByID(k) .. " " .. D.Locale["Outpost"]}
-		});
-	end
-});
+D.Outpost = {};
 
 do
 	local _rawset = function(t,k,v,f)
