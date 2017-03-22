@@ -60,6 +60,7 @@ D.playerSpec = {
 	{32,33,34}, -- 9 WARLOCK
 	{17,18,19}, -- 10 MONK
 	{5,7,8,9}, -- 11 DRUID
+	{63,64} -- 12 DEMONHUNTER
 };
 D.playerTraits = {};
 local playerTraitSpells = {
