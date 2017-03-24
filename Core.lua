@@ -706,6 +706,7 @@ end
 function FollowerLocationInfo_OnLoad(self)
 	self.MenuGenerator = ns.MenuGenerator;
 	self.LibColors = LibStub("LibColors-1.0");
+	self.SecureTabs = LibStub("SecureTabs-2.0");
 
 	self:SetScale(0.8);
 	tinsert(UISpecialFrames, self:GetName());

@@ -2,7 +2,6 @@
 local addon, ns = ...;
 local Addon = gsub(addon,"_Journal","");
 local MenuGenerator = FollowerLocationInfo.MenuGenerator;
-local SecureTabs, SecureTabsMinor = LibStub('SecureTabs-1.0');
 local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeightIdx,modelScaleIdx,abilitiesIdx,countersIdx,traitsIdx,isCollectableIdx = 1,2,3,4,5,6,7,8,9,10,11,12; -- table indexes for FollowerLocationInfoData.basics entries.
 local L,D,LC,journalVisibleEntries,activeFilter={},{},{},{},{};
 local tconcat,tsort = table.concat,table.sort;
@@ -1497,11 +1496,6 @@ function FollowerLocationInfoJournal_OnShow(self)
 	end
 	timeout=false;
 
-	if FollowerLocationInfoData.journalDocked then
-		CollectionsJournalTitleText:SetText("FollowerLocationInfo");
-		SetPortraitToTexture(CollectionsJournalPortrait, "Interface\\Icons\\Achievement_GarrisonFollower_Rare");
-	end
-
 	FollowerLocationInfoJournalFollowerList_Update();
 
 	FollowerLocationInfoJournalFollowerCard_Update();
@@ -1532,34 +1526,18 @@ function FollowerLocationInfoJournal_OnLoad(self)
 	end
 
 	if FollowerLocationInfoData.journalDocked then
-		local journals = {CollectionsJournal};
-		for i,v in ipairs({CollectionsJournal:GetChildren()})do
-			if(v.GetObjectType and v:GetObjectType("Frame") and v:GetName() and issecurevariable(v:GetName()) and CollectionsJournal:GetHeight()==v:GetHeight())then
-				tinsert(journals,v);
-			end
-		end
+		local label = addon;
+		if true then label = "FLI"; end
 
-		SecureTabs:Startup(unpack(journals));
-		self.Tab = SecureTabs:Add(CollectionsJournal, self, "FollowerLocationInfo", HeirloomsJournal);
-		FollowerLocationInfoData.JournalTabID = self.Tab:GetID();
+		--FollowerLocationInfoJournalPortraitFrame:SetParent(CollectionsJournal);
+		SetPortraitToTexture(FollowerLocationInfoJournalPortraitFrame.portrait, "Interface\\Icons\\Achievement_GarrisonFollower_Rare");
+		FollowerLocationInfoJournalPortraitFrame.TitleText:SetText(Addon);
+		self.Tab = FollowerLocationInfo.SecureTabs:Add(CollectionsJournal, FollowerLocationInfoJournalPortraitFrame, label);
 
-		hooksecurefunc("CollectionsJournal_UpdateSelectedTab",function(self)
-			local selected = PanelTemplates_GetSelectedTab(self);
-			local id = FollowerLocationInfoData.JournalTabID;
-			FollowerLocationInfoJournalCounters:SetShown(selected == id);
-			FollowerLocationInfoJournal:SetShown(selected == id);
-			--ConsolePrint("CollectionsJournal_UpdateSelectedTab_Hook",selected,id);
-		end);
-
-		if(CollectionsJournal:IsShown())then
-			-- force update tab size 
-			CollectionsJournal:Hide();
-			CollectionsJournal:Show();
-		end
-
-		self:SetParent(CollectionsJournal);
+		self:SetParent(FollowerLocationInfoJournalPortraitFrame);
 		self:SetPoint("TOPLEFT", 0, -60);
 		self:SetPoint("BOTTOMRIGHT");
+
 		self.counters:SetPoint("TOPLEFT",CollectionsJournal,"TOPLEFT", 65, -33);
 		self.Options:SetPoint("TOPRIGHT",CollectionsJournal,"TOPRIGHT",-6,-26);
 	else
@@ -1571,16 +1549,18 @@ function FollowerLocationInfoJournal_OnLoad(self)
 		self.Options:SetPoint("RIGHT",FollowerLocationInfoJournalFrame.HeaderBar,"RIGHT",-18,0);
 		for key,val in pairs(self)do
 			if tostring(key):match("Inset$") then
-				val.Bg:SetAlpha(.24);
-				for key2,val2 in pairs(val)do
-					if tostring(key2):match("^InsetBorder")then
-						val2:SetAlpha(.7);
-					elseif tostring(key2):match("^OverlayShadow") then
-						val2:SetAlpha(.7);
-					end
+				val.InsetBorder:Hide();
+				if val.InsetShadow then
+					val.InsetShadow:Show();
 				end
 			end
 		end
+		self.FollowerList.ScrollBarTop:Hide();
+		self.FollowerList.ScrollBarMiddle:Hide();
+		self.FollowerList.ScrollBarBottom:Hide();
+		self.FollowerDesc.ScrollBarTop:Hide();
+		self.FollowerDesc.ScrollBarMiddle:Hide();
+		self.FollowerDesc.ScrollBarBottom:Hide();
 		UIPanelWindows["FollowerLocationInfoJournalFrame"] = { area = "left", pushable = 0, whileDead = 1, width = 830};
 	end
 

@@ -6,6 +6,7 @@
 	<Script file="libs\LibDataBroker-1.1\LibDataBroker-1.1.lua" />
 	<Script file="libs\LibDBIcon-1.0\LibDBIcon-1.0.lua" />
 	<Script file="libs\LibColors-1.0\LibColors-1.0.lua" />
+	<Script file="libs\SecureTabs-2.0\SecureTabs-2.0.lua" />
 
 	<Script file="MenuGenerator.lua" />
 	<Script file="Data.lua" />
