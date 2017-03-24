@@ -16,8 +16,8 @@ externals:
     libs/LibColors-1.0:
         url: git://git.curseforge.net/wow/libstringcoloring-1-0/mainline.git
         tag: latest
-    Journal/libs/SecureTabs-1.0:
-        url: git://github.com/Jaliborc/SecureTabs-1.0.git
+    Journal/libs/SecureTabs-2.0:
+        url: git://github.com/Jaliborc/SecureTabs-2.0.git
         tag: latest
 
 move-folders:
