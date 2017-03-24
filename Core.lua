@@ -54,9 +54,11 @@ function ns.GetLinkData(link)
 
 	tt.currentLink=link;
 
-	tt:Show();
-	tt:SetOwner(UIParent,"LEFT",0,0);
+	tt:Hide();
+	tt:SetOwner(UIParent,"ANCHOR_LEFT");
+	tt:ClearLines();
 	tt:SetHyperlink(link);
+	tt:Show();
 	for _,v in pairs({tt:GetRegions()}) do
 		if v and v:GetObjectType()=="FontString" and v:GetText() then
 			tinsert(data,v:GetText());
@@ -183,6 +185,30 @@ local function UpdateFollowers()
 		end
 
 		count(D.counter,data[isCollectableIdx] and "collectable" or "recruitable",1);
+	end
+
+	-- add demonhunter class specs
+	if D.classSpec[63]==nil then
+		local id = 498;
+		local v = C_Garrison.GetFollowerInfo(id);
+		local class = gsub(v.classAtlas,"GarrMission_ClassIcon%-",""):lower();
+		D.classSpec[63]={
+			C_Garrison.GetFollowerClassSpecName(id), -- localized class specialization name
+			class, -- englsh class name
+			LOCALIZED_CLASS_NAMES_MALE[class:upper()], -- localized class name
+			D.ClassName2ID[class] -- class id
+		};
+	end
+	if D.classSpec[64]==nil then
+		local id = 722;
+		local v = C_Garrison.GetFollowerInfo(id);
+		local class = gsub(v.classAtlas,"GarrMission_ClassIcon%-",""):lower();
+		D.classSpec[64]={
+			C_Garrison.GetFollowerClassSpecName(id), -- localized class specialization name
+			class, -- englsh class name
+			LOCALIZED_CLASS_NAMES_MALE[class:upper()], -- localized class name
+			D.ClassName2ID[class] -- class id
+		};
 	end
 
 	if dataFaction==D.Faction then
@@ -532,21 +558,19 @@ function FollowerLocationInfo_ToggleJournal()
 			return;
 		end
 
-		if FollowerLocationInfoJournal:IsShown() and FollowerLocationInfoJournal:IsVisible() then
-			FollowerLocationInfoJournal:Hide();
+		local parentShown,journalShow = CollectionsJournal:IsShown(), not FollowerLocationInfoJournal:IsVisible();
+		if not parentShown or (parentShown and not journalShow) then
 			ToggleCollectionsJournal();
-		else
-			FollowerLocationInfoJournal:Show();
-			ToggleCollectionsJournal(FollowerLocationInfoData.JournalTabID);
+		end
+		if journalShow then
+			FollowerLocationInfo.SecureTabs:Select(FollowerLocationInfoJournal.Tab);
 		end
 	else
 		if not FollowerLocationInfoJournalFrame then
 			LoadAddOn(addon.."_Journal");
 		end
+		ToggleFrame(FollowerLocationInfoJournalFrame);
 		if FollowerLocationInfoJournalFrame:IsShown() then
-			HideUIPanel(FollowerLocationInfoJournalFrame);
-		else
-			ShowUIPanel(FollowerLocationInfoJournalFrame);
 			FollowerLocationInfoJournal:Show();
 		end
 	end
