@@ -3,7 +3,7 @@ local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeight
 local D = FollowerLocationInfoData;
 
 function FollowerLocationInfo_Collector(clear)
-	if(clear)then FollowerLocationInfoDataCollectorDB = {}; return end
+	if(clear)then FollowerLocationInfoCollectorCache = {}; return end
 
 	local Faction = UnitFactionGroup("player");
 	local dataFaction = C_Garrison.GetFollowerInfo(34).displayID==55047 and "Alliance" or "Horde";
@@ -17,11 +17,11 @@ function FollowerLocationInfo_Collector(clear)
 		_CLASS_SORT_ORDER[CLASS_SORT_ORDER[i]:lower()] = i;
 	end
 
-	if(not FollowerLocationInfoDataCollectorDB) then
-		FollowerLocationInfoDataCollectorDB={};
+	if(not FollowerLocationInfoCollectorCache) then
+		FollowerLocationInfoCollectorCache={};
 	end
 
-	local db = FollowerLocationInfoDataCollectorDB;
+	local db = FollowerLocationInfoCollectorCache;
 	local line = "B[%d] = {%d,%d,%d,%d,%d,%d,%s,%s,{%s},{%s},{%s},%s}";
 
 	db[Faction] = {};

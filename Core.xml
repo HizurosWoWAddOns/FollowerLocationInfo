@@ -1,19 +1,43 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\..\FrameXML\UI.xsd">
 
+	<!-- libraries -->
 	<Script file="libs\LibStub\LibStub.lua" />
 	<Script file="libs\CallbackHandler-1.0\CallbackHandler-1.0.lua" />
 	<Script file="libs\LibDataBroker-1.1\LibDataBroker-1.1.lua" />
 	<Script file="libs\LibDBIcon-1.0\LibDBIcon-1.0.lua" />
 	<Script file="libs\LibColors-1.0\LibColors-1.0.lua" />
 	<Script file="libs\SecureTabs-2.0\SecureTabs-2.0.lua" />
+	<!-- /libraries -->
 
-	<Script file="MenuGenerator.lua" />
+	<!-- data -->
 	<Script file="Data.lua" />
+	<Script file="Data\basics.lua" />
+	<Script file="Data\descriptions.lua" />
+	<Script file="Data\follower_names.lua" />
+	<Script file="Data\outposts.lua" />
+	<!-- /data -->
+
+	<!-- localizations -->
+	<Script file="localizations\locale_enUS.lua"/>
+
+	<Script file="localizations\locale_deDE.lua"/>
+	<Script file="localizations\locale_esES.lua"/>
+	<Script file="localizations\locale_esMX.lua"/>
+	<Script file="localizations\locale_frFR.lua"/>
+	<Script file="localizations\locale_itIT.lua"/>
+	<Script file="localizations\locale_koKR.lua"/>
+	<Script file="localizations\locale_ptPT.lua"/>
+	<Script file="localizations\locale_ruRU.lua"/>
+	<Script file="localizations\locale_zhCN.lua"/>
+	<Script file="localizations\locale_zhTW.lua"/>
+	<!-- /localizations -->
+
 	<Script file="Core.lua" />
 	<Script file="DataBroker.lua"/>
 	<Script file="ExternalURL.lua"/>
 	<Script file="SlashCommand.lua"/>
+	<Script file="MenuGenerator.lua" />
 
 	<GameTooltip name="FollowerLocationInfo_Tooltip" inherits="GameTooltipTemplate" alpha="0" />
 

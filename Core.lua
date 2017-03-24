@@ -8,6 +8,10 @@ local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeight
 local UpdateCallbacks,UpdateLock,isLoaded=false,false,false;
 local garrLevel = 0;
 
+BINDING_HEADER_FOLLOWERLOCATIONINFO		= "FollowerLocationInfo";
+BINDING_NAME_TOGGLEFOLLOWERLOCATIONINFO	= L["Toggle FollowerLocationInfo Journal"];
+--StaticPopupDialogs["FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG"].text = L["URL"];
+
 ns.print=function(...)
 	local colors,t,c = {"0099ff","00ff00","ff6060","44ffff","ffff00","ff8800","ff44ff","ffffff"},{},1;
 	for i,v in ipairs({...}) do
@@ -482,40 +486,19 @@ end
 -- @params:
 -- msg - a string that must be match to an error message entry from table infoBoxErrors.
 local infoBoxErrors = {
-	["missing data"] = L["Your installed version of FollowerLocationInfo requires an additional addon to work.|nPlease install FollowerLocationInfo_Data."],
-	["data too old"] = L["Your installed version of FollowerLocationInfo requires a newer version of FollowerLocationInfo_Data.|nPlease update it..."],
 	["journal not loadable"] = L["Couldn't load FollowerLocationInfo_Journal. Please check if FollowerLocationInfo_Data is enabled."]
 }
 function FollowerLocationInfo_ShowInfoBox(msg)
 	local self = FollowerLocationInfo;
-	local smallbr,br,deco = "<p>|n</p>","<br />","<p>|TInterface\\AddOns\\FollowerLocationInfo_Data\\media\\%s:15:320:0:12:128:16:24:64:1:16|t</p>";
+	local smallbr,br,deco = "<p>|n</p>","<br />","<p>|TInterface\\AddOns\\FollowerLocationInfo\\media\\%s:15:320:0:12:128:16:24:64:1:16|t</p>";
 	local message,errorMessage = {},{"<h2>|TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:0|t Houston, we have a problem!</h2>",deco:format("red")};
 
-	if(msg=="version")then
-		message = {
-			"<h2>Sorry...</h2>",
-			deco:format("blue"),
-			"<h3>for the long time without updates.</h3>",
-			br,
-			"<h2>Whats new in FollowerLocationInfo?</h2>",
-			deco:format("blue"),
-			"<h3>* basic data, descriptions, images and localization part of FollowerLocationInfo_Data.</h3>",
-			"<h3>* FollowerLocationInfo found its new home under 'collections'.</h3>",
-			"<h3>* Some new images and partly updated descriptions.</h3>",
-			br,
-			"<h2>Annotation / Known problems</h2>",
-			deco:format("red"),
-			"<h3>* The chat commands are disabled. Not match with new version. </h3>",
-			"<h3>* Some images maybe too dark? Let me know... :-)</h3>",
-			br,
-			"<h3>|cffffee00Greetings Hizuro|r</h3>",
-			"<h3>(May the light be with you)</h3>",
-		};
-	elseif(infoBoxErrors[msg])then
+	if(infoBoxErrors[msg])then
 		message = errorMessage;
 		tinsert(message,"<h3>"..infoBoxErrors[msg].."</h3>");
 	else
-		return; -- no match for msg - no infobox :)
+		message = errorMessage;
+		tinsert(message,"<h3>"..msg.."</h3>");
 	end
 
 	self.InfoBox:SetText("<html><body>"..smallbr..table.concat(message,"")..smallbr.."</body></html>");
@@ -577,119 +560,101 @@ function FollowerLocationInfo_ToggleJournal()
 end
 	
 function FollowerLocationInfo_OnEvent(self,event,arg1)
-	if event=="ADDON_LOADED" then
-		if arg1==addon then
-			-- check config
-			if (FollowerLocationInfoDB==nil) then
-				FollowerLocationInfoDB={};
-			end
-			for key,val in pairs({
-				-- LDB Options
-				LDB_PlayerCoords = false,
-				LDB_TargetCoords = false,
-				LDB_NumFollowers = true,
-				LDBi_Enabled = true,
-
-				-- FLI Options
-				showInfoBox = true,
-				ShowFollowerID = true,
-				ExternalURL = "WoWHead",
-				standalone = false,
-
-				-- FLI Tracker options
-				--HideInCombat = true,
-				--LockedInCombat = true,
-				--CoordsFrame Options
-				--ShowCoordsFrame = true,
-				--CoordsFrameTarget = false,
-				--TargetMark = false,
-				--CoordsFrame_HideInCombat = true,
-				--CoordsFrame_LockedInCombat = true
-			}) do
-				if (FollowerLocationInfoDB[key]==nil) then
-					FollowerLocationInfoDB[key]=val;
-				end
-			end
-
-			if FollowerLocationInfoDB.Minimap~=nil and FollowerLocationInfoDB.Minimap.enabled~=nil then
-				FollowerLocationInfoDB.LDBi_Enabled = FollowerLocationInfoDB.Minimap.enabled;
-				FollowerLocationInfoDB.Minimap = nil;
-			end
-
-			local _,_,_,_,status = GetAddOnInfo(addon.."_Data");
-			local loaded,finished = IsAddOnLoaded(addon.."_Data")
-			if status~="MISSING" and not loaded then
-				EnableAddOn(addon.."_Data");
-				LoadAddOn(addon.."_Data");
-			end
-
-			FollowerLocationInfoData.journalDocked = not FollowerLocationInfoDB.standalone;
-
-			ns.LDB_Init();
-			ns.print("AddOn loaded...");
-		elseif arg1==addon.."_Data" then
-			-- now localization is part of FollowerLocationInfo_Data.
-			-- thats makes easier to update follower and localization.
-			BINDING_HEADER_FOLLOWERLOCATIONINFO		= "FollowerLocationInfo";
-			BINDING_NAME_TOGGLEFOLLOWERLOCATIONINFO	= L["Toggle FollowerLocationInfo Journal"];
-			--StaticPopupDialogs["FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG"].text = L["URL"];
-
-			for i,v in pairs(D.otherFilters)do
-				tinsert(D.otherFiltersOrder,{i,L[i]});
-			end
-
-			D.Version = {Core=GetAddOnMetadata(addon,"Version"),Data=GetAddOnMetadata(arg1,"Version")};
-
-	
-			local min_data_version = tonumber((GetAddOnMetadata(addon,"X-Min-Data-Version") or 0):match("([%d%.]+)")) or 0;
-			local current_data_version = tonumber(D.Version.Data:match("([%d%.]+)")) or 0;
-
-			if (D.Version.Data=="@project-version@")then
-				-- nothing ^^
-			elseif (current_data_version<min_data_version) then
-				self.error = "data too old";
-			else
-				ns.print("Data loaded...");
-			end
-
-			-- check data cache
-			if (FollowerLocationInfoDataDB==nil)then
-				FollowerLocationInfoDataDB={};
-			end
-
-			--- Clear name caches on changed cvar "textLocale"
-			if (FollowerLocationInfoDataDB.Locale~=D.locale) then
-				FollowerLocationInfoDataDB.Locale=D.locale;
-				FollowerLocationInfoDataDB.questNames = {};
-				FollowerLocationInfoDataDB.npcNames = {};
-				FollowerLocationInfoDataDB.objectNames = {};
-				FollowerLocationInfoDataDB.npcTitles = {};
-			end
-
-			if (FollowerLocationInfoDataDB.questNames==nil) then
-				FollowerLocationInfoDataDB.questNames = {};
-			end
-
-			if (FollowerLocationInfoDataDB.npcNames==nil) then
-				FollowerLocationInfoDataDB.npcNames = {};
-			end
-
-			if (FollowerLocationInfoDataDB.npcTitles==nil) then
-				FollowerLocationInfoDataDB.npcTitles = {};
-			end
-
-			if (FollowerLocationInfoDataDB.objectNames==nil) then
-				FollowerLocationInfoDataDB.objectNames = {};
-			end
-
-			isLoaded=true;
-		elseif arg1=="Blizzard_GarrisonUI" then
-			GarrisonMissionFrame:HookScript("OnHide",function()
-				UpdateFollowers();
-			end);
-		elseif FollowerLocationInfoData.journalDocked and arg1=="Blizzard_Collections" then
-			LoadAddOn("FollowerLocationInfo_Journal");
+	if event=="ADDON_LOADED" and arg1==addon then
+		-- check config
+		if (FollowerLocationInfoDB==nil) then
+			FollowerLocationInfoDB={};
 		end
+		for key,val in pairs({
+			-- LDB Options
+			LDB_PlayerCoords = false,
+			LDB_TargetCoords = false,
+			LDB_NumFollowers = true,
+			LDBi_Enabled = true,
+
+			-- FLI Options
+			ShowFollowerID = true,
+			ExternalURL = "WoWHead",
+			standalone = false,
+
+			-- FLI Tracker options
+			--HideInCombat = true,
+			--LockedInCombat = true,
+			--CoordsFrame Options
+			--ShowCoordsFrame = true,
+			--CoordsFrameTarget = false,
+			--TargetMark = false,
+			--CoordsFrame_HideInCombat = true,
+			--CoordsFrame_LockedInCombat = true
+		}) do
+			if (FollowerLocationInfoDB[key]==nil) then
+				FollowerLocationInfoDB[key]=val;
+			end
+		end
+
+		if FollowerLocationInfoDB.Minimap~=nil and FollowerLocationInfoDB.Minimap.enabled~=nil then
+			FollowerLocationInfoDB.LDBi_Enabled = FollowerLocationInfoDB.Minimap.enabled;
+			FollowerLocationInfoDB.Minimap = nil;
+		end
+
+		-- check data cache
+		if (FollowerLocationInfoCache==nil) then
+			FollowerLocationInfoCache={};
+		end
+
+		--- Clear name caches on changed cvar "textLocale"
+		if (FollowerLocationInfoCache.Locale~=D.locale) then
+			FollowerLocationInfoCache.Locale=D.locale;
+			FollowerLocationInfoCache.questNames = {};
+			FollowerLocationInfoCache.npcNames = {};
+			FollowerLocationInfoCache.objectNames = {};
+			FollowerLocationInfoCache.npcTitles = {};
+		end
+
+		if (FollowerLocationInfoCache.questNames==nil) then
+			FollowerLocationInfoCache.questNames = {};
+		end
+
+		if (FollowerLocationInfoCache.npcNames==nil) then
+			FollowerLocationInfoCache.npcNames = {};
+		end
+
+		if (FollowerLocationInfoCache.npcTitles==nil) then
+			FollowerLocationInfoCache.npcTitles = {};
+		end
+
+		if (FollowerLocationInfoCache.objectNames==nil) then
+			FollowerLocationInfoCache.objectNames = {};
+		end
+
+		FollowerLocationInfoDB.standalone = true;
+		FollowerLocationInfoData.journalDocked = false;
+
+		ns.LDB_Init();
+
+		for i,v in pairs(D.otherFilters)do
+			tinsert(D.otherFiltersOrder,{i,L[i]});
+		end
+
+		D.Version = {Core=GetAddOnMetadata(addon,"Version"),Data=""};
+
+		local _,title = GetAddOnInfo(addon.."_Data");
+		if title then
+			if IsAddOnLoaded(addon.."_Data") then
+				DisableAddOn(addon.."_Data");
+			end
+			self.error = "FollowerLocationInfo_Data are deprecated. Please uninstall it.";
+		end
+
+		isLoaded=true;
+
+		ns.print("AddOn loaded...");
+	elseif event=="ADDON_LOADED" and arg1=="Blizzard_GarrisonUI" then
+		GarrisonMissionFrame:HookScript("OnHide",function()
+			UpdateFollowers();
+		end);
+	elseif event=="ADDON_LOADED" and arg1=="Blizzard_Collections" and FollowerLocationInfoData.journalDocked then
+		LoadAddOn("FollowerLocationInfo_Journal");
 	elseif isLoaded then
 		self.ExternalURL_unsupportedTypes = ns.ExternalURL_unsupportedTypes;
 		if event=="PLAYER_ENTERING_WORLD" then
@@ -705,15 +670,9 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 		C_Timer.After(5,function()
 			if FollowerLocationInfo:IsShown() then return end
 			if not isLoaded then
-				local _,_,_,_,status = GetAddOnInfo(addon.."_Data");
-				if status=="MISSING" then
-					FollowerLocationInfo_ShowInfoBox("missing data");
-				end
 			elseif self.error~=nil then
 				FollowerLocationInfo_ShowInfoBox(self.error);
 				self.error=nil;
-			elseif FollowerLocationInfoDB.showInfoBox then
-				FollowerLocationInfo_ShowInfoBox("version");
 			end
 		end);
 		self:UnregisterEvent(event);
@@ -721,13 +680,11 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 end
 
 function FollowerLocationInfo_OnHide(self)
-	if(self.msg=="version")then
-		FollowerLocationInfoDB.showInfoBox = false;
-	end
 	self.msg = nil;
 end
 
 function FollowerLocationInfo_OnLoad(self)
+	-- library access for journals
 	self.MenuGenerator = ns.MenuGenerator;
 	self.LibColors = LibStub("LibColors-1.0");
 	self.SecureTabs = LibStub("SecureTabs-2.0");

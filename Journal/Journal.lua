@@ -365,7 +365,7 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 		if(link:match("^image"))then
 			-- custom hyperlink type "image"
 			local _,id,idx = strsplit(":",link);
-			tt:AddLine(("|TInterface\\AddOns\\FollowerLocationInfo_Data\\media\\follower_%s_%s:%d:%d:0:0|t"):format(id,idx,ttImageSize,ttImageSize));
+			tt:AddLine(("|TInterface\\AddOns\\FollowerLocationInfo\\media\\follower_%s_%s:%d:%d:0:0|t"):format(id,idx,ttImageSize,ttImageSize));
 			forceReload=true;
 		elseif(link:match("^externalurl"))then
 			-- custom hyperlink type "externalurl"
@@ -436,12 +436,13 @@ function FollowerLocationInfoJournal_OnHyperlinkClick(self,link,text,button)
 		if Type=="tomtom" then
 			local _, zone, x, y, title = strsplit(":",link);
 			zone,x,y=tonumber(zone),tonumber(x)/100,tonumber(y)/100;
-			if(title)then
+			if tostring(title):len()>0 then
 				title = {title=title};
 			else
 				title = nil;
 			end
-			TomTom:AddMFWaypoint(zone,0,x,y,title);
+			-- TomTom:AddMFWaypoint(<mapId>,<mapLevel>,<x>,<y>,<optionTable>)
+			local uid = TomTom:AddMFWaypoint(zone,1,x,y,title);
 		elseif Type=="achievement" then
 			local id = tonumber(link:match("achievement:(%d+)"));
 			if ( not AchievementFrame ) then
@@ -573,9 +574,6 @@ function FollowerLocationInfoJournalFollowerList_UpdateVisibleEntries()
 					zone = D.zone2zoneGroup[zone];
 					from = 3;
 				end
-			end
-			if(Zone[zone]==nil)then
-				--ns.print(type(zone),zone,from);
 			end
 			tinsert(Zone[zone],id);
 		end
@@ -878,7 +876,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 	P.html:Hide();
 
 	local id,html,doRetry,title = CurrentFollower,{},false;
-	local h1,h2,h3,lnk,a = "<h1>%s</h1>","<h2>%s</h2><p>|TInterface\\AddOns\\FollowerLocationInfo_Data\\media\\%s:9:256:0:8:128:16:24:64:0:16|t</p>","<h3>%s</h3>","|c%s|H%s|h[%s]|h|r","<a href='%s'>%s</a>";
+	local h1,h2,h3,lnk,a = "<h1>%s</h1>","<h2>%s</h2><p>|TInterface\\AddOns\\FollowerLocationInfo\\media\\%s:9:256:0:8:128:16:24:64:0:16|t</p>","<h3>%s</h3>","|c%s|H%s|h[%s]|h|r","<a href='%s'>%s</a>";
 	local p,pl,pr,br,img = "<p>%s</p>","<p align='left'>%s</p>","<p align='right'>%s</p>","<br/>","|cFF33aaff|Himage:%1$s:%2$s|h["..L["Image"].." %2$d]|h|r";
 	local checked = " |TInterface\\Buttons\\UI-CheckBox-Check:14:14:0:0:32:32:3:29:3:29|t";
 	local stateColor = {[0]="ff0000","ff9900","04ff07","ffffff"};
@@ -973,7 +971,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 		if(type(coordX)=="number" and type(coordY)=="number")then
 			position = ("%1.1f, %1.1f"):format(coordX,coordY);
 			if TomTom and TomTom.AddMFWaypoint then
-				tomtom = ("|cff33aaff|Htomtom:%d:%1.2f:%1.2f:%s|h[%s]|h|r"):format(zoneId,coordX,coordY,tomtomLabel or "-",L["Add waypoint to TomTom"]);
+				tomtom = ("|cff33aaff|Htomtom:%d:%1.2f:%1.2f:%s|h[%s]|h|r"):format(zoneId,coordX,coordY,tomtomLabel or "",L["Add waypoint to TomTom"]);
 			end
 		end
 
@@ -1435,7 +1433,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 				GAME_VERSION_LABEL,
 				"blue",
 				"Core = "..D.Version.Core.."|n"..
-				"Data = "..D.Version.Data
+				D.Version.Data
 			),
 			--section:format(L["Chat commands"],"/fli "..L["or"] .. "/followerlocationinfo"),
 			--[[

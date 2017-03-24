@@ -1,10 +1,11 @@
 
 local addon, ns = ...;
-local D,L,C,Ticker;
+local D = FollowerLocationInfoData;
+local L = D.Locale;
 local LDB  = LibStub("LibDataBroker-1.1");
 local LDBi = LibStub("LibDBIcon-1.0");
 local LDB_UpdateShort, LDB_UpdateLong = 0.2, 10;
-local LDB_Object;
+local LDB_Object,Ticker,C;
 
 local function pairsByFields(t, f1, ...)
 	local i,a = 0,{};
@@ -42,22 +43,16 @@ function FollowerLocationInfo_MinimapButton()
 end
 
 function ns.LDB_Update()
-	if not LDB_Object or not FollowerLocationInfoData then return end
+	if not LDB_Object then return end
 	local label = {};
-
-	if not D then
-		D = FollowerLocationInfoData;
-		L = D.Locale;
-		C = FollowerLocationInfo.LibColors.color;
-	end
 
 	-- coords
 	if(FollowerLocationInfoDB.LDB_PlayerCoords)then
 		local x, y = GetPlayerMapPosition("player")
-		if(x~=0 and y~=0)then
+		if x and x~=0 and y~=0 then
 			tinsert(label,("%1.2f, %1.2f"):format(x*100,y*100));
 		else
-			tinsert(label,"−−.−, −−.−");
+			tinsert(label,"−.−−, −.−−");
 		end
 	end
 
@@ -99,6 +94,8 @@ end
 function ns.LDB_Init()
 	if not (LDB and LDBi) then return end
 	if LDB_Object~=nil then return end
+
+	C = FollowerLocationInfo.LibColors.color;
 
 	LDB_Object = LDB:NewDataObject(addon, {
 		type = "data source",

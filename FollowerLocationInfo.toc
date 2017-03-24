@@ -1,10 +1,9 @@
-## Interface: 70000
+## Interface: 70200
 ## Title: FollowerLocationInfo
 ## Version: @project-version@
 ## Title-zhTW: 追隨者位置資訊
 ## Notes-zhTW: 追隨者位置資訊
 ## Author: Hizuro
-## SavedVariables: FollowerLocationInfoDB
-## X-Min-Data-Version: 0.9
+## SavedVariables: FollowerLocationInfoDB, FollowerLocationInfoCache, FollowerLocationInfoCollectorCache
 
 Core.xml

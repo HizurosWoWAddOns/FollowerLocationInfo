@@ -275,13 +275,13 @@ end
 D.QuestName = setmetatable({},{
 	__index=function(t,k)
 		local v = false;
-		if FollowerLocationInfoDataDB.questNames[k] then
-			v = FollowerLocationInfoDataDB.questNames[k];
+		if FollowerLocationInfoCache.questNames[k] then
+			v = FollowerLocationInfoCache.questNames[k];
 		end
-		local ld = ns.GetLinkData("quest:"..k);
+		local ld = ns.GetLinkData("quest:"..k..":0");
 		if ld and type(ld[1])=="string" and strlen(ld[1])>0 then
 			v = ld[1];
-			FollowerLocationInfoDataDB.questNames[k] = ld[1];
+			FollowerLocationInfoCache.questNames[k] = ld[1];
 		end
 		if v then
 			rawset(t,k,v);
@@ -294,18 +294,18 @@ D.NpcTitle = {};
 D.NpcName = setmetatable({},{
 	__index=function(t,k)
 		local v = false;
-		if FollowerLocationInfoDataDB.npcNames[k] then
-			v = FollowerLocationInfoDataDB.npcNames[k];
+		if FollowerLocationInfoCache.npcNames[k] then
+			v = FollowerLocationInfoCache.npcNames[k];
 		end
-		if FollowerLocationInfoDataDB.npcTitles[k] then
-			D.NpcTitle[k] = FollowerLocationInfoDataDB.npcTitles[k];
+		if FollowerLocationInfoCache.npcTitles[k] then
+			D.NpcTitle[k] = FollowerLocationInfoCache.npcTitles[k];
 		end
 		local ld = ns.GetLinkData("unit:Creature-0-970-1-1-"..k.."-0");
 		if ld and type(ld[1])=="string" and strlen(ld[1])>0 then
 			v = ld[1];
-			FollowerLocationInfoDataDB.npcNames[k] = ld[1];
+			FollowerLocationInfoCache.npcNames[k] = ld[1];
 			if type(ld[2])=="string" and not ld[2]:match("^"..LEVEL) then
-				FollowerLocationInfoDataDB.npcTitles[k] = ld[2];
+				FollowerLocationInfoCache.npcTitles[k] = ld[2];
 				D.NpcTitle[k] = ld[2];
 			end
 		end
@@ -320,13 +320,13 @@ D.ObjectName = setmetatable({},{
 	__index=function(t,k)
 		local v;
 		local K = gsub(tostring(k),"^0%.","");
-		if FollowerLocationInfoDataDB.objectNames[K] then
-			v = FollowerLocationInfoDataDB.objectNames[K];
+		if FollowerLocationInfoCache.objectNames[K] then
+			v = FollowerLocationInfoCache.objectNames[K];
 		end
 		local ld = ns.GetLinkData("unit:GameObject-0-970-1-1-"..K.."-0");
 		if ld and type(ld[1])=="string" and strlen(ld[1])>0 then
 			v = ld[1];
-			FollowerLocationInfoDataDB.objectNames[K] = ld[1];
+			FollowerLocationInfoCache.objectNames[K] = ld[1];
 		end
 		if(not v and rawget(L,"object_"..K))then
 			return L["object_"..K];

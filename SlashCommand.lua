@@ -1,7 +1,7 @@
 
 local addon, ns = ...;
-
-local order,L = {
+local L = FollowerLocationInfoData.Locale;
+local order = {
 	"journal",
 	--"ids",
 	"minimap",
@@ -45,7 +45,6 @@ end
 
 SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 	local cmd, arg = strsplit(" ", cmd, 2)
-	L = FollowerLocationInfoData.Locale;
 
 	if cmdList[cmd] then
 		cmdList[cmd].func();
