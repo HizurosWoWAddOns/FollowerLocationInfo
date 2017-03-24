@@ -197,7 +197,7 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 
 	-- CLASS SPECS
 	for specId, specData in pairsByFields(D.classSpec,3,1)do
-		if D.counter.classspec[specId][1]>0 then
+		if D.counter.classspec[specId] and D.counter.classspec[specId][1]>0 then
 			local disabled, label = false, labelStr:format(LC.color(specData[2],specData[1]), get_counter("classspec",specId));
 			if (active.classes~=nil and active.classes[specData[4]]~=true) then
 				disabled,label = true,labelStrDisabled:format(specData[1], get_counter("classspec",specId,true));
@@ -334,13 +334,21 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 			if D.build>70000000 then
 				local tooltip = _G[GarrisonFollowerOptions[LE_FOLLOWER_TYPE_GARRISON_6_0].abilityTooltipFrame];
 				tooltip:ClearAllPoints();
-				tooltip:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
+				if FollowerLocationInfoData.journalDocked then
+					tooltip:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
+				else
+					tooltip:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
+				end
 				--tooltip:SetPoint("LEFT", self, "RIGHT", 4, 0);
 				GarrisonFollowerAbilityTooltip_Show(tooltip, tonumber(id), LE_FOLLOWER_TYPE_GARRISON_6_0);
 			else
 				tt=GarrisonFollowerAbilityTooltip;
 				tt:ClearAllPoints();
-				tt:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
+				if FollowerLocationInfoData.journalDocked then
+					tt:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
+				else
+					tt:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
+				end
 				GarrisonFollowerAbilityTooltip_Show(tonumber(id),LE_FOLLOWER_TYPE_GARRISON_6_0);
 			end
 		end
@@ -348,7 +356,11 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 		tt=GameTooltip;
 		tt:Hide(); tt:ClearLines();
 		tt:SetOwner(FollowerLocationInfoJournalDesc,"ANCHOR_NONE");
-		tt:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
+		if FollowerLocationInfoData.journalDocked then
+			tt:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
+		else
+			tt:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
+		end
 
 		if(link:match("^image"))then
 			-- custom hyperlink type "image"
@@ -897,18 +909,21 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 	end;
 
 	shared["Brawler's Guild"]=function(_, factionId, rank)
-		local _, friendRep, friendMaxRep, friendName, _, _, friendTextLevel, friendThreshold, nextFriendThreshold = GetFriendshipReputation(factionId);
-		local state,standingNum = 0,tonumber(friendTextLevel:match("(%d+)"));
-		if standingNum then
-			state = 1;
-			if standingNum>=rank then
-				state = 2;
+		local k, friendRep, friendMaxRep, friendName, _, _, friendTextLevel, friendThreshold, nextFriendThreshold = GetFriendshipReputation(factionId);
+		if k~=nil then
+			local state,standingNum = 0,tonumber(friendTextLevel:match("(%d+)"));
+			if standingNum then
+				state = 1;
+				if standingNum>=rank then
+					state = 2;
+				end
 			end
+			return	friendName,
+					RANK .. " " .. rank,
+					CreateExternalURL("f",factionId),
+					{state=state,current=("%s ( %d / %d )"):format(friendTextLevel,friendRep-friendThreshold,nextFriendThreshold)}
 		end
-		return	friendName,
-				RANK .. " " .. rank,
-				CreateExternalURL("f",factionId),
-				{state=state,current=("%s ( %d / %d )"):format(friendTextLevel,friendRep-friendThreshold,nextFriendThreshold)}
+		return shared.Reputation(_, factionId, rank); -- [1691] Brawler's guild (Season 2) was changed to normal faction...
 	end
 
 	shared.Professions=function(_,id,skillNeed)
@@ -1141,16 +1156,18 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 						local link = CreateExternalURL("m",Desc[I][i]);
 						if link then tinsert(missionData,listPrefix..link); end
 						local rewardList,rewards = C_Garrison.GetMissionRewardInfo(Desc[I][i]),{};
-						for _,reward in pairs(rewardList)do
-							local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(reward.itemID);
-							local hlink = CreateExternalURL("i",reward.itemID);
-							if link and icon then
-								tinsert(rewards,
-									("|T%s:14:14:0:0:64:64:4:56:4:56|t %s"):format(icon,link) ..
-									(hlink~=nil and "|n"..listPrefix..hlink or "")
-								);
-							else
-								--print("Error:", "Mission reward item not found.", "itemID:"..reward.itemID,"missionID:"..Desc[I][i]);
+						if rewardList then
+							for _,reward in pairs(rewardList)do
+								local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(reward.itemID);
+								local hlink = CreateExternalURL("i",reward.itemID);
+								if link and icon then
+									tinsert(rewards,
+										("|T%s:14:14:0:0:64:64:4:56:4:56|t %s"):format(icon,link) ..
+										(hlink~=nil and "|n"..listPrefix..hlink or "")
+									);
+								else
+									--print("Error:", "Mission reward item not found.", "itemID:"..reward.itemID,"missionID:"..Desc[I][i]);
+								end
 							end
 						end
 						if(#rewards>0)then
@@ -1561,6 +1578,7 @@ function FollowerLocationInfoJournal_OnLoad(self)
 		self.FollowerDesc.ScrollBarTop:Hide();
 		self.FollowerDesc.ScrollBarMiddle:Hide();
 		self.FollowerDesc.ScrollBarBottom:Hide();
+
 		UIPanelWindows["FollowerLocationInfoJournalFrame"] = { area = "left", pushable = 0, whileDead = 1, width = 830};
 	end
 
