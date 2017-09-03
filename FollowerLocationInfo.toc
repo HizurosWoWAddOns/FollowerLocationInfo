@@ -1,9 +1,20 @@
-## Interface: 70200
+## Interface: 70300
 ## Title: FollowerLocationInfo
 ## Version: @project-version@
 ## Title-zhTW: 追隨者位置資訊
 ## Notes-zhTW: 追隨者位置資訊
 ## Author: Hizuro
 ## SavedVariables: FollowerLocationInfoDB, FollowerLocationInfoCache, FollowerLocationInfoCollectorCache
+## OptionalDeps: LibStub, CallbackHandler-1.0, LibDataBroker-1.1, LibDBIcon-1.0, LibColors-1.0.lua, SecureTabs-2.0.lua
+
+#@no-lib-strip@
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+libs\LibColors-1.0\LibColors-1.0.lua
+#@end-no-lib-strip@
+
+libs\SecureTabs-2.0\SecureTabs-2.0.lua
 
 Core.xml
