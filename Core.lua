@@ -369,7 +369,7 @@ function FollowerLocationInfo_OptionMenu(parent,point,relativePoint)
 	end
 	local db = FollowerLocationInfoDB;
 
-	PlaySound("igMainMenuOptionCheckBoxOn");
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 	ns.MenuGenerator.InitializeMenu();
 	ns.MenuGenerator.addEntry({
 		{ label = "DataBroker", title=true },
@@ -450,7 +450,7 @@ function FollowerLocationInfo_OptionMenu(parent,point,relativePoint)
 			dbType="select", keyName="ExternalURL",
 			default = "WoWHead",
 			values = ns.ExternalURLValues,
-			event = function() FollowerLocationInfoJournalFollowerCard_Update(); FollowerLocationInfoJournalFollowerDesc_Update() end
+			event = function() ns.FollowerCard_Update(); ns.FollowerDesc_Update() end
 		},
 		{
 			label = L["Standalone mode"], tooltip={L["Standalone mode"],L["Display the journal like garrison report with own window"],"|cffff0000"..L["Needs UI reload!"].."|r","|cffff8800"..L["Will be automatically reload your ui while your are not in combat..."].."|r"},
@@ -460,7 +460,7 @@ function FollowerLocationInfo_OptionMenu(parent,point,relativePoint)
 		{
 			label = L["Show FollowerID"], tooltip={L["FollowerID"],L["Show followerIDs in follower list"]},
 			dbType="bool", keyName="ShowFollowerID",
-			event = function() FollowerLocationInfoJournalFollowerList_Update(); end
+			event = function() ns.FollowerList_Update(); end
 		},
 		--[[
 		{ separator = true },

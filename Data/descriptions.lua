@@ -140,7 +140,7 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 				{110470, 946, 45.3, 37.0},
 				{110471, 950, 46.4, 16.0}
 			},
-			{"Quests", 
+			{"Quests",
 				{34472, 100, 86949, 946, 85.0, 31.0},
 				{36027, 100, 77853, 946, 84.6, 31.6}
 			}
@@ -151,7 +151,7 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 		nil,
 		{
 			zone=946,
-			{"Quests", 
+			{"Quests",
 				{34240, 95, 75250, 946, 57.2, 77},
 				{33958, 95, 75256, 946, 57.2, 76.8},
 				{34508, 95, 77869, 946, 50.4, 87.4},
@@ -299,7 +299,7 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 			},
 			{"Quests",
 				-- not enough
-				-- 
+				--
 				{33119, 90, 78222, 941, 24.4, 37.2},
 				{33483, 90, 72890, 941, 30.8, 41.4},
 				{33484, 90, 79047, 941, 30.6, 41.4},
@@ -347,7 +347,7 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 		{
 			collectGroup={184,185,186},
 			zone=941,
-			{"Quests", 
+			{"Quests",
 				{33828, 90, 72940, 941, nil, nil, "The Frostwolf Champion will follow you in frostfire ridge"}, -- TODO: check?
 				{33493, 90, 72940, 941, nil, nil},
 				{37291, 90, 74163, 976, 50, 38.4},
@@ -577,7 +577,7 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 		{
 			zone=949,
 			{"Requirements", {"Outpost", 949, 1}},
-			{"Quests", 
+			{"Quests",
 				{35707, 92, 85077, 949, 46.4, 69.6},
 				{35506, 92, 82574, 949, 55.8, 71.4},
 				{35505, 92, 84811, 949, 55.8, 71.4},
@@ -608,7 +608,7 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 		nil,
 		{
 			zone = 950,
-			{"Quests", 
+			{"Quests",
 				{34951, 98, 80624, 950, 63.4, 61.8}, -- travel to hallvalor
 				{34954, 98, 80161, 950, 85.4, 54.6}, -- the blade itself
 				{34955, 98, 80161, 950, 85.4, 54.6}, -- not without my honer
@@ -745,7 +745,7 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 		},
 		{
 			zone = 941,
-			{"Quests", 
+			{"Quests",
 				{36706, 90, 78466, 976, 52.4, 52.8},
 				{36707, 90, 86315, 1011, 45.2, 34.6},
 				{36708, 90, 86312, 1011, 44.4, 45.2},
@@ -845,6 +845,7 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 				{946, 73.93, 28.23, Images={{"location946","Image",false} }}, --[=[ Talador ]=]
 				{948, 55.14, 79.51, Images={{"location948","Image",false} }}, --[=[ Spikes of Arak ]=]
 				{950, 84.4, 54.26, Images={{"location950","Image",false} }}, --[=[ Nagrand ]=]
+				{950, 59.2, 38.6, Images={{"location950-2","Image",false} }}, --[=[ Nagrand ]=]
 			}
 		}
 	};

@@ -128,7 +128,7 @@ function FollowerLocationInfoJournal_SetFilter(filterID,filterType,filterValue)
 end
 
 function FollowerLocationInfoJournal_ClearFilter(self,button)
-	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+	PlaySound("igMainMenuOptionCheckBoxOn");
 	if button=="RightButton" then
 		wipe(activeFilter);
 		filter_collected=nil;
@@ -303,7 +303,7 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 		end
 	end
 
-	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+	PlaySound("igMainMenuOptionCheckBoxOn");
 	MenuGenerator.InitializeMenu();
 	MenuGenerator.addEntry({
 		{ label = COLLECTED, func=function() FollowerLocationInfoJournal_SetFilter(filterID,"collected",true); end, disabled = filter_collected==true},
@@ -411,7 +411,7 @@ function FollowerLocationInfoJournal_OnHyperlinkLeave(self,link,text)
 end
 
 function FollowerLocationInfoJournal_OnHyperlinkClick(self,link,text,button)
-	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+	PlaySound("igMainMenuOptionCheckBoxOn");
 	local Type = link:match("^([a-zA-Z0-9]*):");
 	-- creates an modifier string with fixed order. -- [Alt][Shift][Ctrl]
 	local Modifiers = (IsAltKeyDown() and "Alt" or "") .. (IsShiftKeyDown() and "Shift" or "") .. (IsControlKeyDown() and "Ctrl" or "");
