@@ -48,7 +48,11 @@ function ns.LDB_Update()
 
 	-- coords
 	if(FollowerLocationInfoDB.LDB_PlayerCoords)then
-		local x, y = GetPlayerMapPosition("player")
+		local x, y = 0,0;
+		local obj = C_Map.GetPlayerMapPosition(C_Map.GetBestMapForUnit("player"),"player");
+		if obj and obj.GetXY then
+			x,y = obj:GetXY();
+		end
 		if x and x~=0 and y~=0 then
 			tinsert(label,("%1.2f, %1.2f"):format(x*100,y*100));
 		else
@@ -111,7 +115,7 @@ function ns.LDB_Init()
 		end,
 		OnTooltipShow = LDB_Tooltip
 	});
-	
+
 	if GetAddOnInfo("SlideBar") and GetAddOnEnableState(UnitName("player"),"SlideBar")>1 then
 		LDB:NewDataObject(addon..".Launcher", {
 			type = "launcher",
