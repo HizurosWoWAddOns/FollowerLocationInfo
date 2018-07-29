@@ -80,7 +80,7 @@
 					<Anchors>
 						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.background" x="-2" y="-2" />
 					</Anchors>
-					<TexCoords left="0.619140625" right="0.654296875" top="0.25390625" bottom="0.32421875" />
+					<TexCoords left="0.5859375" right="0.6171875" top="0.1328125" bottom="0.16015625" />
 				</Texture>
 
 				<Texture parentKey="notCollectable" file="Interface\QuestFrame\ObjectiveTracker" hidden="true">
@@ -88,7 +88,7 @@
 					<Anchors>
 						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.collected" />
 					</Anchors>
-					<TexCoords left="0.583984375" right="0.619140625" top="0.25390625" bottom="0.32421875" />
+					<TexCoords left="0.94921875" right="0.9765625" top="0.00390625" bottom="0.03125" />
 				</Texture>
 
 				<FontString parentKey="followerID" inherits="GameFontWhiteTiny" alpha="0.3">
@@ -315,7 +315,7 @@
 				</Texture>
 				<Texture atlas="GarrLanding-Top" useAtlasSize="true">
 					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.TL" relativePoint="TOPRIGHT" y="-1"/> 
+						<Anchor point="TOPLEFT" relativeKey="$parent.TL" relativePoint="TOPRIGHT" y="-1"/>
 						<Anchor point="TOPRIGHT" relativeKey="$parent.TR" relativePoint="TOPLEFT" y="-1"/>
 					</Anchors>
 				</Texture>
