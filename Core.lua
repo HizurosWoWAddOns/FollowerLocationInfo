@@ -12,7 +12,7 @@ BINDING_HEADER_FOLLOWERLOCATIONINFO		= "FollowerLocationInfo";
 BINDING_NAME_TOGGLEFOLLOWERLOCATIONINFO	= L["Toggle FollowerLocationInfo Journal"];
 --StaticPopupDialogs["FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG"].text = L["URL"];
 
-ns.print=function(...)
+function ns.print(...)
 	local colors,t,c = {"0099ff","00ff00","ff6060","44ffff","ffff00","ff8800","ff44ff","ffffff"},{},1;
 	for i,v in ipairs({...}) do
 		v = tostring(v);
@@ -25,6 +25,13 @@ ns.print=function(...)
 		tinsert(t,v);
 	end
 	print(unpack(t));
+end
+
+local debugMode = "@project-version@"=="@".."project-version".."@";
+function ns.debug(...)
+	if debugMode then
+		ns.print("<debug>",...);
+	end
 end
 
 local function count(t,v,d)
@@ -558,7 +565,7 @@ function FollowerLocationInfo_ToggleJournal()
 		end
 	end
 end
-	
+
 function FollowerLocationInfo_OnEvent(self,event,arg1)
 	if event=="ADDON_LOADED" and arg1==addon then
 		-- check config

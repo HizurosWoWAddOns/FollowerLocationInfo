@@ -17,7 +17,25 @@ local filter_collected = nil;
 --- Misc local functions ---
 ----------------------------
 function ns.print(...)
-	print("|cff00ff00"..Addon.."|r",...)
+	local colors,t,c = {"0099ff","00ff00","ff6060","44ffff","ffff00","ff8800","ff44ff","ffffff"},{},1;
+	for i,v in ipairs({...}) do
+		v = tostring(v);
+		if i==1 and v~="" then
+			tinsert(t,"|cff0099ff"..addon.."|r:"); c=2;
+		end
+		if not v:match("||c") then
+			v,c = "|cff"..colors[c]..v.."|r", c<#colors and c+1 or 1;
+		end
+		tinsert(t,v);
+	end
+	print(unpack(t));
+end
+
+local debugMode = "@project-version@"=="@".."project-version".."@";
+function ns.debug(...)
+	if debugMode then
+		ns.print("<debug>",...);
+	end
 end
 
 local function pairsByKeys(t, f)
@@ -211,7 +229,7 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 			});
 		end
 	end
-	
+
 	-- Qualities
 	for k,v in ipairs(D.qualities) do
 		if(D.counter.qualities[v[1]])then
@@ -382,7 +400,8 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 			if label~="-" then
 				tt:AddDoubleLine(L["Label"],label);
 			end
-			tt:AddDoubleLine(ZONE,GetMapNameByID(zone));
+
+			tt:AddDoubleLine(ZONE,C_Map.GetMapInfo(zone).name);
 			tt:AddDoubleLine(L["Coordinations"],x..", "..y);
 			tt:AddLine(" ");
 			tt:AddDoubleLine(L["Left-click"],L["Add waypoint to TomTom"]);
@@ -448,7 +467,7 @@ function FollowerLocationInfoJournal_OnHyperlinkClick(self,link,text,button)
 			if ( not AchievementFrame ) then
 				AchievementFrame_LoadUI();
 			end
-			
+
 			if ( not AchievementFrame:IsShown() ) then
 				AchievementFrame_ToggleAchievementFrame();
 				AchievementFrame_SelectAchievement(id);
@@ -765,7 +784,7 @@ function FollowerLocationInfoJournalFollowerCard_Update()
 				 "<h1>|c%1$s%2$s|r</h1>"..
 				 "<p>|c%1$s%3$s|r</p>"..
 				 "<p>"..link.."</p>"..
-				 ((LOCALE_zhCN or LOCALE_zhTW) and "<p>|n</p>" or "<p>|n</p><br/>").. 
+				 ((LOCALE_zhCN or LOCALE_zhTW) and "<p>|n</p>" or "<p>|n</p><br/>")..
 				 "<h3>|cffffcc00"..LEVEL..":|r %4$s</h3>"..
 				 "<p>|n</p>"..
 				 "<h3>|cffffcc00"..QUALITY..":|r %5$s</h3>"..
@@ -985,7 +1004,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 			location = " @ " .. (position or customStr) .. ((position and customStr) and " ("..customStr..")" or "");
 		end
 
-		return GetMapNameByID(zoneId) .. location, tomtom;
+		return C_Map.GetMapInfo(zoneId).name .. location, tomtom;
 	end;
 
 	shared.Outpost=function(_,zone,option)

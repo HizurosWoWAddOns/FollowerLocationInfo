@@ -88,21 +88,21 @@ end
 --]]
 D.zoneOrder = (D.Faction=="Alliance")
 	--[=[ Alliance zone order ]=] and {
-		301, -- brawlers guild / alliance main city
-		962,947,971,949,946,948,950,941,945,978,1009, -- draenor zones
+		84, -- brawlers guild / alliance main city
+		572,539,582,543,535,542,550,525,534,588,622, -- draenor zones
 		0.1,0.2,0.3,0.4 -- custom sections
 		}
-	
+
 	--[=[ Horde zone order ]=] or {
-		321, -- brawlers guild / horde main city
-		962,941,976,949,946,948,950,947,945,978,1011, -- draenor zones
+		85, -- brawlers guild / horde main city
+		572,525,590,543,535,542,550,539,534,588,624, -- draenor zones
 		0.1,0.2,0.3,0.4 -- custom sections
 	};
 D.zone2zoneGroup = {
 	--[=[ dungeons ]=]
-	--[[ WoD ]] [964]=0.1,[969]=0.1,[984]=0.1,[987]=0.1,[989]=0.1,[993]=0.1,[995]=0.1,[1008]=0.1,
+	--[[ WoD ]] [573]=0.1,[574]=0.1,[593]=0.1,[595]=0.1,[601]=0.1,[606]=0.1,[616]=0.1,[620]=0.1,
 	--[=[ Raids]=]
-	--[[ WoD ]] [994]=0.2,[988]=0.2,[1026]=0.2
+	--[[ WoD ]] [610]=0.2,[596]=0.2,[661]=0.2
 }
 
 D.counter = {blizz=0,collectables={0,0},recruitables={0,0},class={},classspec={},abilities={},counters={},traits={},qualities={}};
@@ -152,7 +152,7 @@ D.zoneNames = setmetatable({},{
 				  or (k==0.4 and L["Without description"])
 				  or UNKNOWN;
 			else
-				v = GetMapNameByID(k);
+				v = C_Map.GetMapInfo(k).name;
 			end
 		elseif type(k)=="string" then
 			v = L[k];
@@ -261,7 +261,7 @@ do
 				V = v[D.faction+1];
 				f = D.faction==1 and "alliance" or "horde";
 			end
-			if(V.collectGroup)then 
+			if(V.collectGroup)then
 				for i=1,#V.collectGroup do
 					_rawset(t,tonumber(V.collectGroup[i]),V,f);
 				end
