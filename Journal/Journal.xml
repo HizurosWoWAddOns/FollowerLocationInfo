@@ -372,14 +372,6 @@
 		</Scripts>
 	</Frame>
 
-	<Frame name="FollowerLocationInfoJournalPortraitFrame" parent="CollectionsJournal" inherits="PortraitFrameTemplate" setallpoints="true" hidden="true">
-		<Scripts>
-			<OnShow>
-				FollowerLocationInfoJournal:Show();
-			</OnShow>
-		</Scripts>
-	</Frame>
-
 	<Frame name="FollowerLocationInfoJournal" hidden="true">
 		<Frames>
 			<Frame parentKey="TopLeftInset" useParentLevel="true">

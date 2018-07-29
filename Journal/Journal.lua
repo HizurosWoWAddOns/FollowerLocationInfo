@@ -1563,14 +1563,18 @@ function FollowerLocationInfoJournal_OnLoad(self)
 		local label = addon;
 		if true then label = "FLI"; end
 
-		--FollowerLocationInfoJournalPortraitFrame:SetParent(CollectionsJournal);
-		SetPortraitToTexture(FollowerLocationInfoJournalPortraitFrame.portrait, "Interface\\Icons\\Achievement_GarrisonFollower_Rare");
-		FollowerLocationInfoJournalPortraitFrame.TitleText:SetText(Addon);
-		self.Tab = FollowerLocationInfo.SecureTabs:Add(CollectionsJournal, FollowerLocationInfoJournalPortraitFrame, label);
+		local portraitFrame = CreateFrame("Frame","FollowerLocationInfoJournalPortraitFrame",UIParent,"PortraitFrameTemplate");
+		portraitFrame:SetParent(CollectionsJournal);
+		portraitFrame:SetAllPoints();
+		portraitFrame:Hide();
+		SetPortraitToTexture(portraitFrame.portrait, "Interface\\Icons\\Achievement_GarrisonFollower_Rare");
+		portraitFrame.TitleText:SetText(Addon);
+		self.Tab = FollowerLocationInfo.SecureTabs:Add(CollectionsJournal, portraitFrame, label);
 
-		self:SetParent(FollowerLocationInfoJournalPortraitFrame);
+		self:SetParent(portraitFrame);
 		self:SetPoint("TOPLEFT", 0, -60);
 		self:SetPoint("BOTTOMRIGHT");
+		self:Show();
 
 		self.counters:SetPoint("TOPLEFT",CollectionsJournal,"TOPLEFT", 65, -33);
 		self.Options:SetPoint("TOPRIGHT",CollectionsJournal,"TOPRIGHT",-6,-26);
