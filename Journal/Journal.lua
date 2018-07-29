@@ -1,7 +1,6 @@
 
 local addon, ns = ...;
 local Addon = gsub(addon,"_Journal","");
-local MenuGenerator = FollowerLocationInfo.MenuGenerator;
 local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeightIdx,modelScaleIdx,abilitiesIdx,countersIdx,traitsIdx,isCollectableIdx = 1,2,3,4,5,6,7,8,9,10,11,12; -- table indexes for FollowerLocationInfoData.basics entries.
 local L,D,LC,journalVisibleEntries,activeFilter={},{},{},{},{};
 local tconcat,tsort = table.concat,table.sort;
@@ -11,6 +10,7 @@ local SPECS = LEVEL_UP_SPECIALIZATION_LINK:match("%[(.*)%]");
 local NUM_FILTERS = 3;
 local listPrefix = LOCALE_zhCN and "&#xB7;" or "&#xA0;&#x2022;&#xA0;";
 local filter_collected = nil;
+local LDDM = LibStub("LibDropDownMenu");
 
 
 ----------------------------
@@ -172,8 +172,13 @@ end
 function FollowerLocationInfoJournal_FilterMenu(parent)
 	local menus,disabled = {classes={},classspec={},qualities={},abilities={},traits={},counters={},others={}},{};
 	local labelStr,labelStrDisabled,entries,cMax,page,filterID = "%s (|cff%s%s|r/|cff%s%s|r)","%s (%s/%s)",{},20,1,parent:GetParent():GetID();
+	local separator={ text="", dist=0, isTitle=true, notCheckable=true, isNotRadio=true, sUninteractable=true, iconOnly=true, icon="Interface\\Common\\UI-TooltipDivider-Transparent", tCoordLeft=0, tCoordRight=1, tCoordTop=0, tCoordBottom=1, tFitDropDownSizeX=true, tSizeX=0, tSizeY=8, iconInfo={tCoordLeft=0, tCoordRight=1, tCoordTop=0, tCoordBottom=1, tFitDropDownSizeX=true, tSizeX=0, tSizeY=8} };
+	local MenuFrame = _G.FollowerLocationInfo_LibDropDownMenu;
+	if not MenuFrame then
+		MenuFrame = LDDM.Create_DropDownMenu("FollowerLocationInfo_LibDropDownMenu",UIParent);
+	end
 
-	local get_counter = function(n,i,noColor)
+	local function get_counter(n,i,noColor)
 		local v = {};
 		if(i and type(D.counter[n][i])=="table")then
 			v = D.counter[n][i];
@@ -184,6 +189,10 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 			return v[2] or "?", v[1] or "?";
 		end
 		return (type(v[2])=="number" and v[2]>0) and "00ff00" or "999999", v[2] or "?", "ffee00", v[1] or "?";
+	end
+
+	local function SetFilter(self)
+		FollowerLocationInfoJournal_SetFilter(unpack(self.arg1));
 	end
 
 	local active = {};
@@ -199,17 +208,13 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 	tsort(sortedClasses,function(a,b) return a[3]<b[3]; end);
 	for i,v in ipairs(sortedClasses) do
 		if D.counter.class[v[1]] then
-			tinsert(menus.classes,{
-				label = labelStr:format(
-					LC.color(v[2],v[3]),
-					D.counter.class[v[1]][2]>0 and "00ff00" or "999999",
-					D.counter.class[v[1]][2],"ffee00",
-					D.counter.class[v[1]][1]
-				),
-				func=function()
-					FollowerLocationInfoJournal_SetFilter(filterID,"classes",v[1]);
-				end
-			});
+			local label = labelStr:format(
+				LC.color(v[2],v[3]),
+				D.counter.class[v[1]][2]>0 and "00ff00" or "999999",
+				D.counter.class[v[1]][2],"ffee00",
+				D.counter.class[v[1]][1]
+			);
+			tinsert(menus.classes,{text=label, func=SetFilter, notCheckable=true, arg1={filterID,"classes",v[1]}});
 		end
 	end
 
@@ -220,25 +225,15 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 			if (active.classes~=nil and active.classes[specData[4]]~=true) then
 				disabled,label = true,labelStrDisabled:format(specData[1], get_counter("classspec",specId,true));
 			end
-			tinsert(menus.classspec,{
-				label = label,
-				func=function()
-					FollowerLocationInfoJournal_SetFilter(filterID,"classspec",specId);
-				end,
-				disabled = disabled
-			});
+			tinsert(menus.classspec,{text=label, func=SetFilter, notCheckable=true, arg1={filterID,"classspec",specId}, disabled=disabled});
 		end
 	end
 
 	-- Qualities
 	for k,v in ipairs(D.qualities) do
 		if(D.counter.qualities[v[1]])then
-			tinsert(menus.qualities,{
-				label = labelStr:format(LC.color("quality"..v[1],v[2]), get_counter("qualities",v[1]));
-				func=function()
-					FollowerLocationInfoJournal_SetFilter(filterID,"qualities",v[1]);
-				end
-			});
+			local label = labelStr:format(LC.color("quality"..v[1],v[2]), get_counter("qualities",v[1]));
+			tinsert(menus.qualities,{text=label, func=SetFilter, notCheckable=true, arg1={filterID,"qualities",v[1]}});
 		end
 	end
 
@@ -253,13 +248,8 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 				tinsert(menus.traits,{label=v.category, title=true});
 				lastTitle=v.category;
 			end
-			tinsert(menus.traits,{
-				label=labelStr:format(v.name, get_counter("traits",k)),
-				icon=v.icon,
-				func=function()
-					FollowerLocationInfoJournal_SetFilter(filterID,"traits",k);
-				end
-			});
+			local label = labelStr:format(v.name, get_counter("traits",k));
+			tinsert(menus.traits,{text=label, icon=v.icon, func=SetFilter, notCheckable=true, arg1={filterID,"traits",k}});
 		--end
 	end
 
@@ -273,36 +263,22 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 					disabled,label = true,labelStrDisabled:format(v.name,get_counter("abilities",k,true));
 				end
 			end
-			tinsert(menus.abilities,{
-				label=label,
-				icon=v.icon,
-				func=function()
-					FollowerLocationInfoJournal_SetFilter(filterID,"abilities",k);
-				end,
-				disabled = disabled
-			});
+			tinsert(menus.abilities,{text=label, icon=v.icon, func=SetFilter, notCheckable=true, arg1={filterID,"abilities",k}, disabled=disabled});
 		end
 	end
 
 	-- Counters
 	for k,v in pairsByFields(D.counters,"name") do
 		if D.counter.counters[k][1]>0 then
-			tinsert(menus.counters,{
-				label=labelStr:format(v.name, get_counter("counters",k)),
-				icon=v.icon,
-				func=function()
-					FollowerLocationInfoJournal_SetFilter(filterID,"counters",k);
-				end
-			});
+			local label = labelStr:format(v.name, get_counter("counters",k));
+			tinsert(menus.counters,{text=label, icon=v.icon, func=SetFilter, notCheckable=true, arg1={filterID,"counters",k}});
 		end
 	end
 
 	-- other filter options
 	for i,v in pairsByFields(D.otherFiltersOrder,2)do
-		tinsert(menus.others,{
-			label = labelStr:format(LC.color("white",v[2]),D.otherFiltersCount[v[1]][1]>0 and "00ff00" or "999999",D.otherFiltersCount[v[1]][2],"ffee00",D.otherFiltersCount[v[1]][1]),
-			func = function() FollowerLocationInfoJournal_SetFilter(filterID,"others",v[1]); end
-		});
+		local label = labelStr:format(LC.color("white",v[2]),D.otherFiltersCount[v[1]][1]>0 and "00ff00" or "999999",D.otherFiltersCount[v[1]][2],"ffee00",D.otherFiltersCount[v[1]][1]);
+		tinsert(menus.others,{text=label, func=SetFilter, notCheckable=true, arg1={filterID,"others",v[1]}});
 	end
 
 	-- check on empty submenus and disable it
@@ -321,21 +297,25 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 		end
 	end
 
+	local menuList={
+		{ text = COLLECTED, func=SetFilter, arg1={filterID,"collected",true}, disabled = filter_collected==true, notCheckable=true},
+		{ text = NOT_COLLECTED, func=SetFilter, arg1={filterID,"collected",false}, disabled = filter_collected==false, notCheckable=true},
+		separator,
+		{ text = L["Classes"], menuList=menus.classes, disabled = disabled.classes, notCheckable=true, hasArrow=true },
+		{ text = SPECS, menuList=menus.classspec, disabled = disabled.classspec, notCheckable=true, hasArrow=true },
+		{ text = QUALITY, menuList=menus.qualities, disabled = disabled.qualities, notCheckable=true, hasArrow=true },
+		{ text = GARRISON_TRAITS, menuList=menus.traits, disabled = disabled.traits, notCheckable=true, hasArrow=true },
+		{ text = ABILITIES, menuList=menus.abilities, disabled = disabled.abilities, notCheckable=true, hasArrow=true },
+		{ text = L["Counters"], menuList=menus.counters, disabled = disabled.counters, notCheckable=true, hasArrow=true },
+		{ text = L["Obtainable by"], menuList=menus.others, disalbed = disabled.others, notCheckable=true, hasArrow=true },
+		separator,
+		{text=CANCEL, notCheckable=true, isNotRadio=true, func=function() LDDM.CloseDropDownMenus(); end}
+	};
+
 	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
-	MenuGenerator.InitializeMenu();
-	MenuGenerator.addEntry({
-		{ label = COLLECTED, func=function() FollowerLocationInfoJournal_SetFilter(filterID,"collected",true); end, disabled = filter_collected==true},
-		{ label = NOT_COLLECTED, func=function() FollowerLocationInfoJournal_SetFilter(filterID,"collected",false); end, disabled = filter_collected==false},
-		{ separator = true },
-		{ label = L["Classes"], childs=menus.classes, disabled = disabled.classes },
-		{ label = SPECS, childs=menus.classspec, disabled = disabled.classspec },
-		{ label = QUALITY, childs=menus.qualities, disabled = disabled.qualities },
-		{ label = GARRISON_TRAITS, childs=menus.traits, disabled = disabled.traits },
-		{ label = ABILITIES, childs=menus.abilities, disabled = disabled.abilities },
-		{ label = L["Counters"], childs=menus.counters, disabled = disabled.counters },
-		{ label = L["Obtainable by"], childs=menus.others, disalbed = disabled.others }
-	});
-	MenuGenerator.ShowMenu(parent, "TOPLEFT","TOPRIGHT");
+	MenuFrame.point = "TOPLEFT";
+	MenuFrame.relativePoint = "TOPRIGHT";
+	LDDM.EasyMenu(menuList, MenuFrame, parent, 0, 0, "MENU");
 end
 
 

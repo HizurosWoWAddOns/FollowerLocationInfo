@@ -354,22 +354,9 @@ local function CheckAndLoadJournal()
 end
 
 local function CreateMenuList()
-	MenuFrame = LDDM.Create_DropDownMenu(addon.."_LibDropDownMenu",UIParent);
+	local MenuFrame = _G.FollowerLocationInfo_LibDropDownMenu;
 	local db = FollowerLocationInfoDB;
 	local separator={ text="", dist=0, isTitle=true, notCheckable=true, isNotRadio=true, sUninteractable=true, iconOnly=true, icon="Interface\\Common\\UI-TooltipDivider-Transparent", tCoordLeft=0, tCoordRight=1, tCoordTop=0, tCoordBottom=1, tFitDropDownSizeX=true, tSizeX=0, tSizeY=8, iconInfo={tCoordLeft=0, tCoordRight=1, tCoordTop=0, tCoordBottom=1, tFitDropDownSizeX=true, tSizeX=0, tSizeY=8} };
-
-	MenuList = {};
-	tinsert(MenuList,{ text="DataBroker", isTitle=true, isNotRadio=true, notCheckable=true });
-
-	tinsert(MenuList,{
-		text=L["Show minimap button"], tooltipTitle=L["Minimap"], tooltipText=L["Show/Hide minimap button"], keepShownOnClick=1, isNotRadio=true,
-		checked=function() return db.LDBi_Enabled; end,
-		func=function() FollowerLocationInfo_MinimapButton(); end
-	});
-
-	tinsert(MenuList,{text=L["Broker button text"], tooltipTitle=L["Broker button text"], tooltipText=L["Choose what you want to look on broker button"], hasArrow=true, menuList={}, isNotRadio=true, notCheckable=true });
-
-	local subList = MenuList[#MenuList].menuList;
 
 	local function CheckFunc(self)
 		return db[self.arg1];
@@ -380,20 +367,6 @@ local function CreateMenuList()
 		LDDM.UIDropDownMenu_Refresh(MenuFrame,nil,2);
 		ns.LDB_Update();
 	end
-
-	tinsert(subList,{text=L["Your coordinates"], isNotRadio=true, keepShownOnClick=1, arg1="LDB_PlayerCoords", checked=CheckFunc, func=SetFunc});
-
-	tinsert(subList,{text=L["Collected followers"], isNotRadio=true, keepShownOnClick=1, arg1="LDB_NumFollowers", checked=CheckFunc, func=SetFunc});
-
-	--tinsert(subList,{text=L["Target coordinates"], isNotRadio=true, keepShownOnClick=1, arg1="LDB_TargetCoords", checked=CheckFunc, func=SetFunc});
-
-	tinsert(MenuList,separator);
-
-	tinsert(MenuList,{ text="Journal", isTitle=true, notCheckable=true, isNotRadio=true });
-
-	tinsert(MenuList,{text=L["Favorite website"], tooltipTitle=L["Favorite website"], tooltipText=L["Choose your favorite website for further informations"], hasArrow=true, menuList={}, notCheckable=true, isNotRadio=true});
-
-	local subList = MenuList[#MenuList].menuList;
 
 	local function CheckExternalURL(self)
 		return db.ExternalURL==self.arg1;
@@ -408,49 +381,63 @@ local function CreateMenuList()
 		end
 	end
 
+	local extURL = {};
 	for k,v in pairs(ns.ExternalURLValues)do
-		tinsert(subList,{text=L[v], arg1=k, checked=CheckExternalURL, func=SetExternalURL, isNotRadio=false, keepShownOnClick=1});
+		tinsert(extURL,{text=L[v], arg1=k, checked=CheckExternalURL, func=SetExternalURL, isNotRadio=false, keepShownOnClick=1});
 	end
 
-	tinsert(MenuList,{
-		text=L["Standalone mode"], isNotRadio=true, keepShownOnClick=1,
-		tooltipTitle=L["Standalone mode"], tooltipText=table.concat({L["Display the journal like garrison report with own window"],"|cffff0000"..L["Needs UI reload!"].."|r","|cffff8800"..L["Will be automatically reload your ui while your are not in combat..."].."|r"},"|n"),
-		checked = function() return db.standalone; end,
-		func = function()
-			db.standalone = not db.standalone;
-			if not InCombatLockdown() then C_UI.Reload(); end
-		end
-	});
-
-	tinsert(MenuList,{
-		text=L["Show FollowerID"], tooltipTitle=L["FollowerID"], tooltipText=L["Show followerIDs in follower list"], keepShownOnClick=1, isNotRadio=true,
-		checked = function() return db.ShowFollowerID; end,
-		func=function()
-			db.ShowFollowerID = not db.ShowFollowerID;
-			if FollowerLocationInfoJournal then
-				FollowerLocationInfoJournalFollowerList_Update();
+	MenuList = {
+		{text="DataBroker", isTitle=true, isNotRadio=true, notCheckable=true},
+		{
+			text=L["Show minimap button"], tooltipTitle=L["Minimap"], tooltipText=L["Show/Hide minimap button"], keepShownOnClick=1, isNotRadio=true,
+			checked=function() return db.LDBi_Enabled; end,
+			func=function() FollowerLocationInfo_MinimapButton(); end
+		},
+		{text=L["Broker button text"], tooltipTitle=L["Broker button text"], tooltipText=L["Choose what you want to look on broker button"], hasArrow=true, isNotRadio=true, notCheckable=true, menuList={
+			{text=L["Your coordinates"], isNotRadio=true, keepShownOnClick=1, arg1="LDB_PlayerCoords", checked=CheckFunc, func=SetFunc},
+			{text=L["Collected followers"], isNotRadio=true, keepShownOnClick=1, arg1="LDB_NumFollowers", checked=CheckFunc, func=SetFunc},
+			{text=L["Target coordinates"], isNotRadio=true, keepShownOnClick=1, arg1="LDB_TargetCoords", checked=CheckFunc, func=SetFunc}
+		}},
+		separator,
+		{text="Journal", isTitle=true, notCheckable=true, isNotRadio=true },
+		{text=L["Favorite website"], tooltipTitle=L["Favorite website"], tooltipText=L["Choose your favorite website for further informations"], hasArrow=true, notCheckable=true, isNotRadio=true, menuList=extURL},
+		{
+			text=L["Standalone mode"], isNotRadio=true, keepShownOnClick=1,
+			tooltipTitle=L["Standalone mode"], tooltipText=table.concat({L["Display the journal like garrison report with own window"],"|cffff0000"..L["Needs UI reload!"].."|r","|cffff8800"..L["Will be automatically reload your ui while your are not in combat..."].."|r"},"|n"),
+			checked = function() return db.standalone; end,
+			func = function()
+				db.standalone = not db.standalone;
+				if not InCombatLockdown() then C_UI.Reload(); end
 			end
-		end
-	});
-
-	--[[
-	tinsert(MenuList,separator);
-	tinsert(MenuList,{ text="Tracker.", isTitle=true });
-	tinsert(MenuList,{
-		text=L[ "Show coordination frame"], tooltipTitle={L[ "Coordination frame"], tooltipText=L[ "Show the coordinates frame"],
-		dbType="bool", keyName="ShowCoordsFrame",
-		event =function()
-			if (db.ShowCoordsFrame) then
-				FollowerLocationInfoCoordFrame:Show();
-			else
-				FollowerLocationInfoCoordFrame:Hide();
+		},
+		{
+			text=L["Show FollowerID"], tooltipTitle=L["FollowerID"], tooltipText=L["Show followerIDs in follower list"], keepShownOnClick=1, isNotRadio=true,
+			checked = function() return db.ShowFollowerID; end,
+			func=function()
+				db.ShowFollowerID = not db.ShowFollowerID;
+				if FollowerLocationInfoJournal then
+					FollowerLocationInfoJournalFollowerList_Update();
+				end
 			end
-		end
-	});
-	--]]
-
-	tinsert(MenuList,separator);
-	tinsert(MenuList,{text=CANCEL, notCheckable=true, isNotRadio=true, func=function() LDDM.CloseDropDownMenus(); end});
+		},
+		--[[
+		separator,
+		{ text="Tracker.", isTitle=true },
+		{
+			text=L[ "Show coordination frame"], tooltipTitle={L[ "Coordination frame"], tooltipText=L[ "Show the coordinates frame"],
+			dbType="bool", keyName="ShowCoordsFrame",
+			event=function()
+				if (db.ShowCoordsFrame) then
+					FollowerLocationInfoCoordFrame:Show();
+				else
+					FollowerLocationInfoCoordFrame:Hide();
+				end
+			end
+		},
+		--]]
+		separator,
+		{text=CANCEL, notCheckable=true, isNotRadio=true, func=function() LDDM.CloseDropDownMenus(); end}
+	};
 
 end
 
@@ -472,7 +459,11 @@ function FollowerLocationInfo_UnregisterUpdateCallback(func)
 end
 
 function FollowerLocationInfo_OptionMenu(parent,point,relativePoint)
-	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+	XXX = parent
+	local MenuFrame = _G.FollowerLocationInfo_LibDropDownMenu;
+	if not MenuFrame then
+		MenuFrame = LDDM.Create_DropDownMenu("FollowerLocationInfo_LibDropDownMenu",UIParent);
+	end
 
 	if not MenuList then
 		CreateMenuList();
@@ -480,6 +471,8 @@ function FollowerLocationInfo_OptionMenu(parent,point,relativePoint)
 
 	MenuFrame.point = point or "TOPLEFT";
 	MenuFrame.relativePoint = relativePoint or "BOTTOMLEFT";
+
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 	LDDM.EasyMenu(MenuList, MenuFrame, parent, 0, 0, "MENU");
 end
 
@@ -551,8 +544,8 @@ function FollowerLocationInfo_ToggleJournal()
 			FollowerLocationInfo.SecureTabs:Select(FollowerLocationInfoJournal.Tab);
 		end
 	else
-		if not FollowerLocationInfoJournalFrame then
-			LoadAddOn(addon.."_Journal");
+		if not CheckAndLoadJournal() then
+			return;
 		end
 		ToggleFrame(FollowerLocationInfoJournalFrame);
 		if FollowerLocationInfoJournalFrame:IsShown() then
@@ -684,7 +677,6 @@ end
 
 function FollowerLocationInfo_OnLoad(self)
 	-- library access for journals
-	self.MenuGenerator = ns.MenuGenerator;
 	self.LibColors = LibStub("LibColors-1.0");
 	self.SecureTabs = LibStub("SecureTabs-2.0");
 

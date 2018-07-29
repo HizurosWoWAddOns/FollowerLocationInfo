@@ -28,7 +28,6 @@
 	<Script file="DataBroker.lua"/>
 	<Script file="ExternalURL.lua"/>
 	<Script file="SlashCommand.lua"/>
-	<Script file="MenuGenerator.lua" />
 
 	<GameTooltip name="FollowerLocationInfo_Tooltip" inherits="GameTooltipTemplate" alpha="0" />
 
