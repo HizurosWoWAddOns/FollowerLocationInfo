@@ -460,8 +460,8 @@ function FollowerLocationInfoJournal_OnHyperlinkClick(self,link,text,button)
 			else
 				title = nil;
 			end
-			-- TomTom:AddMFWaypoint(<mapId>,<mapLevel>,<x>,<y>,<optionTable>)
-			local uid = TomTom:AddMFWaypoint(zone,1,x,y,title);
+			-- TomTom:AddWaypoint(<mapId>,<x>,<y>,<optionTable>)
+			local uid = TomTom:AddWaypoint(zone,x,y,title);
 		elseif Type=="achievement" then
 			local id = tonumber(link:match("achievement:(%d+)"));
 			if ( not AchievementFrame ) then
@@ -989,7 +989,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 
 		if(type(coordX)=="number" and type(coordY)=="number")then
 			position = ("%1.1f, %1.1f"):format(coordX,coordY);
-			if TomTom and TomTom.AddMFWaypoint then
+			if TomTom and TomTom.AddWaypoint then
 				tomtom = ("|cff33aaff|Htomtom:%d:%1.2f:%1.2f:%s|h[%s]|h|r"):format(zoneId,coordX,coordY,tomtomLabel or "",L["Add waypoint to TomTom"]);
 			end
 		end

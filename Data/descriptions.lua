@@ -845,7 +845,7 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 				{535, 73.93, 28.23, Images={{"location535","Image",false} }}, --[=[ Talador ]=]
 				{542, 55.14, 79.51, Images={{"location542","Image",false} }}, --[=[ Spikes of Arak ]=]
 				{550, 84.4, 54.26, Images={{"location550","Image",false} }}, --[=[ Nagrand ]=]
-				{550, 59.2, 38.6, Images={{"location550-2","Image",false} }}, --[=[ Nagrand ]=]
+				{550, 59.2, 38.6, --[[Images={{"location550-2","Image",false} } ]] }, --[=[ Nagrand ]=]
 			}
 		}
 	};
