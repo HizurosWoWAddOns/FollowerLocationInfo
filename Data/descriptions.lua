@@ -486,7 +486,11 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 				{542, 55.3, 68.5, "Cave on image 1"},
 				{542, 55, 65.2, "Hidden cave"}
 			},
-			--{"Images", {"1","Image 1",false}, {"2","Image 2",false}, {"3","Image 3",false} }
+			{"Images",
+				{"1","Way 1 - Image 1",false},
+				{"2","Way 1 - Image 2",false},
+				{"3","Way 1 - Image 3",false}
+			}
 		}
 	}; -- TODO: make new images. better path way and air picture from hidden cave
 

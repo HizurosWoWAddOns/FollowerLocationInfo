@@ -1,24 +1,25 @@
 
--- 946 Talador
--- 948 Spikes of Arak
--- 949 Gorgrond
--- 950 Nagrand
+-- zone name and id's (new = uiMapID since BfA)
+-- new: 535, old: 946, name: Talador
+-- new: 542, old: 948, name: Spikes of Arak
+-- new: 543, old: 949, name: Gorgrond
+-- new: 550, old: 950, name: Nagrand
 
 -- ["<zoneID>.<optionNum>"] = {"<optionName>",<coordX>,<coordY>}
 local addon,ns=...;
 local O = FollowerLocationInfoData.Outpost;
 if FollowerLocationInfoData.faction==1 then
 	-- alliance outposts
-	O[946] = {{"Arcane Sanctum",70,20.3},          {"Wrynn Artillery Tower",70,20.3}};
-	O[948] = {{"Smuggler's Den",39.63,61.20},      {"Hearthfire Tavern",39.63,61.20}};
-	O[949] = {{"Lowlands Lumber Yard",53.01,59.57},{"Highpass Sparring Ring",53.01,59.57}};
-	O[950] = {{"Rangari Corral",63.03,62.18},      {"Telaari Tankworks",63.03,62.18}};
+	O[535] = {{"Arcane Sanctum",70,20.3},          {"Wrynn Artillery Tower",70,20.3}};
+	O[542] = {{"Smuggler's Den",39.63,61.20},      {"Hearthfire Tavern",39.63,61.20}};
+	O[543] = {{"Lowlands Lumber Yard",53.01,59.57},{"Highpass Sparring Ring",53.01,59.57}};
+	O[550] = {{"Rangari Corral",63.03,62.18},      {"Telaari Tankworks",63.03,62.18}};
 else
 	-- horde outposts
-	O[946] = {{"Arcane Sanctum",70,95,30.37},      {"Vol'jin's Arsenal",70,95,30.37}};
-	O[948] = {{"Smuggler's Den",40.05,43.06},      {"Stoktron Brewery",40.05,43.06}};
-	O[949] = {{"Lowlands Lumber Yard",46.28,69.46},{"Highpass Sparring Ring",46.28,69.46}};
-	O[950] = {{"Wor'var Corral",83.14,43.78},      {"Wor'var Tankworks",83.14,43.78}};
+	O[535] = {{"Arcane Sanctum",70,95,30.37},      {"Vol'jin's Arsenal",70,95,30.37}};
+	O[542] = {{"Smuggler's Den",40.05,43.06},      {"Stoktron Brewery",40.05,43.06}};
+	O[543] = {{"Lowlands Lumber Yard",46.28,69.46},{"Highpass Sparring Ring",46.28,69.46}};
+	O[550] = {{"Wor'var Corral",83.14,43.78},      {"Wor'var Tankworks",83.14,43.78}};
 end
 
 local L = FollowerLocationInfoData.Locale;

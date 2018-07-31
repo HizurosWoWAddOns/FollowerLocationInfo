@@ -91,6 +91,13 @@
 					<TexCoords left="0.94921875" right="0.9765625" top="0.00390625" bottom="0.03125" />
 				</Texture>
 
+				<Texture parentKey="buyable" file="interface\minimap\tracking\auctioneer" hidden="true">
+					<Size x="16" y="16"/>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.collected" />
+					</Anchors>
+				</Texture>
+
 				<FontString parentKey="followerID" inherits="GameFontWhiteTiny" alpha="0.3">
 					<Anchors>
 						<Anchor point="TOPRIGHT" relativeKey="$parent.background" x="-2" y="-2" />

@@ -86,7 +86,7 @@ local function Loading(active,appendMsg,opt)
 			else
 				tinsert(tbl,appendMsg);
 			end
-			f.Info:SetText(table.concat(tbl,"|n"));
+			f.Info:SetText(tconcat(tbl,"|n"));
 		end
 	else
 		f:Hide();
@@ -616,6 +616,7 @@ function FollowerLocationInfoJournalFollowerList_Update()
 
 			button.collected:Hide();
 			button.notCollectable:Hide();
+			button.buyable:Hide();
 			button.followerID:Hide();
 			button.tooltip=nil;
 			button.selected:Hide();
@@ -673,10 +674,11 @@ function FollowerLocationInfoJournalFollowerList_Update()
 							end
 						end
 						if (collected) then
-							button.notCollectable:Show();
-							tinsert(button.tooltip,"|cffee0000"..L["This follower is member of a collect group and isn't longer obtainable."].."|r");
+							--button.notCollectable:Show();
+							button.buyable:Show();
+							tinsert(button.tooltip,"|cffee0000"..L["This follower is member of a collect group."].." "..L["The quest row is over. Now, This follower is buyable from a npc in your garrison."].."|r");
 						else
-							tinsert(button.tooltip,"|cffffcc00"..L["This follower is member of a collect group and is obtainable."].."|r");
+							tinsert(button.tooltip,"|cffffcc00"..L["This follower is member of a collect group."].." "..L["You can obtain one of it by quest row. Later, the other followers are buyable from a npc in your garrison."].."|r");
 						end
 					end
 				end
@@ -855,7 +857,7 @@ function FollowerLocationInfoJournalFollowerCard_Update()
 			classSpec,
 			UnitLevel("player"),
 			LC.color("quality"..quality,_G["ITEM_QUALITY"..quality.."_DESC"]),
-			#abilities>0 and "<h3>"..table.concat(abilities,", ").."</h3>" or ""
+			#abilities>0 and "<h3>"..tconcat(abilities,", ").."</h3>" or ""
 		));
 		model:SetUnit("player");
 
@@ -867,6 +869,495 @@ function FollowerLocationInfoJournalFollowerCard_Update()
 	end
 end
 
+local h1,h2,h3,lnk,a = "<h1>%s</h1>","<h2>%s</h2><p>|TInterface\\AddOns\\FollowerLocationInfo\\media\\%s:9:256:0:8:128:16:24:64:0:16|t</p>","<h3>%s</h3>","|c%s|H%s|h[%s]|h|r","<a href='%s'>%s</a>";
+local p,pl,pr,br,img = "<p>%s</p>","<p align='left'>%s</p>","<p align='right'>%s</p>","<br/>","|cFF33aaff|Himage:%1$s:%2$s|h[Image? %2$d]|h|r";
+local checked = " |TInterface\\Buttons\\UI-CheckBox-Check:14:14:0:0:32:32:3:29:3:29|t";
+local stateColor = {[0]="ff0000","ff9900","04ff07","ffffff"};
+local SharedElements,AddDescription = {},{};
+
+SharedElements["Garrison building"]=function(_,id)
+	local glvl = C_Garrison.GetGarrisonInfo(LE_GARRISON_TYPE_6_0);
+	local result,state,Name,Lvl,name,lvl,_= {},0;
+	_,name,_,_,_,lvl = C_Garrison.GetBuildingInfo(id);
+	if glvl~=nil and  glvl>0 then
+		for i,v in ipairs(C_Garrison.GetBuildings(LE_GARRISON_TYPE_6_0))do
+			_,Name,_,_,_,Lvl = C_Garrison.GetBuildingInfo(v.buildingID);
+			if(v.buildingID==id) or (name==Name)then
+				state = 1;
+				if(Lvl>=lvl)then
+					state = 2;
+				end
+				break;
+			end
+		end
+	end
+
+	return	name,
+			LEVEL .." ".. lvl .. (lvl<3 and " " .. L["or higher"] or ""),
+			CreateExternalURL("b",id),
+			{state=state,current=Lvl};
+end;
+
+SharedElements["Brawler's Guild"]=function(_, factionId, rank)
+	local k, friendRep, friendMaxRep, friendName, _, _, friendTextLevel, friendThreshold, nextFriendThreshold = GetFriendshipReputation(factionId);
+	if k~=nil then
+		local state,standingNum = 0,tonumber(friendTextLevel:match("(%d+)"));
+		if standingNum then
+			state = 1;
+			if standingNum>=rank then
+				state = 2;
+			end
+		end
+		return	friendName,
+				RANK .. " " .. rank,
+				CreateExternalURL("f",factionId),
+				{state=state,current=("%s ( %d / %d )"):format(friendTextLevel,friendRep-friendThreshold,nextFriendThreshold)}
+	end
+	return SharedElements.Reputation(_, factionId, rank); -- [1691] Brawler's guild (Season 2) was changed to normal faction...
+end
+
+SharedElements.Professions=function(_,id,skillNeed)
+	local state, current, Name, icon, skillLevel, maxSkillLevel=0, L["Not learned"];
+	local name,_,icon = GetSpellInfo(id);
+	local p = {GetProfessions()};
+	for i=1,#p do
+		if p[i] then
+			Name, icon, skillLevel, maxSkillLevel = GetProfessionInfo(p[i]);
+			if(name==Name)then
+				state = 1;
+				current = skillLevel.."/"..maxSkillLevel;
+				if(skillLevel>=skillNeed)then
+					state = 2;
+				end
+				break;
+			end
+		end
+	end
+	return	name,
+			SKILL.." "..skillNeed,
+			nil, -- CreateExternalURL("p",),
+			{state=state,current=current};
+end;
+
+SharedElements.Reputation=function(_,id,standingNum)
+	local name, _, standingID, barMin, barMax, barValue, _, _, _, _, hasRep, _, _, _, hasBonusRepGain, canBeLFGBonus = GetFactionInfoByID(id);
+	local standingColor,chk,current = "red","",("%s ( %d / %d )"):format(_G["FACTION_STANDING_LABEL"..standingID],barValue-barMin,barMax);
+	local state = 0;
+	if standingID then
+		state = 1;
+		if standingID>=standingNum then
+			state = 2;
+		end
+	end
+	return	name,
+			_G["FACTION_STANDING_LABEL"..standingNum],
+			CreateExternalURL("f",id),
+			{state=state,current=current};
+end;
+
+-- SharedElements.Friendship=function(_,id,standingNum) end;
+
+SharedElements.Location=function(zoneId,coordX,coordY,customStr,tomtomLabel)
+	local location,position,tomtom = "";
+
+	if(type(coordX)=="number" and type(coordY)=="number")then
+		position = ("%1.1f, %1.1f"):format(coordX,coordY);
+		if TomTom and TomTom.AddWaypoint then
+			tomtom = ("|cff33aaff|Htomtom:%d:%1.2f:%1.2f:%s|h[%s]|h|r"):format(zoneId,coordX,coordY,tomtomLabel or "",L["Add waypoint to TomTom"]);
+		end
+	end
+
+	if(type(customStr)=="table") and (SharedElements[customStr[1]])then
+		customStr = SharedElements[customStr[1]](unpack(customStr));
+	elseif(type(customStr)=="string")then
+		customStr = L[customStr];
+	end
+
+	if(position or customStr)then
+		location = " @ " .. (position or customStr) .. ((position and customStr) and " ("..customStr..")" or "");
+	end
+
+	return C_Map.GetMapInfo(zoneId).name .. location, tomtom;
+end;
+
+SharedElements.Outpost=function(_,zone,option)
+	local op,outpost = {},D.Outpost[zone][option];
+
+	tinsert(op,L[outpost[1]]);
+
+	local location,tomtom = SharedElements.Location(zone,outpost[2],outpost[3],nil,L[outpost[1]]);
+	tinsert(op,location);
+	if tomtom then
+		tinsert(op,tomtom);
+	end
+	return tconcat(op,"|n"..listPrefix);
+end
+
+SharedElements.Images=function(followerId,imageTable,delimiter)
+	local images,faction = {};
+	for _,image in ipairs(imageTable)do
+		if(type(image)=="table")then
+			faction = (image[3]~=true and "") or (D.faction==1 and "a") or "h";
+			tinsert(images,("|cFF55FFFF|Himage:%s:%s|h[%s]|h|r"):format(followerId..faction,image[1],L[image[2]]));
+		end
+	end
+	return tconcat(images,delimiter);
+end;
+
+function AddDescription.Location(Desc,I)
+	local locations = {};
+	for i=2, #Desc[I] do
+		location = {};
+		if(type(Desc[I][i])=="string")then
+			tinsert(location,L[Desc[I][i]]);
+		else
+			local v = Desc[I][i];
+			if(v[4])then
+				tinsert(location,L[v[4]]);
+			end
+			local coords, tomtom = SharedElements.Location(v[1],v[2],v[3],nil,v[4]~=nil and L[v[4]]);
+			tinsert(location,coords);
+			if tomtom then
+				tinsert(location,tomtom);
+			end
+			if(type(v.Images)=="table")then
+				tinsert(location,SharedElements.Images(CurrentFollower,v.Images," "));
+			end
+		end
+		tinsert(locations,tconcat(location,"|n"..listPrefix));
+	end
+	return p:format(tconcat(locations,"|n|n"));
+end
+
+function AddDescription.Quests(Desc,I)
+	Loading(true,L["Collecting quest data... (%d entries)"]:format(#Desc[I]-1),"new");
+	local quests,doRetry = {},false;
+	for i=2, #Desc[I] do
+		local quest,v,coord,index,zone,npc = {},Desc[I][i],"","","","";
+		Loading(true,L["Query data (questId: %d)..."]:format(v[1]));
+		if(type(v[1])=="number")then
+			-- true=completed, number=inQuestLog, nil=open/notInLog
+			index = GetQuestLogIndexByID(v[1]);
+			if(index and index>0)then
+				D.QuestName[v[1]] = GetQuestLogTitle(index);
+			end
+
+			if(type(D.QuestName[v[1]])=="string")then
+				tinsert(quest,lnk:format("ffffcc00", ("quest:%d:%d"):format(v[1],v[2]), D.QuestName[v[1]]));
+			else
+				doRetry = true;
+			end
+		end
+		if(not doRetry and type(v[3])=="number")then
+			if(v[3]<1)then
+				local objId = gsub(tostring(v[3]),"^0%.","");
+				if(rawget(L,"object_"..objId))then
+					tinsert(quest,L["object_"..objId]);
+				end
+				--tinsert(quest,D.ObjectName[v[3]]);
+			elseif(v[3]>=1)then
+				if(type(D.NpcName[v[3]])=="string")then
+					tinsert(quest,D.NpcName[v[3]]);
+				else
+					doRetry = true;
+				end
+			end
+		end
+		if(not doRetry)then
+			local location, tomtom = SharedElements.Location(v[4],v[5],v[6],(type(v[5])=="table" or type(v[5])=="string") and v[5] or nil, (v[3] and D.NpcName[v[3]] or nil))
+			tinsert(quest,location);
+			if tomtom then
+				tinsert(quest,tomtom);
+			end
+
+			local link = CreateExternalURL("q",v[1]);
+			if link then tinsert(quest,link); end
+
+			if(type(v.Images)=="table")then
+				tinsert(quest,SharedElements.Images(CurrentFollower,v.Images," "));
+			end
+
+			local status = STATUS..": |cff%s%s|r";
+			if(index and index>0)then
+				tinsert(quest,status:format("ffee00",L["In your Questlog"]));
+			elseif IsQuestFlaggedCompleted(v[1]) then
+				tinsert(quest,status:format("00aa00",AUCTION_TIME_LEFT0)..checked);
+			else
+				tinsert(quest,status:format("04ff07",L["Open"]));
+			end
+
+			tinsert(quests,tconcat(quest,"|n"..listPrefix));
+			Loading(true,checked,"nobr");
+		end
+	end
+	if #quests>0 then
+		return p:format(tconcat(quests,"|n|n")), Desc[I][1]=="Events" and EVENTS_LABEL or QUESTS_LABEL,doRetry;
+	end
+	return nil,nil,doRetry;
+end
+AddDescription.Events = AddDescription.Quests;
+
+function AddDescription.Missions(Desc,I)
+	local cnt={};
+	for i=2, #Desc[I] do
+		if (type(Desc[I][i])=="number") then
+			-- garrmission:<missionid> does not work with blizzards GameTooltip:SetHyperlink().
+			-- tinsert(cnt,p:format( C_Garrison.GetMissionLink(Desc[I][i]) ));
+			local missionData,numMaxFollower = {C_Garrison.GetMissionName(Desc[I][i])},GARRISON_MISSION_TOOLTIP_NUM_REQUIRED_FOLLOWERS;
+			if (C_Garrison.GetFollowerTypeByMissionID(Desc[I][i])==LE_FOLLOWER_TYPE_SHIPYARD_6_2)then
+				numMaxFollower=GARRISON_SHIPYARD_MISSION_TOOLTIP_NUM_REQUIRED_FOLLOWERS;
+			end
+			tinsert(missionData,""..listPrefix..numMaxFollower:format(C_Garrison.GetMissionMaxFollowers(Desc[I][i])));
+			local link = CreateExternalURL("m",Desc[I][i]);
+			if link then tinsert(missionData,listPrefix..link); end
+			local rewardList,rewards = C_Garrison.GetMissionRewardInfo(Desc[I][i]),{};
+			if rewardList then
+				for _,reward in pairs(rewardList)do
+					local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(reward.itemID);
+					local hlink = CreateExternalURL("i",reward.itemID);
+					if link and icon then
+						tinsert(rewards,
+							("|T%s:14:14:0:0:64:64:4:56:4:56|t %s"):format(icon,link) ..
+							(hlink~=nil and "|n"..listPrefix..hlink or "")
+						);
+					else
+						--print("Error:", "Mission reward item not found.", "itemID:"..reward.itemID,"missionID:"..Desc[I][i]);
+					end
+				end
+			end
+			if(#rewards>0)then
+				tinsert(missionData,"|n"..REWARDS..":|n"..tconcat(rewards,"|n"));
+			end
+			tinsert(cnt,p:format(tconcat(missionData,"|n")));
+		end
+	end
+	return cnt, GARRISON_MISSIONS;
+end
+
+function AddDescription.Description(Desc,I)
+	return p:format(L[Desc[I][2]]), DESCRIPTION;
+end
+
+function AddDescription.Images(Desc,I)
+	return pr:format("|cffa0a0a0"..L["(mouse over to show image)"].."|r") .. pl:format(SharedElements.Images(CurrentFollower,Desc[I],"|n"));
+end
+
+function AddDescription.Merchant(Desc,I)
+	Loading(true,L["Collection vendor data..."],"new");
+	local merchants,doRetry = {},false;
+	for i=2, #Desc[I] do
+		Loading(true,L["Query data (npcID: %d)..."]:format(Desc[I][i][1]));
+		local merchant = {};
+		local name = D.NpcName[Desc[I][i][1]];
+		if(name)then
+			tinsert(merchant,name);
+			local location, tomtom = SharedElements.Location(Desc[I][i][2],Desc[I][i][3],Desc[I][i][4],(type(Desc[I][i][3])=="table" or type(Desc[I][i][3])=="string") and Desc[I][i][3] or nil,name);
+			tinsert(merchant,location);
+			if tomtom then
+				tinsert(merchant,tomtom);
+			end
+			local link = CreateExternalURL("n",Desc[I][i][1]);
+			if link then tinsert(merchant,link); end
+			tinsert(merchants,tconcat(merchant,"|n"..listPrefix));
+			Loading(true,checked,"nobr");
+		else
+			doRetry = true;
+		end
+	end
+	if(#merchants>0)then
+		return p:format(tconcat(merchants,"|n|n")), MERCHANT,doRetry;
+	end
+	return nil,nil,doRetry;
+end
+
+function AddDescription.Npc(Desc,I)
+	Loading(true,L["Query data (npcID: %d)..."]:format(Desc[I][2]));
+	local name,npc,doRetry = D.NpcName[Desc[I][2]],false;
+	if(name)then
+		npc = {};
+		tinsert(npc,name);
+		if(D.NpcTitle[Desc[I][2]])then
+			--title = D.NpcTitle[Desc[I][2]];
+			tinsert(npc,UNIT_NAME_PLAYER_TITLE..": "..D.NpcTitle[Desc[I][2]]);
+		end
+
+		local location, tomtom = SharedElements.Location(Desc[I][3],Desc[I][4],Desc[I][5],(type(Desc[I][4])=="table" or type(Desc[I][4])=="string") and Desc[I][4] or nil,name);
+		tinsert(npc,location);
+		if tomtom then
+			tinsert(npc,tomtom);
+		end
+
+		local link = CreateExternalURL("n",Desc[I][1]);
+		if link then tinsert(npc,link); end
+
+		Loading(true,checked,"nobr");
+	else
+		doRetry = true;
+	end
+	if npc then
+		return p:format(tconcat(npc,"|n"..listPrefix)), L["NPC"],doRetry;
+	end
+	return nil,nil,doRetry;
+end
+
+function AddDescription.Spell(Desc,I)
+	local hlink = CreateExternalURL("s",Desc[I][2]);
+	return p:format(
+		"|T"..GetSpellTexture(Desc[I][2])..":14:14:0:0|t "..GetSpellLink(Desc[I][2])..
+		(hlink~=nil and "|n"..listPrefix..hlink or "")
+	), SPELLS;
+end
+
+function AddDescription.Items(Desc,I)
+	local items = {};
+	for i=2, #Desc[I] do
+		local item = {};
+		local v,name,link,icon,coords,_ = Desc[I][i];
+		name,link,_,_,_,_,_,_,_,icon = GetItemInfo(v[1]);
+
+		if link then
+			tinsert(item, ("|T%s:0|t %s"):format(icon,link));
+
+			if(v[2] and v[3] and v[4])then
+				local location, tomtom = SharedElements.Location(v[2],v[3],v[4],nil,name);
+				tinsert(item,location);
+				if tomtom then
+					tinsert(item,tomtom);
+				end
+			end
+
+			local link = CreateExternalURL("i",Desc[I][i][1]);
+			if link then tinsert(item,link); end
+
+			if(type(v.Images)=="table")then
+				tinsert(item,SharedElements.Images(CurrentFollower,v.Images," "));
+			end
+			tinsert(items,tconcat(item,"|n"..listPrefix));
+		end
+	end
+	return p:format(tconcat(items,"|n|n")), #Desc[I]>2 and ITEMS or HELPFRAME_ITEM_TITLE;
+end
+
+function AddDescription.Requirements(Desc,I)
+	local reqs = {};
+	local titles = {["Garrison building"]=L["Garrison building"],Professions=TRADE_SKILLS,Reputation=REPUTATION,["Brawler's Guild"]=L["Brawler's Guild"]};
+	for i=2, #Desc[I] do
+		local req,v = {},Desc[I][i];
+		if(type(v)=="table" and SharedElements[v[1]])then
+			if v[1]=="Garrison building" or v[1]=="Professions" or v[1]=="Reputation" or v[1]=="Brawler's Guild" then
+				local name, need, url, data = SharedElements[v[1]](unpack(v));
+				local state1 = data.state>=1 and 2 or 0;
+				tinsert(req,titles[v[1]]..":");
+				if v[1]=="Reputation" or v[1]=="Brawler's Guild" then
+					tinsert(req,name);
+				else
+					tinsert(req,("|cff%s%s|r"):format(stateColor[state1],name) .. (state1==2 and checked or ""));
+				end
+				tinsert(req,("|cff%s%s|r"):format(stateColor[data.state],need) .. (data.state==2 and checked or ""));
+				if(data.state==1 and data.current)then
+					tinsert(req,("|cff888888%s %s|r"):format(CURRENT_PET,data.current));
+				end
+				tinsert(req,url);
+			else
+				local titles = {Outpost=L["Outpost building"]}
+				local result = {SharedElements[v[1]](unpack(v))};
+				if #result>0 then
+					if(titles[v[1]])then
+						tinsert(req,titles[v[1]]..":");
+					end
+					for x=1, #result do
+						if(type(result[x])=="string")then
+							tinsert(req,result[x]);
+						end
+					end
+				end
+			end
+		elseif v[1]=="Unlock" then
+			local color, chk = "yellow","";
+			if(IsQuestFlaggedCompleted(v[2]))then
+				color, chk = "green", checked;
+			end
+			tinsert(req, LC.color(color, L[v[3]])..chk);
+		elseif(type(v)=="string")then
+			tinsert(req,L[v]);
+		end
+		tinsert(reqs,tconcat(req,"|n"..listPrefix));
+	end
+	return p:format(tconcat(reqs,"|n|n"));
+end
+
+function AddDescription.Achievements(Desc,I)
+	local achievements = {};
+	for i=2, #Desc[I] do
+		local achievement,link = {},GetAchievementLink(Desc[I][i]);
+		if link then
+			local _, name, points, completed, _, _, _, description, _, icon, rewardText, isGuild, wasEarnedByMe, earnedBy = GetAchievementInfo(Desc[I][i]);
+			local cat,catId = {},GetAchievementCategory(Desc[I][i]);
+			tinsert(achievement,link);
+
+			for i=1, 3 do
+				local Name,parentId,flag = GetCategoryInfo(catId);
+				Name = gsub(Name,"&","&amp;");
+				tinsert(cat,1,Name);
+				if parentId<0 then break end
+				catId=parentId;
+			end
+			tinsert(achievement,tconcat(cat," &#xBB; "));
+
+			local link = CreateExternalURL("a",Desc[I][i]);
+			if link then tinsert(achievement,link); end
+
+			local status = ("|cff%s%s|r"):format("04ff07",L["Open"]);
+			if completed and wasEarnedByMe then
+				status = ("|cff%s%s|r"):format("00aa00",AUCTION_TIME_LEFT0)..checked;
+			end
+			tinsert(achievement,STATUS..": "..status);
+
+			tinsert(achievements,
+				"|T"..icon..":32:32:0:0:32:32:0:32:0:32|t|n" ..
+				tconcat(achievement,"|n"..listPrefix));
+		end
+	end
+	if #achievements>0 then
+		return p:format(tconcat(achievements,"|n|n")), ACHIEVEMENTS;
+	end
+end
+
+function AddDescription.Price(Desc,I)
+	local sum,doRetry = {},false;
+	for i=2, #Desc[I] do
+		local price = {};
+		if Desc[I][i][1] == "Gold" then
+			tinsert(price,BONUS_ROLL_REWARD_MONEY);
+			tinsert(price,GetCoinTextureString(Desc[I][i][2]));
+		elseif Desc[I][i][1] == "Currency" then
+			local name,itemId,icon = GetCurrencyInfo(Desc[I][i][2]);
+			local link = GetCurrencyLink(Desc[I][i][2],Desc[I][i][3]);
+			if name and icon then
+				tinsert(price,link or name);
+				tinsert(price,("%s |T%s:0|t"):format(Desc[I][i][3],icon));
+				local link = CreateExternalURL("c",Desc[I][i][2]);
+				if link then tinsert(price,link); end
+			end
+		elseif Desc[I][i][1] == "Item" then
+			local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(Desc[I][i][2]);
+			if name and icon then
+				tinsert(price,link);
+				tinsert(price,("%s |T%s:0|t"):format(Desc[I][i][3],icon));
+				local link = CreateExternalURL("i",Desc[I][i][2]);
+				if link then tinsert(price,link); end
+			else
+				doRetry = true;
+			end
+		end
+		tinsert(sum,tconcat(price,"|n"..listPrefix));
+	end
+	if #sum>0 then
+		return p:format(tconcat(sum,"|n|n")), AUCTION_PRICE,doRetry;
+	end
+	return nil,nil,doRetry;
+end
+
 function FollowerLocationInfoJournalFollowerDesc_Update()
 	local P = FollowerLocationInfoJournalDesc;
 	if not P:IsVisible() then return end
@@ -875,142 +1366,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 	P.html:Hide();
 
 	local id,html,doRetry,title = CurrentFollower,{},false;
-	local h1,h2,h3,lnk,a = "<h1>%s</h1>","<h2>%s</h2><p>|TInterface\\AddOns\\FollowerLocationInfo\\media\\%s:9:256:0:8:128:16:24:64:0:16|t</p>","<h3>%s</h3>","|c%s|H%s|h[%s]|h|r","<a href='%s'>%s</a>";
-	local p,pl,pr,br,img = "<p>%s</p>","<p align='left'>%s</p>","<p align='right'>%s</p>","<br/>","|cFF33aaff|Himage:%1$s:%2$s|h["..L["Image"].." %2$d]|h|r";
-	local checked = " |TInterface\\Buttons\\UI-CheckBox-Check:14:14:0:0:32:32:3:29:3:29|t";
-	local stateColor = {[0]="ff0000","ff9900","04ff07","ffffff"};
 	local Desc = false;
-	local shared = {};
-
-	shared["Garrison building"]=function(_,id)
-		local glvl = C_Garrison.GetGarrisonInfo(LE_GARRISON_TYPE_6_0);
-		local result,state,Name,Lvl,name,lvl,_= {},0;
-		_,name,_,_,_,lvl = C_Garrison.GetBuildingInfo(id);
-		if glvl~=nil and  glvl>0 then
-			for i,v in ipairs(C_Garrison.GetBuildings(LE_GARRISON_TYPE_6_0))do
-				_,Name,_,_,_,Lvl = C_Garrison.GetBuildingInfo(v.buildingID);
-				if(v.buildingID==id) or (name==Name)then
-					state = 1;
-					if(Lvl>=lvl)then
-						state = 2;
-					end
-					break;
-				end
-			end
-		end
-
-		return	name,
-				LEVEL .." ".. lvl .. (lvl<3 and " " .. L["or higher"] or ""),
-				CreateExternalURL("b",id),
-				{state=state,current=Lvl};
-	end;
-
-	shared["Brawler's Guild"]=function(_, factionId, rank)
-		local k, friendRep, friendMaxRep, friendName, _, _, friendTextLevel, friendThreshold, nextFriendThreshold = GetFriendshipReputation(factionId);
-		if k~=nil then
-			local state,standingNum = 0,tonumber(friendTextLevel:match("(%d+)"));
-			if standingNum then
-				state = 1;
-				if standingNum>=rank then
-					state = 2;
-				end
-			end
-			return	friendName,
-					RANK .. " " .. rank,
-					CreateExternalURL("f",factionId),
-					{state=state,current=("%s ( %d / %d )"):format(friendTextLevel,friendRep-friendThreshold,nextFriendThreshold)}
-		end
-		return shared.Reputation(_, factionId, rank); -- [1691] Brawler's guild (Season 2) was changed to normal faction...
-	end
-
-	shared.Professions=function(_,id,skillNeed)
-		local state, current, Name, icon, skillLevel, maxSkillLevel=0, L["Not learned"];
-		local name,_,icon = GetSpellInfo(id);
-		local p = {GetProfessions()};
-		for i=1,#p do
-			if p[i] then
-				Name, icon, skillLevel, maxSkillLevel = GetProfessionInfo(p[i]);
-				if(name==Name)then
-					state = 1;
-					current = skillLevel.."/"..maxSkillLevel;
-					if(skillLevel>=skillNeed)then
-						state = 2;
-					end
-					break;
-				end
-			end
-		end
-		return	name,
-				SKILL.." "..skillNeed,
-				nil, -- CreateExternalURL("p",),
-				{state=state,current=current};
-	end;
-
-	shared.Reputation=function(_,id,standingNum)
-		local name, _, standingID, barMin, barMax, barValue, _, _, _, _, hasRep, _, _, _, hasBonusRepGain, canBeLFGBonus = GetFactionInfoByID(id);
-		local standingColor,chk,current = "red","",("%s ( %d / %d )"):format(_G["FACTION_STANDING_LABEL"..standingID],barValue-barMin,barMax);
-		local state = 0;
-		if standingID then
-			state = 1;
-			if standingID>=standingNum then
-				state = 2;
-			end
-		end
-		return	name,
-				_G["FACTION_STANDING_LABEL"..standingNum],
-				CreateExternalURL("f",id),
-				{state=state,current=current};
-	end;
-
-	-- shared.Friendship=function(_,id,standingNum) end;
-
-	shared.Location=function(zoneId,coordX,coordY,customStr,tomtomLabel)
-		local location,position,tomtom = "";
-
-		if(type(coordX)=="number" and type(coordY)=="number")then
-			position = ("%1.1f, %1.1f"):format(coordX,coordY);
-			if TomTom and TomTom.AddWaypoint then
-				tomtom = ("|cff33aaff|Htomtom:%d:%1.2f:%1.2f:%s|h[%s]|h|r"):format(zoneId,coordX,coordY,tomtomLabel or "",L["Add waypoint to TomTom"]);
-			end
-		end
-
-		if(type(customStr)=="table") and (shared[customStr[1]])then
-			customStr = shared[customStr[1]](unpack(customStr));
-		elseif(type(customStr)=="string")then
-			customStr = L[customStr];
-		end
-
-		if(position or customStr)then
-			location = " @ " .. (position or customStr) .. ((position and customStr) and " ("..customStr..")" or "");
-		end
-
-		return C_Map.GetMapInfo(zoneId).name .. location, tomtom;
-	end;
-
-	shared.Outpost=function(_,zone,option)
-		local op,outpost = {},D.Outpost[zone][option];
-
-		tinsert(op,L[outpost[1]]);
-
-		local location,tomtom = shared.Location(zone,outpost[2],outpost[3],nil,L[outpost[1]]);
-		tinsert(op,location);
-		if tomtom then
-			tinsert(op,tomtom);
-		end
-		return tconcat(op,"|n"..listPrefix);
-	end
-
-	shared.Images=function(followerId,imageTable,delimiter)
-		local images,faction = {};
-		for _,image in ipairs(imageTable)do
-			if(type(image)=="table")then
-				faction = (image[3]~=true and "") or (D.faction==1 and "a") or "h";
-				tinsert(images,("|cFF55FFFF|Himage:%s:%s|h[%s]|h|r"):format(followerId..faction,image[1],L[image[2]]));
-			end
-		end
-		return tconcat(images,delimiter);
-	end;
-
 
 	if(id and D.descriptions[id] and #D.descriptions[id]>0)then
 		Desc = D.descriptions[id];
@@ -1039,356 +1395,56 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 				h2:format(L["Collect group"],"blue")
 				..
 				p:format(
-					L["You can only obtain one follower from this group"]..":"
+					L["You can only obtain one follower from this group with the quest row"]..":"
 					..
-					"|n".. listPrefix .. table.concat(members,"|n".. listPrefix)
+					"|n".. listPrefix .. tconcat(members,"|n".. listPrefix)
 				)
 				..
 				br
 			);
 		end
 
+		if Desc.alternative then
+			local show,tVisible = false,type(Desc.alternative.visible);
+			if tVisible=="table" then
+				if Desc.alternative.visible[1]=="quest" and IsQuestFlaggedCompleted(Desc.alternative.visible[2]) then
+					show=true;
+				end
+			elseif tVisible=="boolean" then
+				show = Desc.alternative.visible;
+			end
+			if show then
+				tinsert(html,
+					h2:format(L["Alternative option"],"blue")
+					..
+					p:format("?")
+					..
+					br
+				);
+			end
+		end
+
 		for I=1, #Desc do
 			title = nil;
 			local cnt,delimiter={},"";
-			if(Desc[I][1]=="Location")then
-				local locations = {};
-				for i=2, #Desc[I] do
-					location = {};
-					if(type(Desc[I][i])=="string")then
-						tinsert(location,L[Desc[I][i]]);
-					else
-						local v = Desc[I][i];
-						if(v[4])then
-							tinsert(location,L[v[4]]);
-						end
-						local coords, tomtom = shared.Location(v[1],v[2],v[3],nil,v[4]~=nil and L[v[4]]);
-						tinsert(location,coords);
-						if tomtom then
-							tinsert(location,tomtom);
-						end
-						if(type(v.Images)=="table")then
-							tinsert(location,shared.Images(id,v.Images," "));
-						end
-					end
-					tinsert(locations,tconcat(location,"|n"..listPrefix));
+			if AddDescription[Desc[I][1]] then
+				local htmlPart,title,problems = AddDescription[Desc[I][1]](Desc,I);
+				if not title then
+					title = L[Desc[I][1]];
 				end
-				tinsert(cnt,p:format(tconcat(locations,"|n|n")));
-			elseif(Desc[I][1]=="Quests" or Desc[I][1]=="Events")then
-				Loading(true,L["Collecting quest data... (%d entries)"]:format(#Desc[I]-1),"new");
-				title = Desc[I][1]=="Events" and EVENTS_LABEL or QUESTS_LABEL;
-				local quests = {};
-				for i=2, #Desc[I] do
-					local quest,v,coord,index,zone,npc = {},Desc[I][i],"","","","";
-					Loading(true,L["Query data (questId: %d)..."]:format(v[1]));
-					if(type(v[1])=="number")then
-						-- true=completed, number=inQuestLog, nil=open/notInLog
-						index = GetQuestLogIndexByID(v[1]);
-						if(index and index>0)then
-							D.QuestName[v[1]] = GetQuestLogTitle(index);
-						end
-
-						if(type(D.QuestName[v[1]])=="string")then
-							tinsert(quest,lnk:format("ffffcc00", ("quest:%d:%d"):format(v[1],v[2]), D.QuestName[v[1]]));
-						else
-							doRetry = true;
-						end
+				if htmlPart then
+					if type(htmlPart)=="table" then
+						htmlPart = tconcat(htmlPart,delimiter);
 					end
-					if(not doRetry and type(v[3])=="number")then
-						if(v[3]<1)then
-							local objId = gsub(tostring(v[3]),"^0%.","");
-							if(rawget(L,"object_"..objId))then
-								tinsert(quest,L["object_"..objId]);
-							end
-							--tinsert(quest,D.ObjectName[v[3]]);
-						elseif(v[3]>=1)then
-							if(type(D.NpcName[v[3]])=="string")then
-								tinsert(quest,D.NpcName[v[3]]);
-							else
-								doRetry = true;
-							end
-						end
-					end
-					if(not doRetry)then
-						local location, tomtom = shared.Location(v[4],v[5],v[6],(type(v[5])=="table" or type(v[5])=="string") and v[5] or nil, (v[3] and D.NpcName[v[3]] or nil))
-						tinsert(quest,location);
-						if tomtom then
-							tinsert(quest,tomtom);
-						end
-
-						local link = CreateExternalURL("q",v[1]);
-						if link then tinsert(quest,link); end
-
-						if(type(v.Images)=="table")then
-							tinsert(quest,shared.Images(id,v.Images," "));
-						end
-
-						local status = STATUS..": |cff%s%s|r";
-						if(index and index>0)then
-							tinsert(quest,status:format("ffee00",L["In your Questlog"]));
-						elseif IsQuestFlaggedCompleted(v[1]) then
-							tinsert(quest,status:format("00aa00",AUCTION_TIME_LEFT0)..checked);
-						else
-							tinsert(quest,status:format("04ff07",L["Open"]));
-						end
-
-						tinsert(quests,tconcat(quest,"|n"..listPrefix));
-						Loading(true,checked,"nobr");
-					end
+					tinsert(html, h2:format(title,"blue") .. htmlPart .. br);
 				end
-				if #quests>0 then
-					tinsert(cnt,p:format(tconcat(quests,"|n|n")));
-				end
-			elseif(Desc[I][1]=="Missions")then
-				title = GARRISON_MISSIONS;
-				for i=2, #Desc[I] do
-					if (type(Desc[I][i])=="number") then
-						-- garrmission:<missionid> does not work with blizzards GameTooltip:SetHyperlink().
-						-- tinsert(cnt,p:format( C_Garrison.GetMissionLink(Desc[I][i]) ));
-						local missionData,numMaxFollower = {C_Garrison.GetMissionName(Desc[I][i])},GARRISON_MISSION_TOOLTIP_NUM_REQUIRED_FOLLOWERS;
-						if (C_Garrison.GetFollowerTypeByMissionID(Desc[I][i])==LE_FOLLOWER_TYPE_SHIPYARD_6_2)then
-							numMaxFollower=GARRISON_SHIPYARD_MISSION_TOOLTIP_NUM_REQUIRED_FOLLOWERS;
-						end
-						tinsert(missionData,""..listPrefix..numMaxFollower:format(C_Garrison.GetMissionMaxFollowers(Desc[I][i])));
-						local link = CreateExternalURL("m",Desc[I][i]);
-						if link then tinsert(missionData,listPrefix..link); end
-						local rewardList,rewards = C_Garrison.GetMissionRewardInfo(Desc[I][i]),{};
-						if rewardList then
-							for _,reward in pairs(rewardList)do
-								local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(reward.itemID);
-								local hlink = CreateExternalURL("i",reward.itemID);
-								if link and icon then
-									tinsert(rewards,
-										("|T%s:14:14:0:0:64:64:4:56:4:56|t %s"):format(icon,link) ..
-										(hlink~=nil and "|n"..listPrefix..hlink or "")
-									);
-								else
-									--print("Error:", "Mission reward item not found.", "itemID:"..reward.itemID,"missionID:"..Desc[I][i]);
-								end
-							end
-						end
-						if(#rewards>0)then
-							tinsert(missionData,"|n"..REWARDS..":|n"..tconcat(rewards,"|n"));
-						end
-						tinsert(cnt,p:format(tconcat(missionData,"|n")));
-					end
-				end
-			elseif(Desc[I][1]=="Description")then
-				title = DESCRIPTION;
-				tinsert(cnt,p:format(L[Desc[I][2]]));
-			elseif(Desc[I][1]=="Images")then
-				tinsert(cnt,
-					pr:format("|cffa0a0a0"..L["(mouse over to show image)"].."|r")
-					..
-					pl:format(shared.Images(id,Desc[I],"|n"))
-				);
-			elseif(Desc[I][1]=="Merchant")then
-				Loading(true,L["Collection vendor data..."],"new");
-				title = MERCHANT;
-				local merchants = {};
-				for i=2, #Desc[I] do
-					Loading(true,L["Query data (npcID: %d)..."]:format(Desc[I][i][1]));
-					local merchant = {};
-					local name = D.NpcName[Desc[I][i][1]];
-					if(name)then
-						tinsert(merchant,name);
-						local location, tomtom = shared.Location(Desc[I][i][2],Desc[I][i][3],Desc[I][i][4],(type(Desc[I][i][3])=="table" or type(Desc[I][i][3])=="string") and Desc[I][i][3] or nil,name);
-						tinsert(merchant,location);
-						if tomtom then
-							tinsert(merchant,tomtom);
-						end
-						local link = CreateExternalURL("n",Desc[I][i][1]);
-						if link then tinsert(merchant,link); end
-						tinsert(merchants,tconcat(merchant,"|n"..listPrefix));
-						Loading(true,checked,"nobr");
-					else
-						doRetry = true;
-					end
-				end
-				if(#merchants>0)then
-					tinsert(cnt,p:format(tconcat(merchants,"|n|n")));
-				end
-			elseif(Desc[I][1]=="Npc")then
-				Loading(true,L["Query data (npcID: %d)..."]:format(Desc[I][2]));
-				title = L["NPC"];
-				local name,npc = D.NpcName[Desc[I][2]];
-				if(name)then
-					npc = {};
-					tinsert(npc,name);
-					if(D.NpcTitle[Desc[I][2]])then
-						--title = D.NpcTitle[Desc[I][2]];
-						tinsert(npc,UNIT_NAME_PLAYER_TITLE..": "..D.NpcTitle[Desc[I][2]]);
-					end
-
-					local location, tomtom = shared.Location(Desc[I][3],Desc[I][4],Desc[I][5],(type(Desc[I][4])=="table" or type(Desc[I][4])=="string") and Desc[I][4] or nil,name);
-					tinsert(npc,location);
-					if tomtom then
-						tinsert(npc,tomtom);
-					end
-
-					local link = CreateExternalURL("n",Desc[I][1]);
-					if link then tinsert(npc,link); end
-
-					Loading(true,checked,"nobr");
-				else
+				if problems then
 					doRetry = true;
 				end
-				if npc then
-					tinsert(cnt,p:format(tconcat(npc,"|n"..listPrefix)));
-				end
-			elseif(Desc[I][1]=="Spell")then
-				title = SPELLS;
-				local hlink = CreateExternalURL("s",Desc[I][2]);
-				tinsert(cnt,p:format(
-					"|T"..GetSpellTexture(Desc[I][2])..":14:14:0:0|t "..GetSpellLink(Desc[I][2])..
-					(hlink~=nil and "|n"..listPrefix..hlink or "")
-				));
-			elseif(Desc[I][1]=="Items")then
-				title = #Desc[I]>2 and ITEMS or HELPFRAME_ITEM_TITLE;
-				local items = {};
-				for i=2, #Desc[I] do
-					local item = {};
-					local v,name,link,icon,coords,_ = Desc[I][i];
-					name,link,_,_,_,_,_,_,_,icon = GetItemInfo(v[1]);
-
-					if link then
-						tinsert(item, ("|T%s:0|t %s"):format(icon,link));
-
-						if(v[2] and v[3] and v[4])then
-							local location, tomtom = shared.Location(v[2],v[3],v[4],nil,name);
-							tinsert(item,location);
-							if tomtom then
-								tinsert(item,tomtom);
-							end
-						end
-
-						local link = CreateExternalURL("i",Desc[I][i][1]);
-						if link then tinsert(item,link); end
-
-						if(type(v.Images)=="table")then
-							tinsert(item,shared.Images(id,v.Images," "));
-						end
-						tinsert(items,tconcat(item,"|n"..listPrefix));
-					end
-				end
-				tinsert(cnt,p:format(tconcat(items,"|n|n")));
-			elseif(Desc[I][1]=="Requirements")then
-				local reqs = {};
-				local titles = {["Garrison building"]=L["Garrison building"],Professions=TRADE_SKILLS,Reputation=REPUTATION,["Brawler's Guild"]=L["Brawler's Guild"]}
-				for i=2, #Desc[I] do
-					local req,v = {},Desc[I][i];
-					if(type(v)=="table" and shared[v[1]])then
-						if v[1]=="Garrison building" or v[1]=="Professions" or v[1]=="Reputation" or v[1]=="Brawler's Guild" then
-							local name, need, url, data = shared[v[1]](unpack(v));
-							local state1 = data.state>=1 and 2 or 0;
-							tinsert(req,titles[v[1]]..":");
-							if v[1]=="Reputation" or v[1]=="Brawler's Guild" then
-								tinsert(req,name);
-							else
-								tinsert(req,("|cff%s%s|r"):format(stateColor[state1],name) .. (state1==2 and checked or ""));
-							end
-							tinsert(req,("|cff%s%s|r"):format(stateColor[data.state],need) .. (data.state==2 and checked or ""));
-							if(data.state==1 and data.current)then
-								tinsert(req,("|cff888888%s %s|r"):format(CURRENT_PET,data.current));
-							end
-							tinsert(req,url);
-						else
-							local titles = {Outpost=L["Outpost building"]}
-							local result = {shared[v[1]](unpack(v))};
-							if #result>0 then
-								if(titles[v[1]])then
-									tinsert(req,titles[v[1]]..":");
-								end
-								for x=1, #result do
-									if(type(result[x])=="string")then
-										tinsert(req,result[x]);
-									end
-								end
-							end
-						end
-					elseif v[1]=="Unlock" then
-						local color, chk = "yellow","";
-						if(IsQuestFlaggedCompleted(v[2]))then
-							color, chk = "green", checked;
-						end
-						tinsert(req, LC.color(color, L[v[3]])..chk);
-					elseif(type(v)=="string")then
-						tinsert(req,L[v]);
-					end
-					tinsert(reqs,tconcat(req,"|n"..listPrefix));
-				end
-				tinsert(cnt,p:format(tconcat(reqs,"|n|n")));
-			elseif(Desc[I][1]=="Achievements")then
-				title = ACHIEVEMENTS;
-				local achievements = {};
-				for i=2, #Desc[I] do
-					local achievement,link = {},GetAchievementLink(Desc[I][i]);
-					if link then
-						local _, name, points, completed, _, _, _, description, _, icon, rewardText, isGuild, wasEarnedByMe, earnedBy = GetAchievementInfo(Desc[I][i]);
-						local cat,catId = {},GetAchievementCategory(Desc[I][i]);
-						tinsert(achievement,link);
-
-						for i=1, 3 do
-							local Name,parentId,flag = GetCategoryInfo(catId);
-							Name = gsub(Name,"&","&amp;");
-							tinsert(cat,1,Name);
-							if parentId<0 then break end
-							catId=parentId;
-						end
-						tinsert(achievement,tconcat(cat," &#xBB; "));
-
-						local link = CreateExternalURL("a",Desc[I][i]);
-						if link then tinsert(achievement,link); end
-
-						local status = ("|cff%s%s|r"):format("04ff07",L["Open"]);
-						if completed and wasEarnedByMe then
-							status = ("|cff%s%s|r"):format("00aa00",AUCTION_TIME_LEFT0)..checked;
-						end
-						tinsert(achievement,STATUS..": "..status);
-
-						tinsert(achievements,
-							"|T"..icon..":32:32:0:0:32:32:0:32:0:32|t|n" ..
-							tconcat(achievement,"|n"..listPrefix));
-					end
-				end
-				if #achievements>0 then
-					tinsert(cnt, p:format(tconcat(achievements,"|n|n")));
-				end
-			elseif(Desc[I][1]=="Price")then
-				title = AUCTION_PRICE;
-				local sum = {};
-				for i=2, #Desc[I] do
-					local price = {};
-					if Desc[I][i][1] == "Gold" then
-						tinsert(price,BONUS_ROLL_REWARD_MONEY);
-						tinsert(price,GetCoinTextureString(Desc[I][i][2]));
-					elseif Desc[I][i][1] == "Currency" then
-						local name,itemId,icon = GetCurrencyInfo(Desc[I][i][2]);
-						local link = GetCurrencyLink(Desc[I][i][2]);
-						if name and icon then
-							tinsert(price,link or name);
-							tinsert(price,("%s |T%s:0|t"):format(Desc[I][i][3],icon));
-							local link = CreateExternalURL("c",Desc[I][i][2]);
-							if link then tinsert(price,link); end
-						end
-					elseif Desc[I][i][1] == "Item" then
-						local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(Desc[I][i][2]);
-						if name and icon then
-							tinsert(price,link);
-							tinsert(price,("%s |T%s:0|t"):format(Desc[I][i][3],icon));
-							local link = CreateExternalURL("i",Desc[I][i][2]);
-							if link then tinsert(price,link); end
-						else
-							doRetry = true;
-						end
-					end
-					tinsert(sum,tconcat(price,"|n"..listPrefix));
-				end
-				tinsert(cnt,p:format(tconcat(sum,"|n|n")));
 			end
-			if(#cnt>0)then
-				tinsert(html, h2:format(title or L[Desc[I][1]],"blue") .. tconcat(cnt,delimiter) .. br);
-			end
+			--if(#cnt>0)then
+				--tinsert(html, h2:format(title or L[Desc[I][1]],"blue") .. tconcat(cnt,delimiter) .. br);
+			--end
 		end
 	elseif(id)then
 		tinsert(html,"error");
