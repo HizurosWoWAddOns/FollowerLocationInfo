@@ -25,6 +25,10 @@ externals:
         url: git://github.com/Jaliborc/SecureTabs-2.0.git
         tag: latest
 
+	libs/LibDropDownMenu:
+		url: https://repos.curseforge.com/wow/libdropdownmenu
+		tag: latest
+
 move-folders:
     FollowerLocationInfo/Journal: FollowerLocationInfo_Journal
 #	FollowerLocationInfo/Tracker: FollowerLocationInfo_Tracker
