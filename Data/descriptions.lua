@@ -1,7 +1,9 @@
 
 local desc = FollowerLocationInfoData.descriptions;
 
-local outpost_alternative_info = "You've choosed the other outpost building?|nYou have two alternatives.|n1. Reset your outpost building by talking with an NPC in the outpost.|n2. Buy a contract in your garrison.";
+local alternativeInfo_outpost = "Did you choose the other outpost building?|nYou have two alternatives.|n1. Reset your outpost building.|n &#xA0; &#xA0; &#xA0; (Talk with a NPC in the outpost)|n2. Buy a contract from a vendor in your garrison.";
+local alternativeInfo_questrow = "The quest row is completed. Now the other followers are buyable from a vendor in your garrison."
+local alternativeInfo_missionfailed = "If the mission failed then you can buy the contract from a vendor in your garrison."
 
 --[=[ 525 Frostfire Ridge ]=]
 	desc[32] = { -- 525, 32, Dagg
@@ -49,6 +51,13 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 				--
 				{34993, 94, 80672, 535, 69.6, 20.8}
 			},
+			alternative = {
+				{"Merchant", {88633, 582, 58.4, 60.4}},
+				{"Items", {119242}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_outpost
+			}
 		},
 		{
 			zone = 535,
@@ -73,6 +82,13 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 				{34949, 94, 80553, 535, 71.2, 29.8}
 			},
 			--]]
+			alternative = {
+				{"Merchant", {88635, 590, 40.32, 51.04}},
+				{"Items", {119243}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_outpost
+			}
 		}
 	};
 
@@ -93,6 +109,13 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 				{34981, 94, 80630, 535, 64.4, 81.8},
 				{34982, 94, 80968, 535, 69.6, 20.8}
 			},
+			alternative = {
+				{"Merchant", {88633, 582, 58.4, 60.4}},
+				{"Items", {119420}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_outpost
+			}
 		},
 		{
 			zone = 535,
@@ -108,6 +131,13 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 				{34971, 94, 80342, 535, 64.4, 81.6},
 				{34972, 94, 80623, 535, 71.2, 29.8}
 			},
+			alternative = {
+				{"Merchant", {88635, 590, 40.32, 51.04}},
+				{"Items", {119418}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_outpost
+			}
 		}
 	};
 
@@ -341,7 +371,8 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 					{119292, id=186}
 				},
 				{"Price", {"Gold", 50000000}},
-				visible = {"quest", 34788}
+				visible = {"quest", 34788},
+				text = alternativeInfo_questrow
 			}
 		},
 		{
@@ -364,7 +395,8 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 					{122135, id=186}
 				},
 				{"Price", {"Gold", 50000000}},
-				visible = {"quest", 34124}
+				visible = {"quest", 34124},
+				text = alternativeInfo_questrow
 			}
 		},
 	}; -- TODO: horde version incomplete?
@@ -381,10 +413,10 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 			{"Price", {"Gold", 4000000}},
 			alternative = {
 				{"Merchant", {88633, 582, 58.4, 60.4}},
-				{"Items", {}},
+				{"Items", {119267}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = outpost_alternative_info
+				text = alternativeInfo_outpost
 			}
 		},
 		{
@@ -396,10 +428,10 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 			{"Price", {"Gold", 4000000}},
 			alternative = {
 				{"Merchant", {88635, 590, 40.32, 51.04}},
-				{"Items", {}},
+				{"Items", {119267}},
 				{"Price", {"Gold", 50000000}},
 				visible=true,
-				text = outpost_alternative_info
+				text = alternativeInfo_outpost
 			}
 		}
 	};
@@ -507,12 +539,26 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 		{
 			zone=542,
 			{"Requirements", {"Outpost", 542, 2}},
-			{"Quests", {37281, 96, 88195, 542, 39.6, 60.8}}
+			{"Quests", {37281, 96, 88195, 542, 39.6, 60.8}},
+			alternative = {
+				{"Merchant", {88633, 582, 58.4, 60.4}},
+				{"Items", {119244}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_outpost
+			}
 		},
 		{
 			zone=542,
 			{"Requirements", {"Outpost", 542, 2}},
-			{"Quests", {37276, 96, 88179, 542, 40, 43.2}}
+			{"Quests", {37276, 96, 88179, 542, 40, 43.2}},
+			alternative = {
+				{"Merchant", {88635, 590, 40.32, 51.04}},
+				{"Items", {119245}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_outpost
+			}
 		}
 	}; -- TODO: incomplete
 
@@ -546,6 +592,13 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 				{34699, 93, 79322, 543, 42.8, 63},
 				{34703, 93, 77014, 543, 42.8, 63},
 				{35137, 93, 79322, 543, 42.8, 63},
+			},
+			alternative = {
+				{"Merchant", {88633, 582, 58.4, 60.4}},
+				{"Items", {119254}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_outpost
 			}
 		},
 		{
@@ -553,6 +606,13 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 			{"Requirements", {"Outpost", 543, 2}},
 			--{"Quests", {35882, nil} },
 			--{"note", "missing quest row data and quest giver positions... not enough found on wowhead.", "ff9922"}
+			alternative = {
+				{"Merchant", {88635, 590, 40.32, 51.04}},
+				{"Items", {119255}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_outpost
+			}
 		}
 	}; -- TODO: incomplete
 
@@ -576,7 +636,14 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 		{
 			zone = 543,
 			{"Requirements", {"Outpost", 543, 1}},
-			{"Quests", {36828, 92, 85119, 543, 53, 59.4}}
+			{"Quests", {36828, 92, 85119, 543, 53, 59.4}},
+			alternative = {
+				{"Merchant", {88633, 582, 58.4, 60.4}},
+				{"Items", {119256}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_outpost
+			}
 		},
 		{
 			zone=543,
@@ -589,6 +656,13 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 				{35527, 92, 82569, 543, 57, 71.8},
 				{35524, 92, 82569, 543, 57, 71.8},
 				{36812, 92, 85077, 543, 46.4, 69.6}
+			},
+			alternative = {
+				{"Merchant", {88635, 590, 40.32, 51.04}},
+				{"Items", {119257}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_outpost
 			}
 		}
 	}; -- TODO: incomplete, missing quest row
@@ -598,12 +672,26 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 		{
 			zone=543,
 			{"Requirements", {"Outpost", 543, 2}},
-			{"Quests", {36833, 93, 85278, 543, 53.2, 59.8}} -- Quest: Eiserne Ketten ?
+			{"Quests", {36833, 93, 85278, 543, 53.2, 59.8}}, -- Quest: Eiserne Ketten ?
+			alternative = {
+				{"Merchant", {88633, 582, 58.4, 60.4}},
+				{"Items", {119252}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_outpost
+			}
 		},
 		{
 			zone=543,
 			{"Requirements", {"Outpost", 543, 2}},
-			{"Quests", {36832, 93, 85980, 543, 44, 48.8}} --  Quest: Ist Xais egal ?
+			{"Quests", {36832, 93, 85980, 543, 44, 48.8}}, --  Quest: Ist Xais egal ?
+			alternative = {
+				{"Merchant", {88635, 590, 40.32, 51.04}},
+				{"Items", {119253}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_outpost
+			}
 		}
 	}; -- TODO: incomplete, mission quest row
 
@@ -821,11 +909,25 @@ local outpost_alternative_info = "You've choosed the other outpost building?|nYo
 		nil,
 		{
 			zone = 582,
-			{"Missions", 91}
+			{"Missions", 91},
+			alternative = {
+				{"Merchant", {88633, 582, 58.4, 60.4}},
+				{"Items", {119288}},
+				{"Price", {"Gold", 100000}},
+				visible = true,
+				text = alternativeInfo_missionfailed
+			}
 		},
 		{
 			zone = 590,
-			{"Missions", 7}
+			{"Missions", 7},
+			alternative = {
+				{"Merchant", {88635, 590, 40.32, 51.04}},
+				{"Items", {114825}},
+				{"Price", {"Gold", 50000000}},
+				visible = true,
+				text = alternativeInfo_missionfailed
+			}
 		}
 	};
 

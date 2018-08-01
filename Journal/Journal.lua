@@ -17,9 +17,9 @@ local LDDM = LibStub("LibDropDownMenu");
 --- Misc local functions ---
 ----------------------------
 function ns.print(...)
-	local colors,t,c = {"0099ff","00ff00","ff6060","44ffff","ffff00","ff8800","ff44ff","ffffff"},{},1;
-	for i,v in ipairs({...}) do
-		v = tostring(v);
+	local a,colors,t,c = {...},{"0099ff","00ff00","ff6060","44ffff","ffff00","ff8800","ff44ff","ffffff"},{},1;
+	for i=1, #a do
+		local v = tostring(a[i]);
 		if i==1 and v~="" then
 			tinsert(t,"|cff0099ff"..addon.."|r:"); c=2;
 		end
@@ -676,7 +676,7 @@ function FollowerLocationInfoJournalFollowerList_Update()
 						if (collected) then
 							--button.notCollectable:Show();
 							button.buyable:Show();
-							tinsert(button.tooltip,"|cffee0000"..L["This follower is member of a collect group."].." "..L["The quest row is over. Now, This follower is buyable from a npc in your garrison."].."|r");
+							tinsert(button.tooltip,"|cffff8800"..L["This follower is member of a collect group."].." "..L["The quest row is completed. Now, this follower is buyable from a npc in your garrison."].."|r");
 						else
 							tinsert(button.tooltip,"|cffffcc00"..L["This follower is member of a collect group."].." "..L["You can obtain one of it by quest row. Later, the other followers are buyable from a npc in your garrison."].."|r");
 						end
@@ -869,7 +869,7 @@ function FollowerLocationInfoJournalFollowerCard_Update()
 	end
 end
 
-local h1,h2,h3,lnk,a = "<h1>%s</h1>","<h2>%s</h2><p>|TInterface\\AddOns\\FollowerLocationInfo\\media\\%s:9:256:0:8:128:16:24:64:0:16|t</p>","<h3>%s</h3>","|c%s|H%s|h[%s]|h|r","<a href='%s'>%s</a>";
+local h1,h2,h3,lnk,a = "<h1>%s</h1><p>|TInterface\\AddOns\\FollowerLocationInfo\\media\\%s:9:356:0:8:128:16:0:24:0:16|t</p>","<h2>%s</h2><p>|TInterface\\AddOns\\FollowerLocationInfo\\media\\%s:9:256:0:8:128:16:24:64:0:16|t</p>","<h3>%s</h3>","|c%s|H%s|h[%s]|h|r","<a href='%s'>%s</a>";
 local p,pl,pr,br,img = "<p>%s</p>","<p align='left'>%s</p>","<p align='right'>%s</p>","<br/>","|cFF33aaff|Himage:%1$s:%2$s|h[Image? %2$d]|h|r";
 local checked = " |TInterface\\Buttons\\UI-CheckBox-Check:14:14:0:0:32:32:3:29:3:29|t";
 local stateColor = {[0]="ff0000","ff9900","04ff07","ffffff"};
@@ -1004,14 +1004,14 @@ SharedElements.Images=function(followerId,imageTable,delimiter)
 	return tconcat(images,delimiter);
 end;
 
-function AddDescription.Location(Desc,I)
+function AddDescription.Location(Desc)
 	local locations = {};
-	for i=2, #Desc[I] do
+	for i=2, #Desc do
 		location = {};
-		if(type(Desc[I][i])=="string")then
-			tinsert(location,L[Desc[I][i]]);
+		if(type(Desc[i])=="string")then
+			tinsert(location,L[Desc[i]]);
 		else
-			local v = Desc[I][i];
+			local v = Desc[i];
 			if(v[4])then
 				tinsert(location,L[v[4]]);
 			end
@@ -1029,11 +1029,11 @@ function AddDescription.Location(Desc,I)
 	return p:format(tconcat(locations,"|n|n"));
 end
 
-function AddDescription.Quests(Desc,I)
-	Loading(true,L["Collecting quest data... (%d entries)"]:format(#Desc[I]-1),"new");
+function AddDescription.Quests(Desc)
+	Loading(true,L["Collecting quest data... (%d entries)"]:format(#Desc-1),"new");
 	local quests,doRetry = {},false;
-	for i=2, #Desc[I] do
-		local quest,v,coord,index,zone,npc = {},Desc[I][i],"","","","";
+	for i=2, #Desc do
+		local quest,v,coord,index,zone,npc = {},Desc[i],"","","","";
 		Loading(true,L["Query data (questId: %d)..."]:format(v[1]));
 		if(type(v[1])=="number")then
 			-- true=completed, number=inQuestLog, nil=open/notInLog
@@ -1091,26 +1091,26 @@ function AddDescription.Quests(Desc,I)
 		end
 	end
 	if #quests>0 then
-		return p:format(tconcat(quests,"|n|n")), Desc[I][1]=="Events" and EVENTS_LABEL or QUESTS_LABEL,doRetry;
+		return p:format(tconcat(quests,"|n|n")), Desc[1]=="Events" and EVENTS_LABEL or QUESTS_LABEL,doRetry;
 	end
 	return nil,nil,doRetry;
 end
 AddDescription.Events = AddDescription.Quests;
 
-function AddDescription.Missions(Desc,I)
+function AddDescription.Missions(Desc)
 	local cnt={};
-	for i=2, #Desc[I] do
-		if (type(Desc[I][i])=="number") then
+	for i=2, #Desc do
+		if (type(Desc[i])=="number") then
 			-- garrmission:<missionid> does not work with blizzards GameTooltip:SetHyperlink().
-			-- tinsert(cnt,p:format( C_Garrison.GetMissionLink(Desc[I][i]) ));
-			local missionData,numMaxFollower = {C_Garrison.GetMissionName(Desc[I][i])},GARRISON_MISSION_TOOLTIP_NUM_REQUIRED_FOLLOWERS;
-			if (C_Garrison.GetFollowerTypeByMissionID(Desc[I][i])==LE_FOLLOWER_TYPE_SHIPYARD_6_2)then
+			-- tinsert(cnt,p:format( C_Garrison.GetMissionLink(Desc[i]) ));
+			local missionData,numMaxFollower = {C_Garrison.GetMissionName(Desc[i])},GARRISON_MISSION_TOOLTIP_NUM_REQUIRED_FOLLOWERS;
+			if (C_Garrison.GetFollowerTypeByMissionID(Desc[i])==LE_FOLLOWER_TYPE_SHIPYARD_6_2)then
 				numMaxFollower=GARRISON_SHIPYARD_MISSION_TOOLTIP_NUM_REQUIRED_FOLLOWERS;
 			end
-			tinsert(missionData,""..listPrefix..numMaxFollower:format(C_Garrison.GetMissionMaxFollowers(Desc[I][i])));
-			local link = CreateExternalURL("m",Desc[I][i]);
+			tinsert(missionData,""..listPrefix..numMaxFollower:format(C_Garrison.GetMissionMaxFollowers(Desc[i])));
+			local link = CreateExternalURL("m",Desc[i]);
 			if link then tinsert(missionData,listPrefix..link); end
-			local rewardList,rewards = C_Garrison.GetMissionRewardInfo(Desc[I][i]),{};
+			local rewardList,rewards = C_Garrison.GetMissionRewardInfo(Desc[i]),{};
 			if rewardList then
 				for _,reward in pairs(rewardList)do
 					local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(reward.itemID);
@@ -1121,7 +1121,7 @@ function AddDescription.Missions(Desc,I)
 							(hlink~=nil and "|n"..listPrefix..hlink or "")
 						);
 					else
-						--print("Error:", "Mission reward item not found.", "itemID:"..reward.itemID,"missionID:"..Desc[I][i]);
+						--print("Error:", "Mission reward item not found.", "itemID:"..reward.itemID,"missionID:"..Desc[i]);
 					end
 				end
 			end
@@ -1134,29 +1134,29 @@ function AddDescription.Missions(Desc,I)
 	return cnt, GARRISON_MISSIONS;
 end
 
-function AddDescription.Description(Desc,I)
-	return p:format(L[Desc[I][2]]), DESCRIPTION;
+function AddDescription.Description(Desc)
+	return p:format(L[Desc[2]]), DESCRIPTION;
 end
 
-function AddDescription.Images(Desc,I)
-	return pr:format("|cffa0a0a0"..L["(mouse over to show image)"].."|r") .. pl:format(SharedElements.Images(CurrentFollower,Desc[I],"|n"));
+function AddDescription.Images(Desc)
+	return pr:format("|cffa0a0a0"..L["(mouse over to show image)"].."|r") .. pl:format(SharedElements.Images(CurrentFollower,Desc,"|n"));
 end
 
-function AddDescription.Merchant(Desc,I)
+function AddDescription.Merchant(Desc)
 	Loading(true,L["Collection vendor data..."],"new");
 	local merchants,doRetry = {},false;
-	for i=2, #Desc[I] do
-		Loading(true,L["Query data (npcID: %d)..."]:format(Desc[I][i][1]));
+	for i=2, #Desc do
+		Loading(true,L["Query data (npcID: %d)..."]:format(Desc[i][1]));
 		local merchant = {};
-		local name = D.NpcName[Desc[I][i][1]];
+		local name = D.NpcName[Desc[i][1]];
 		if(name)then
 			tinsert(merchant,name);
-			local location, tomtom = SharedElements.Location(Desc[I][i][2],Desc[I][i][3],Desc[I][i][4],(type(Desc[I][i][3])=="table" or type(Desc[I][i][3])=="string") and Desc[I][i][3] or nil,name);
+			local location, tomtom = SharedElements.Location(Desc[i][2],Desc[i][3],Desc[i][4],(type(Desc[i][3])=="table" or type(Desc[i][3])=="string") and Desc[i][3] or nil,name);
 			tinsert(merchant,location);
 			if tomtom then
 				tinsert(merchant,tomtom);
 			end
-			local link = CreateExternalURL("n",Desc[I][i][1]);
+			local link = CreateExternalURL("n",Desc[i][1]);
 			if link then tinsert(merchant,link); end
 			tinsert(merchants,tconcat(merchant,"|n"..listPrefix));
 			Loading(true,checked,"nobr");
@@ -1170,24 +1170,24 @@ function AddDescription.Merchant(Desc,I)
 	return nil,nil,doRetry;
 end
 
-function AddDescription.Npc(Desc,I)
-	Loading(true,L["Query data (npcID: %d)..."]:format(Desc[I][2]));
-	local name,npc,doRetry = D.NpcName[Desc[I][2]],false;
+function AddDescription.Npc(Desc)
+	Loading(true,L["Query data (npcID: %d)..."]:format(Desc[2]));
+	local name,npc,doRetry = D.NpcName[Desc[2]],false;
 	if(name)then
 		npc = {};
 		tinsert(npc,name);
-		if(D.NpcTitle[Desc[I][2]])then
-			--title = D.NpcTitle[Desc[I][2]];
-			tinsert(npc,UNIT_NAME_PLAYER_TITLE..": "..D.NpcTitle[Desc[I][2]]);
+		if(D.NpcTitle[Desc[2]])then
+			--title = D.NpcTitle[Desc[2]];
+			tinsert(npc,UNIT_NAME_PLAYER_TITLE..": "..D.NpcTitle[Desc[2]]);
 		end
 
-		local location, tomtom = SharedElements.Location(Desc[I][3],Desc[I][4],Desc[I][5],(type(Desc[I][4])=="table" or type(Desc[I][4])=="string") and Desc[I][4] or nil,name);
+		local location, tomtom = SharedElements.Location(Desc[3],Desc[4],Desc[5],(type(Desc[4])=="table" or type(Desc[4])=="string") and Desc[4] or nil,name);
 		tinsert(npc,location);
 		if tomtom then
 			tinsert(npc,tomtom);
 		end
 
-		local link = CreateExternalURL("n",Desc[I][1]);
+		local link = CreateExternalURL("n",Desc[1]);
 		if link then tinsert(npc,link); end
 
 		Loading(true,checked,"nobr");
@@ -1200,21 +1200,23 @@ function AddDescription.Npc(Desc,I)
 	return nil,nil,doRetry;
 end
 
-function AddDescription.Spell(Desc,I)
-	local hlink = CreateExternalURL("s",Desc[I][2]);
+function AddDescription.Spell(Desc)
+	local hlink = CreateExternalURL("s",Desc[2]);
 	return p:format(
-		"|T"..GetSpellTexture(Desc[I][2])..":14:14:0:0|t "..GetSpellLink(Desc[I][2])..
+		"|T"..GetSpellTexture(Desc[2])..":14:14:0:0|t "..GetSpellLink(Desc[2])..
 		(hlink~=nil and "|n"..listPrefix..hlink or "")
 	), SPELLS;
 end
 
-function AddDescription.Items(Desc,I)
+function AddDescription.Items(Desc)
 	local items = {};
-	for i=2, #Desc[I] do
+	for i=2, #Desc do
 		local item = {};
-		local v,name,link,icon,coords,_ = Desc[I][i];
+		local v,name,link,icon,coords,_ = Desc[i];
 		name,link,_,_,_,_,_,_,_,icon = GetItemInfo(v[1]);
-
+		if v.id~=nil and v.id~=CurrentFollower then
+			link = false;
+		end
 		if link then
 			tinsert(item, ("|T%s:0|t %s"):format(icon,link));
 
@@ -1226,7 +1228,7 @@ function AddDescription.Items(Desc,I)
 				end
 			end
 
-			local link = CreateExternalURL("i",Desc[I][i][1]);
+			local link = CreateExternalURL("i",Desc[i][1]);
 			if link then tinsert(item,link); end
 
 			if(type(v.Images)=="table")then
@@ -1235,14 +1237,16 @@ function AddDescription.Items(Desc,I)
 			tinsert(items,tconcat(item,"|n"..listPrefix));
 		end
 	end
-	return p:format(tconcat(items,"|n|n")), #Desc[I]>2 and ITEMS or HELPFRAME_ITEM_TITLE;
+	if #items>0 then
+		return p:format(tconcat(items,"|n|n")), #Desc>2 and ITEMS or HELPFRAME_ITEM_TITLE;
+	end
 end
 
-function AddDescription.Requirements(Desc,I)
+function AddDescription.Requirements(Desc)
 	local reqs = {};
 	local titles = {["Garrison building"]=L["Garrison building"],Professions=TRADE_SKILLS,Reputation=REPUTATION,["Brawler's Guild"]=L["Brawler's Guild"]};
-	for i=2, #Desc[I] do
-		local req,v = {},Desc[I][i];
+	for i=2, #Desc do
+		local req,v = {},Desc[i];
 		if(type(v)=="table" and SharedElements[v[1]])then
 			if v[1]=="Garrison building" or v[1]=="Professions" or v[1]=="Reputation" or v[1]=="Brawler's Guild" then
 				local name, need, url, data = SharedElements[v[1]](unpack(v));
@@ -1286,13 +1290,13 @@ function AddDescription.Requirements(Desc,I)
 	return p:format(tconcat(reqs,"|n|n"));
 end
 
-function AddDescription.Achievements(Desc,I)
+function AddDescription.Achievements(Desc)
 	local achievements = {};
-	for i=2, #Desc[I] do
-		local achievement,link = {},GetAchievementLink(Desc[I][i]);
+	for i=2, #Desc do
+		local achievement,link = {},GetAchievementLink(Desc[i]);
 		if link then
-			local _, name, points, completed, _, _, _, description, _, icon, rewardText, isGuild, wasEarnedByMe, earnedBy = GetAchievementInfo(Desc[I][i]);
-			local cat,catId = {},GetAchievementCategory(Desc[I][i]);
+			local _, name, points, completed, _, _, _, description, _, icon, rewardText, isGuild, wasEarnedByMe, earnedBy = GetAchievementInfo(Desc[i]);
+			local cat,catId = {},GetAchievementCategory(Desc[i]);
 			tinsert(achievement,link);
 
 			for i=1, 3 do
@@ -1304,7 +1308,7 @@ function AddDescription.Achievements(Desc,I)
 			end
 			tinsert(achievement,tconcat(cat," &#xBB; "));
 
-			local link = CreateExternalURL("a",Desc[I][i]);
+			local link = CreateExternalURL("a",Desc[i]);
 			if link then tinsert(achievement,link); end
 
 			local status = ("|cff%s%s|r"):format("04ff07",L["Open"]);
@@ -1323,28 +1327,28 @@ function AddDescription.Achievements(Desc,I)
 	end
 end
 
-function AddDescription.Price(Desc,I)
+function AddDescription.Price(Desc)
 	local sum,doRetry = {},false;
-	for i=2, #Desc[I] do
+	for i=2, #Desc do
 		local price = {};
-		if Desc[I][i][1] == "Gold" then
+		if Desc[i][1] == "Gold" then
 			tinsert(price,BONUS_ROLL_REWARD_MONEY);
-			tinsert(price,GetCoinTextureString(Desc[I][i][2]));
-		elseif Desc[I][i][1] == "Currency" then
-			local name,itemId,icon = GetCurrencyInfo(Desc[I][i][2]);
-			local link = GetCurrencyLink(Desc[I][i][2],Desc[I][i][3]);
+			tinsert(price,GetCoinTextureString(Desc[i][2]));
+		elseif Desc[i][1] == "Currency" then
+			local name,itemId,icon = GetCurrencyInfo(Desc[i][2]);
+			local link = GetCurrencyLink(Desc[i][2],Desc[i][3]);
 			if name and icon then
 				tinsert(price,link or name);
-				tinsert(price,("%s |T%s:0|t"):format(Desc[I][i][3],icon));
-				local link = CreateExternalURL("c",Desc[I][i][2]);
+				tinsert(price,("%s |T%s:0|t"):format(Desc[i][3],icon));
+				local link = CreateExternalURL("c",Desc[i][2]);
 				if link then tinsert(price,link); end
 			end
-		elseif Desc[I][i][1] == "Item" then
-			local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(Desc[I][i][2]);
+		elseif Desc[i][1] == "Item" then
+			local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(Desc[i][2]);
 			if name and icon then
 				tinsert(price,link);
-				tinsert(price,("%s |T%s:0|t"):format(Desc[I][i][3],icon));
-				local link = CreateExternalURL("i",Desc[I][i][2]);
+				tinsert(price,("%s |T%s:0|t"):format(Desc[i][3],icon));
+				local link = CreateExternalURL("i",Desc[i][2]);
 				if link then tinsert(price,link); end
 			else
 				doRetry = true;
@@ -1356,6 +1360,28 @@ function AddDescription.Price(Desc,I)
 		return p:format(tconcat(sum,"|n|n")), AUCTION_PRICE,doRetry;
 	end
 	return nil,nil,doRetry;
+end
+
+function AddDescription.AllParts(html,Desc)
+	local doRetry,delimiter=false,"";
+	for I=1, #Desc do
+		if AddDescription[Desc[I][1]] then
+			local htmlPart,title,problems = AddDescription[Desc[I][1]](Desc[I]);
+			if not title then
+				title = L[Desc[I][1]];
+			end
+			if htmlPart then
+				if type(htmlPart)=="table" then
+					htmlPart = tconcat(htmlPart,delimiter);
+				end
+				tinsert(html, h2:format(title,"blue") .. htmlPart .. br);
+			end
+			if problems then
+				doRetry = true;
+			end
+		end
+	end
+	return doRetry;
 end
 
 function FollowerLocationInfoJournalFollowerDesc_Update()
@@ -1404,47 +1430,27 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 			);
 		end
 
+		local showAlt=false;
 		if Desc.alternative then
-			local show,tVisible = false,type(Desc.alternative.visible);
-			if tVisible=="table" then
-				if Desc.alternative.visible[1]=="quest" and IsQuestFlaggedCompleted(Desc.alternative.visible[2]) then
-					show=true;
-				end
-			elseif tVisible=="boolean" then
-				show = Desc.alternative.visible;
-			end
-			if show then
-				tinsert(html,
-					h2:format(L["Alternative option"],"blue")
-					..
-					p:format("?")
-					..
-					br
-				);
+			local tVisible = type(Desc.alternative.visible);
+			if (tVisible=="boolean" and Desc.alternative.visible) then
+				showAlt=2;
+			elseif (tVisible=="table"
+				and (Desc.alternative.visible[1]=="quest" and IsQuestFlaggedCompleted(Desc.alternative.visible[2]))
+				-- or ??
+			) then
+				showAlt=1;
 			end
 		end
-
-		for I=1, #Desc do
-			title = nil;
-			local cnt,delimiter={},"";
-			if AddDescription[Desc[I][1]] then
-				local htmlPart,title,problems = AddDescription[Desc[I][1]](Desc,I);
-				if not title then
-					title = L[Desc[I][1]];
-				end
-				if htmlPart then
-					if type(htmlPart)=="table" then
-						htmlPart = tconcat(htmlPart,delimiter);
-					end
-					tinsert(html, h2:format(title,"blue") .. htmlPart .. br);
-				end
-				if problems then
-					doRetry = true;
-				end
-			end
-			--if(#cnt>0)then
-				--tinsert(html, h2:format(title or L[Desc[I][1]],"blue") .. tconcat(cnt,delimiter) .. br);
-			--end
+		if showAlt==1 then
+			tinsert(html, h1:format(L["Alternative way available"],"green") .. ( Desc.alternative.text~=nil and p:format(L[Desc.alternative.text])..br or "" ) );
+			doRetry = AddDescription.AllParts(html,Desc.alternative) or doRetry;
+			tinsert(html, h1:format(L["Original way"],"red") );
+		end
+		doRetry = AddDescription.AllParts(html,Desc) or doRetry;
+		if showAlt==2 then
+			tinsert(html, h1:format(L["Alternative way available"],"green") .. ( Desc.alternative.text~=nil and p:format(L[Desc.alternative.text])..br or "" ) );
+			doRetry = AddDescription.AllParts(html,Desc.alternative) or doRetry;
 		end
 	elseif(id)then
 		tinsert(html,"error");
@@ -1651,3 +1657,9 @@ function FollowerLocationInfoJournal_OnLoad(self)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("GARRISON_FOLLOWER_LIST_UPDATE");
 end
+
+function FollowerLocationInfoJournalPortraitFrame_OnShow(self)
+	self:SetParent(CollectionJournal);
+	self:SetAllPoints();
+end
+

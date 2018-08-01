@@ -622,6 +622,8 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 			FollowerLocationInfoCache.objectNames = {};
 		end
 
+		FollowerLocationInfoData.journalDocked = not FollowerLocationInfoDB.standalone;
+
 		ns.LDB_Init();
 
 		for i,v in pairs(D.otherFilters)do

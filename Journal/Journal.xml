@@ -379,6 +379,12 @@
 		</Scripts>
 	</Frame>
 
+	<Frame name="FollowerLocationInfoJournalPortraitFrame" hidden="true">
+		<Scripts>
+			<OnShown function="FollowerLocationInfoJournalPortraitFrame_OnShow"/>
+		</Scripts>
+	</Frame>
+
 	<Frame name="FollowerLocationInfoJournal" hidden="true">
 		<Frames>
 			<Frame parentKey="TopLeftInset" useParentLevel="true">
@@ -419,7 +425,6 @@
 					<Frame parentKey="InsetBorder" inherits="InsetFrameTemplate" setallpoints="true" useParentLevel="true"/>
 				</Frames>
 			</Frame>
-
 
 			<Button parentKey="Options">
 				<Size x="33" y="33"/>
