@@ -49,9 +49,12 @@ function ns.LDB_Update()
 	-- coords
 	if(FollowerLocationInfoDB.LDB_PlayerCoords)then
 		local x, y = 0,0;
-		local obj = C_Map.GetPlayerMapPosition(C_Map.GetBestMapForUnit("player"),"player");
-		if obj and obj.GetXY then
-			x,y = obj:GetXY();
+		local uiMapID = C_Map.GetBestMapForUnit("player");
+		if uiMapID then
+			local obj = C_Map.GetPlayerMapPosition(uiMapID,"player");
+			if obj and obj.GetXY then
+				x,y = obj:GetXY();
+			end
 		end
 		if x and x~=0 and y~=0 then
 			tinsert(label,("%1.2f, %1.2f"):format(x*100,y*100));
