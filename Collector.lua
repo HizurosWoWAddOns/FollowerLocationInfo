@@ -27,7 +27,7 @@ function FollowerLocationInfo_Collector(clear)
 	db[Faction] = {};
 
 	local collectable = {};
-	for i,v in ipairs(C_Garrison.GetFollowers(LE_GARRISON_TYPE_6_0) or {})do
+	for i,v in ipairs(C_Garrison.GetFollowers(LE_GARRISON_TYPE_6_0 or Enum.GarrisonType.Type_6_0) or {})do
 		collectable[tonumber(v.garrFollowerID or v.followerID)] = true;
 	end
 

@@ -1,4 +1,4 @@
-## Interface: 80200
+## Interface: 90001
 ## Title: FollowerLocationInfo
 ## Version: @project-version@
 ## Title-zhTW: 追隨者位置資訊

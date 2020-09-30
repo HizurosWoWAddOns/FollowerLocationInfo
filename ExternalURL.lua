@@ -21,7 +21,7 @@ lib.ExternalURL_Tooltips = {
 lib.ExternalURL_unsupportedTypes = {
 	Buffed = {
 		b=true, gf=true
-		-- maybe coming soon... 
+		-- maybe coming soon...
 	},
 	BattleNet = {
 		m=true, gf=true, a=true, c=true, f=true,
@@ -35,7 +35,7 @@ StaticPopupDialogs["FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG"] = {
 	text = BROWSER_COPY_LINK,
 	button2 = CLOSE,
 	timeout = 0,
-	whileDead = 1, 
+	whileDead = 1,
 	hasEditBox = 1,
 	hideOnEscape = 1,
 	maxLetters = 1024,
@@ -74,7 +74,7 @@ StaticPopupDialogs["FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG"] = {
 				Id = gsub(Realm," ","-"):lower().."/"..Id;
 			end
 			if field[Type] then
-				url = ("http://%s/wow%s/%s/%s/"):format(domains[region2domain[Locale]], lang, field[Type], Id);
+				url = ("https://%s/wow%s/%s/%s/"):format(domains[region2domain[Locale]], lang, field[Type], Id);
 			end
 
 		--[=[ create url for Buffed ]=]
@@ -88,7 +88,7 @@ StaticPopupDialogs["FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG"] = {
 				i="i", o="o", q="q", s="s", n="n",
 				m="mission", --b="building", gf="follower"
 			};
-			url = ("http://wowdata.%s/?q=%s"):format(lang[Locale] or "getbuffed.com",field[Type],Id);
+			url = ("https://wowdata.%s/?q=%s"):format(lang[Locale] or "getbuffed.com",field[Type],Id);
 
 		--[=[ create url for WoWDB ]=]
 		elseif Target=="WoWDB" then
@@ -98,7 +98,7 @@ StaticPopupDialogs["FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG"] = {
 				n="npcs",               o="objects",    q="quests",
 				s="spells",             gf="garrison/followers"
 			};
-			url = ("http://www.wowdb.com/%s/%s"):format(field[Type],Id);
+			url = ("https://www.wowdb.com/%s/%s"):format(field[Type],Id);
 
 		--[=[ create url for WoWHead or Thottbot ]=]
 		elseif Target=="WoWHead" or Target=="Thottbot" then
@@ -117,9 +117,9 @@ StaticPopupDialogs["FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG"] = {
 				Id = Id.."."..(UnitFactionGroup("player")=="Alliance" and 1 or 2);
 			end
 			if Target=="Thottbot" then
-				url = ("http://www.thottbot.com/%s=%s"):format(field[Type],Id);
+				url = ("https://www.thottbot.com/%s=%s"):format(field[Type],Id);
 			else
-				url = ("http://%s.wowhead.com/%s=%s"):format(lang[Locale] or "www",field[Type],Id);
+				url = ("https://%s.wowhead.com/%s=%s"):format(lang[Locale] or "www",field[Type],Id);
 			end
 		end
 

@@ -94,8 +94,8 @@ local function LDB_Tooltip(tt)
 		end
 	end
 	tt:AddLine(" ");
-	tt:AddLine(L["Left-click"]..": "..L["Show/Hide journal frame"]);
-	tt:AddLine(L["Right-click"]..": "..L["Open option menu"]);
+	tt:AddLine(L["Left-click"]..CHAT_HEADER_SUFFIX..L["Show/Hide journal frame"]);
+	tt:AddLine(L["Right-click"]..CHAT_HEADER_SUFFIX..L["Open option menu"]);
 end
 
 function ns.LDB_Init()

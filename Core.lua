@@ -20,7 +20,7 @@ do
 		local t,c,a1 = {tostringall(...)},1,...;
 		if type(a1)=="boolean" then tremove(t,1); end
 		if a1~=false then
-			tinsert(t,1,"|cff0099ff"..((a1==true and addon_short) or (a1=="||" and "||") or addon).."|r"..(a1~="||" and ":" or ""));
+			tinsert(t,1,"|cff0099ff"..((a1==true and addon_short) or (a1=="||" and "||") or addon).."|r"..(a1~="||" and HEADER_COLON or ""));
 			c=2;
 		end
 		for i=c, #t do
@@ -97,15 +97,16 @@ local function UpdateFollowers()
 	-- sometimes blizzards functions returning data from wrong faction.
 	-- 99% chance on characters without own garrison. (too high for a bug)
 	-- 1% chance on characters with garrisons. (maybe a bug)
-	local dataFaction
-	if D.build>70000000 then
-		dataFaction = C_Garrison.GetFollowerInfo(34).displayIDs[1].id==55047 and "Alliance" or "Horde";
-	else
-		dataFaction = C_Garrison.GetFollowerInfo(34).displayID==55047 and "Alliance" or "Horde";
+	local followerTestInfo,dataFaction = C_Garrison.GetFollowerInfo(34);
+	if followerTestInfo.displayIDs and followerTestInfo.displayIDs[1] then
+		dataFaction = followerTestInfo.displayIDs[1].id==55047;
+	elseif followerTestInfo.displayID then
+		dataFaction = followerTestInfo.displayID==55047;
 	end
+	dataFaction = dataFaction and "Alliance" or "Horde";
 	local blizz = {};
 	local pLevel = UnitLevel("player");
-	garrLevel = (garrLevel>0 and garrLevel) or C_Garrison.GetGarrisonInfo(LE_GARRISON_TYPE_6_0) or 0;
+	garrLevel = (garrLevel>0 and garrLevel) or C_Garrison.GetGarrisonInfo(LE_GARRISON_TYPE_6_0 or Enum.GarrisonType.Type_6_0) or 0;
 
 	-- Sometimes PLAYER_ENTERING_WORLD aren't late enough to get some data from blizz.
 	if pLevel>=90 and garrLevel==0 then
@@ -227,7 +228,7 @@ local function UpdateFollowers()
 	end
 
 	if dataFaction==D.Faction then
-		blizz = C_Garrison.GetFollowers(LE_FOLLOWER_TYPE_GARRISON_6_0) or {};
+		blizz = C_Garrison.GetFollowers(LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0) or {};
 		D.counter.blizz=#blizz;
 	end
 
@@ -483,7 +484,7 @@ end
 -- @params:
 -- msg - a string that must be match to an error message entry from table infoBoxErrors.
 local infoBoxErrors = {
-	["journal not loadable"] = L["Couldn't load FollowerLocationInfo_Journal. Please check if FollowerLocationInfo_Data is enabled."]
+	["journal not loadable"] = L["LoadError-FollowerLocationInfo_Journal"]
 }
 function FollowerLocationInfo_ShowInfoBox(msg)
 	local self = FollowerLocationInfo;
@@ -632,7 +633,7 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 			tinsert(D.otherFiltersOrder,{i,L[i]});
 		end
 
-		D.Version = {Core=GetAddOnMetadata(addon,"Version"),Data=""};
+		D.Version = {Core="@project-version@",Data=""};
 
 		local _,title = GetAddOnInfo(addon.."_Data");
 		if title then

@@ -23,7 +23,7 @@ do
 		local t,c,a1 = {tostringall(...)},1,...;
 		if type(a1)=="boolean" then tremove(t,1); end
 		if a1~=false then
-			tinsert(t,1,"|cff0099ff"..((a1==true and addon_short) or (a1=="||" and "||") or addon).."|r"..(a1~="||" and ":" or ""));
+			tinsert(t,1,"|cff0099ff"..((a1==true and addon_short) or (a1=="||" and "||") or addon).."|r"..(a1~="||" and HEADER_COLON or ""));
 			c=2;
 		end
 		for i=c, #t do
@@ -331,9 +331,9 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 	-- and doesn't work with normal GameTooltip:SetHyperlink().
 	if(link:match("^garr"))then
 		if(link:match("^garrfollowerability"))then
-			local _,id = strsplit(":",link);
+			local _,id = strsplit(HEADER_COLON,link);
 			if D.build>70000000 then
-				local tooltip = _G[GarrisonFollowerOptions[LE_FOLLOWER_TYPE_GARRISON_6_0].abilityTooltipFrame];
+				local tooltip = _G[GarrisonFollowerOptions[LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0].abilityTooltipFrame];
 				tooltip:ClearAllPoints();
 				if FollowerLocationInfoData.journalDocked then
 					tooltip:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
@@ -341,7 +341,7 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 					tooltip:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
 				end
 				--tooltip:SetPoint("LEFT", self, "RIGHT", 4, 0);
-				GarrisonFollowerAbilityTooltip_Show(tooltip, tonumber(id), LE_FOLLOWER_TYPE_GARRISON_6_0);
+				GarrisonFollowerAbilityTooltip_Show(tooltip, tonumber(id), LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0);
 			else
 				tt=GarrisonFollowerAbilityTooltip;
 				tt:ClearAllPoints();
@@ -350,7 +350,7 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 				else
 					tt:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
 				end
-				GarrisonFollowerAbilityTooltip_Show(tonumber(id),LE_FOLLOWER_TYPE_GARRISON_6_0);
+				GarrisonFollowerAbilityTooltip_Show(tonumber(id),LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0);
 			end
 		end
 	else
@@ -365,7 +365,7 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 
 		if(link:match("^image"))then
 			-- custom hyperlink type "image"
-			local _,id,idx = strsplit(":",link);
+			local _,id,idx = strsplit(HEADER_COLON,link);
 			tt:AddLine(("|TInterface\\AddOns\\FollowerLocationInfo\\media\\follower_%s_%s:%d:%d:0:0|t"):format(id,idx,ttImageSize,ttImageSize));
 			forceReload=true;
 		elseif(link:match("^externalurl"))then
@@ -378,7 +378,7 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 			tt:AddLine(L["Opening a dialog popup with the web address"]);
 		elseif(link:match("^tomtom"))then
 			-- custom hyperlink type "tomtom"
-			local _, zone, x, y, label = strsplit(":",link);
+			local _, zone, x, y, label = strsplit(HEADER_COLON,link);
 			tt:AddLine("TomTom");
 			if label~="-" then
 				tt:AddDoubleLine(L["Label"],label);
@@ -436,7 +436,7 @@ function FollowerLocationInfoJournal_OnHyperlinkClick(self,link,text,button)
 
 	if customizedHyperlinks[Type]==true or (type(customizedHyperlinks[Type])=="table" and customizedHyperlinks[Type][Modifiers..button]==true) then
 		if Type=="tomtom" then
-			local _, zone, x, y, title = strsplit(":",link);
+			local _, zone, x, y, title = strsplit(HEADER_COLON,link);
 			zone,x,y=tonumber(zone),tonumber(x)/100,tonumber(y)/100;
 			if tostring(title):len()>0 then
 				title = {title=title};
@@ -462,7 +462,7 @@ function FollowerLocationInfoJournal_OnHyperlinkClick(self,link,text,button)
 				end
 			end
 		elseif Type=="externalurl" then
-			local _, oType, oId, oRealm = strsplit(":",link);
+			local _, oType, oId, oRealm = strsplit(HEADER_COLON,link);
 			StaticPopup_Show("FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG",nil,nil,{oType,oId,oRealm});
 		end
 		-- Type=="image" -- no action
@@ -689,7 +689,7 @@ function FollowerLocationInfoJournalFollowerList_Update()
 				button.followerID:SetText("ID: "..id);
 				if (FollowerLocationInfoDB.ShowFollowerID) then
 					button.followerID:Show();
-					tinsert(button.tooltip,"|cffbbbbbb"..L["FollowerID"]..": "..id.."|r");
+					tinsert(button.tooltip,"|cffbbbbbb"..L["FollowerID"]..CHAT_HEADER_SUFFIX..id.."|r");
 				end
 
 				button.zoneToggle:Hide();
@@ -879,11 +879,11 @@ local stateColor = {[0]="ff0000","ff9900","04ff07","ffffff"};
 local SharedElements,AddDescription = {},{};
 
 SharedElements["Garrison building"]=function(_,id)
-	local glvl = C_Garrison.GetGarrisonInfo(LE_GARRISON_TYPE_6_0);
+	local glvl = C_Garrison.GetGarrisonInfo(LE_GARRISON_TYPE_6_0 or Enum.GarrisonType.Type_6_0);
 	local result,state,Name,Lvl,name,lvl,_= {},0;
 	_,name,_,_,_,lvl = C_Garrison.GetBuildingInfo(id);
 	if glvl~=nil and  glvl>0 then
-		for i,v in ipairs(C_Garrison.GetBuildings(LE_GARRISON_TYPE_6_0))do
+		for i,v in ipairs(C_Garrison.GetBuildings(LE_GARRISON_TYPE_6_0 or Enum.GarrisonType.Type_6_0))do
 			_,Name,_,_,_,Lvl = C_Garrison.GetBuildingInfo(v.buildingID);
 			if(v.buildingID==id) or (name==Name)then
 				state = 1;
@@ -1040,9 +1040,9 @@ function AddDescription.Quests(Desc)
 		Loading(true,L["Query data (questId: %d)..."]:format(v[1]));
 		if(type(v[1])=="number")then
 			-- true=completed, number=inQuestLog, nil=open/notInLog
-			index = GetQuestLogIndexByID(v[1]);
+			index = (GetQuestLogIndexByID or C_QuestLog.GetLogIndexForQuestID)(v[1]);
 			if(index and index>0)then
-				D.QuestName[v[1]] = GetQuestLogTitle(index);
+				D.QuestName[v[1]] = (GetQuestLogTitle or C_QuestLog.GetTitleForLogIndex)(index);
 			end
 
 			if(type(D.QuestName[v[1]])=="string")then
@@ -1080,10 +1080,10 @@ function AddDescription.Quests(Desc)
 				tinsert(quest,SharedElements.Images(CurrentFollower,v.Images," "));
 			end
 
-			local status = STATUS..": |cff%s%s|r";
+			local status = STATUS..CHAT_HEADER_SUFFIX.."|cff%s%s|r";
 			if(index and index>0)then
 				tinsert(quest,status:format("ffee00",L["In your Questlog"]));
-			elseif IsQuestFlaggedCompleted(v[1]) then
+			elseif C_QuestLog.IsQuestFlaggedCompleted(v[1]) then
 				tinsert(quest,status:format("00aa00",AUCTION_TIME_LEFT0)..checked);
 			else
 				tinsert(quest,status:format("04ff07",L["Open"]));
@@ -1181,7 +1181,7 @@ function AddDescription.Npc(Desc)
 		tinsert(npc,name);
 		if(D.NpcTitle[Desc[2]])then
 			--title = D.NpcTitle[Desc[2]];
-			tinsert(npc,UNIT_NAME_PLAYER_TITLE..": "..D.NpcTitle[Desc[2]]);
+			tinsert(npc,UNIT_NAME_PLAYER_TITLE..CHAT_HEADER_SUFFIX..D.NpcTitle[Desc[2]]);
 		end
 
 		local location, tomtom = SharedElements.Location(Desc[3],Desc[4],Desc[5],(type(Desc[4])=="table" or type(Desc[4])=="string") and Desc[4] or nil,name);
@@ -1254,7 +1254,7 @@ function AddDescription.Requirements(Desc)
 			if v[1]=="Garrison building" or v[1]=="Professions" or v[1]=="Reputation" or v[1]=="Brawler's Guild" then
 				local name, need, url, data = SharedElements[v[1]](unpack(v));
 				local state1 = data.state>=1 and 2 or 0;
-				tinsert(req,titles[v[1]]..":");
+				tinsert(req,titles[v[1]]..HEADER_COLON);
 				if v[1]=="Reputation" or v[1]=="Brawler's Guild" then
 					tinsert(req,name);
 				else
@@ -1270,7 +1270,7 @@ function AddDescription.Requirements(Desc)
 				local result = {SharedElements[v[1]](unpack(v))};
 				if #result>0 then
 					if(titles[v[1]])then
-						tinsert(req,titles[v[1]]..":");
+						tinsert(req,titles[v[1]]..HEADER_COLON);
 					end
 					for x=1, #result do
 						if(type(result[x])=="string")then
@@ -1281,7 +1281,7 @@ function AddDescription.Requirements(Desc)
 			end
 		elseif v[1]=="Unlock" then
 			local color, chk = "yellow","";
-			if(IsQuestFlaggedCompleted(v[2]))then
+			if(C_QuestLog.IsQuestFlaggedCompleted(v[2]))then
 				color, chk = "green", checked;
 			end
 			tinsert(req, LC.color(color, L[v[3]])..chk);
@@ -1318,7 +1318,7 @@ function AddDescription.Achievements(Desc)
 			if completed and wasEarnedByMe then
 				status = ("|cff%s%s|r"):format("00aa00",AUCTION_TIME_LEFT0)..checked;
 			end
-			tinsert(achievement,STATUS..": "..status);
+			tinsert(achievement,STATUS..CHAT_HEADER_SUFFIX..status);
 
 			tinsert(achievements,
 				"|T"..icon..":32:32:0:0:32:32:0:32:0:32|t|n" ..
@@ -1338,8 +1338,14 @@ function AddDescription.Price(Desc)
 			tinsert(price,BONUS_ROLL_REWARD_MONEY);
 			tinsert(price,GetCoinTextureString(Desc[i][2]));
 		elseif Desc[i][1] == "Currency" then
-			local name,itemId,icon = GetCurrencyInfo(Desc[i][2]);
-			local link = GetCurrencyLink(Desc[i][2],Desc[i][3]);
+			local name,icon,_
+			if GetCurrencyInfo then
+				name,_,icon = GetCurrencyInfo(Desc[i][2]);
+			elseif C_CurrencyInfo.GetCurrencyInfo then
+				local info = C_CurrencyInfo.GetCurrencyInfo(Desc[i][2]); -- added with shadowlands
+				name,icon = info.name,info.iconFileID;
+			end
+			local link = (GetCurrencyLink or C_CurrencyInfo.GetCurrencyLink)(Desc[i][2],Desc[i][3]);
 			if name and icon then
 				tinsert(price,link or name);
 				tinsert(price,("%s |T%s:0|t"):format(Desc[i][3],icon));
@@ -1424,7 +1430,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 				h2:format(L["Collect group"],"blue")
 				..
 				p:format(
-					L["You can only obtain one follower from this group with the quest row"]..":"
+					L["You can only obtain one follower from this group with the quest row"]..HEADER_COLON
 					..
 					"|n".. listPrefix .. tconcat(members,"|n".. listPrefix)
 				)
@@ -1439,7 +1445,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 			if (tVisible=="boolean" and Desc.alternative.visible) then
 				showAlt=2;
 			elseif (tVisible=="table"
-				and (Desc.alternative.visible[1]=="quest" and IsQuestFlaggedCompleted(Desc.alternative.visible[2]))
+				and (Desc.alternative.visible[1]=="quest" and C_QuestLog.IsQuestFlaggedCompleted(Desc.alternative.visible[2]))
 				-- or ??
 			) then
 				showAlt=1;
