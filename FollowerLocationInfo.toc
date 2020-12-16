@@ -7,6 +7,8 @@
 ## SavedVariables: FollowerLocationInfoDB, FollowerLocationInfoCache, FollowerLocationInfoCollectorCache
 ## OptionalDeps: LibStub, CallbackHandler-1.0, LibDataBroker-1.1, LibDBIcon-1.0, LibColors-1.0, SecureTabs-2.0, LibDropDownMenu
 
+## X-Curse-Project-ID: 85399
+
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
