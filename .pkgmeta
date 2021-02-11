@@ -25,31 +25,31 @@ externals:
         url: git://github.com/Jaliborc/SecureTabs-2.0.git
         tag: latest
 
-	libs/LibDropDownMenu:
-		url: https://repos.curseforge.com/wow/libdropdownmenu
-		tag: latest
+    libs/LibDropDownMenu:
+        url: https://repos.curseforge.com/wow/libdropdownmenu
+        tag: latest
 
 move-folders:
     FollowerLocationInfo/Journal: FollowerLocationInfo_Journal
-#	FollowerLocationInfo/Tracker: FollowerLocationInfo_Tracker
+#    FollowerLocationInfo/Tracker: FollowerLocationInfo_Tracker
 
 enable-nolib-creation: yes
 
 ignore:
-	- libs/LibStub/tests
-	- libs/LibStub/LibStub.toc
-	- libs/CallbackHandler-1.0/CallbackHandler-1.0.xml
-	- libs/LibDataBroker-1.0/README.textile
-	- libs/LibDBIcon-1.0/lib.xml
-	- libs/LibColors-1.0/.pkgmeta
-	- libs/LibColors-1.0/colors_fed_standard_595.lua
-	- libs/LibColors-1.0/colors_web.lua
-	- libs/LibColors-1.0/colors_x11.lua
-	- libs/LibColors-1.0/LibColors-1.0-all.xml
-	- libs/LibColors-1.0/LibColors-1.0-fed595.xml
-	- libs/LibColors-1.0/LibColors-1.0-web.xml
-	- libs/LibColors-1.0/LibColors-1.0-x11.xml
-	- libs/LibColors-1.0/LibColors-1.0.toc
-	- libs/SecureTabs-2.0/SecureTabs-2.0.toc
+    - libs/LibStub/tests
+    - libs/LibStub/LibStub.toc
+    - libs/CallbackHandler-1.0/CallbackHandler-1.0.xml
+    - libs/LibDataBroker-1.0/README.textile
+    - libs/LibDBIcon-1.0/lib.xml
+    - libs/LibColors-1.0/.pkgmeta
+    - libs/LibColors-1.0/colors_fed_standard_595.lua
+    - libs/LibColors-1.0/colors_web.lua
+    - libs/LibColors-1.0/colors_x11.lua
+    - libs/LibColors-1.0/LibColors-1.0-all.xml
+    - libs/LibColors-1.0/LibColors-1.0-fed595.xml
+    - libs/LibColors-1.0/LibColors-1.0-web.xml
+    - libs/LibColors-1.0/LibColors-1.0-x11.xml
+    - libs/LibColors-1.0/LibColors-1.0.toc
+    - libs/SecureTabs-2.0/SecureTabs-2.0.toc
 
 license-output: LICENSE.txt
