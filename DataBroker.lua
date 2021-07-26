@@ -31,7 +31,7 @@ local function counter2string(v)
 	return C(v[2]>0 and "green" or "gray",v[2]) .. "/" .. C("yellow",v[1]);
 end
 
-function FollowerLocationInfo_MinimapButton()
+function FollowerLocationInfoMixin:MinimapButton()
 	if not (LDBi and LDBi:IsRegistered(addon)) then return; end
 	if (FollowerLocationInfoDB.LDBi_Enabled) then
 		LDBi:Hide(addon);
@@ -111,9 +111,9 @@ function ns.LDB_Init()
 		text = addon,
 		OnClick = function(self,button)
 			if (button=="LeftButton") then
-				FollowerLocationInfo_ToggleJournal();
+				FollowerLocationInfo:ToggleJournal();
 			elseif (button=="RightButton") then
-				FollowerLocationInfo_OptionMenu(self,"TOP","BOTTOM");
+				FollowerLocationInfo:OptionMenu(self,"TOP","BOTTOM");
 			end
 		end,
 		OnTooltipShow = LDB_Tooltip
@@ -124,7 +124,7 @@ function ns.LDB_Init()
 			type = "launcher",
 			icon = "Interface\\Icons\\Achievement_GarrisonFollower_Rare",
 			OnClick = function()
-				FollowerLocationInfo_ToggleJournal()
+				FollowerLocationInfo:ToggleJournal();
 			end
 		});
 	end

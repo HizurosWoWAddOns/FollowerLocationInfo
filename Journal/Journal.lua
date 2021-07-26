@@ -4,7 +4,7 @@ local Addon = gsub(addon,"_Journal","");
 local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeightIdx,modelScaleIdx,abilitiesIdx,countersIdx,traitsIdx,isCollectableIdx = 1,2,3,4,5,6,7,8,9,10,11,12; -- table indexes for FollowerLocationInfoData.basics entries.
 local L,D,LC,journalVisibleEntries,activeFilter={},{},{},{},{};
 local tconcat,tsort = table.concat,table.sort;
-local CurrentFollower,CurrentFollower_reloaded,journalCollapsedZones,FollowerLocationInfoJournalFollowerList_UpdateVisibleEntries;
+local CurrentFollower,CurrentFollower_reloaded,journalCollapsedZones;
 local searchText,ttShown,timeout = false,false,false;
 local SPECS = LEVEL_UP_SPECIALIZATION_LINK:match("%[(.*)%]");
 local NUM_FILTERS = 3;
@@ -12,18 +12,23 @@ local listPrefix = LOCALE_zhCN and "&#xB7;" or "&#xA0;&#x2022;&#xA0;";
 local filter_collected = nil;
 local LDDM = LibStub("LibDropDownMenu");
 
+FollowerLocationInfoJournalMixin = {};
+FollowerLocationInfoJournalFilterMixin = {};
+FollowerLocationInfoJournalHtmlMixin = {};
+FollowerLocationInfoJournalFollowerListMixin = {};
+FollowerLocationInfoJournalPortraitMixin = {}
 
 ----------------------------
 --- Misc local functions ---
 ----------------------------
 do
 	local addon_short = "FLI";
-	local colors = {"0099ff","00ff00","ff6060","44ffff","ffff00","ff8800","ff44ff","ffffff"};
+	local colors = {"82c5ff","00ff00","ff6060","44ffff","ffff00","ff8800","ff44ff","ffffff"};
 	local function colorize(...)
 		local t,c,a1 = {tostringall(...)},1,...;
 		if type(a1)=="boolean" then tremove(t,1); end
 		if a1~=false then
-			tinsert(t,1,"|cff0099ff"..((a1==true and addon_short) or (a1=="||" and "||") or addon).."|r"..(a1~="||" and HEADER_COLON or ""));
+			tinsert(t,1,"|cff82c5ff"..((a1==true and addon_short) or (a1=="||" and "||") or addon).."|r"..(a1~="||" and HEADER_COLON or ""));
 			c=2;
 		end
 		for i=c, #t do
@@ -38,6 +43,9 @@ do
 	end
 	function ns.debug(...)
 		ConsolePrint(date("|cff999999%X|r"),colorize(...));
+	end
+	function ns.debugPrint(...)
+		print(colorize("<debug>",...));
 	end
 end
 
@@ -76,7 +84,7 @@ local function pairsByFields(t, f1, ...)
 end
 
 local function Loading(active,appendMsg,opt)
-	local f=FollowerLocationInfoJournalDesc.Loading;
+	local f=FollowerLocationInfoJournal.FollowerDesc.Loading;
 	if(active)then
 		f:Show();
 		if(type(appendMsg)=="string")then
@@ -96,7 +104,7 @@ local function Loading(active,appendMsg,opt)
 	end
 end
 
-function CreateExternalURL(Type,Id)
+local function CreateExternalURL(Type,Id)
 	local url,Target = nil,Type=="player" and "BattleNet" or FollowerLocationInfoDB.ExternalURL;
 	local uTypes = FollowerLocationInfo.ExternalURL_unsupportedTypes;
 	if not (uTypes[Target] and uTypes[Target][Type]==true) then
@@ -119,7 +127,7 @@ local GetFilterText = {
 	others    = function(i) return L[i]; end
 };
 
-function FollowerLocationInfoJournal_UpdateFilter()
+function FollowerLocationInfoJournalMixin:UpdateFilter()
 	local p,last = FollowerLocationInfoJournal.Filter,0;
 	for i=1, NUM_FILTERS do
 		local f,af = p["Filter"..i],activeFilter[i];
@@ -136,19 +144,29 @@ function FollowerLocationInfoJournal_UpdateFilter()
 			f:Hide(); f.Remove:Hide();
 		end
 	end
-	FollowerLocationInfoJournalFollowerList_UpdateVisibleEntries();
-	FollowerLocationInfoJournalFollowerList_Update();
+	FollowerLocationInfoJournal.FollowerList:UpdateVisibleEntries();
+	FollowerLocationInfoJournal.FollowerList:Update();
 end
 
-function FollowerLocationInfoJournal_SetFilter(filterID,filterType,filterValue)
+function FollowerLocationInfoJournalMixin:SetFilter(filterID,filterType,filterValue)
 	activeFilter[filterID]={filterType,filterValue};
 	if filterType=="collected" then
 		filter_collected = filterValue;
 	end
-	FollowerLocationInfoJournal_UpdateFilter();
+	FollowerLocationInfoJournal:UpdateFilter();
 end
 
-function FollowerLocationInfoJournal_ClearFilter(self,button)
+function FollowerLocationInfoJournalMixin:SearchText(searchBox)
+	SearchBoxTemplate_OnTextChanged(searchBox)
+	searchText = searchBox:GetText() or false;
+	if(searchText~=false and strlen(searchText)==0)then
+		searchText = false;
+	end
+	FollowerLocationInfoJournal.FollowerList:UpdateVisibleEntries();
+	FollowerLocationInfoJournal.FollowerList:Update();
+end
+
+function FollowerLocationInfoJournalFilterMixin:ClearFilter(button)
 	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 	if button=="RightButton" then
 		wipe(activeFilter);
@@ -159,23 +177,13 @@ function FollowerLocationInfoJournal_ClearFilter(self,button)
 		end
 		table.remove(activeFilter,self:GetParent():GetID());
 	end
-	FollowerLocationInfoJournal_UpdateFilter();
+	FollowerLocationInfoJournal:UpdateFilter();
 end
 
-function FollowerLocationInfoJournal_SearchText(self)
-	SearchBoxTemplate_OnTextChanged(self)
-	searchText = self:GetText() or false;
-	if(searchText~=false and strlen(searchText)==0)then
-		searchText = false;
-	end
-	FollowerLocationInfoJournalFollowerList_UpdateVisibleEntries();
-	FollowerLocationInfoJournalFollowerList_Update();
-end
-
-function FollowerLocationInfoJournal_FilterMenu(parent)
+function FollowerLocationInfoJournalFilterMixin:OpenMenu()
 	local menus,disabled = {classes={},classspec={},qualities={},abilities={},traits={},counters={},others={}},{};
-	local labelStr,labelStrDisabled,entries,cMax,page,filterID = "%s (|cff%s%s|r/|cff%s%s|r)","%s (%s/%s)",{},20,1,parent:GetParent():GetID();
-	local separator={ text="", dist=0, isTitle=true, notCheckable=true, isNotRadio=true, sUninteractable=true, iconOnly=true, icon="Interface\\Common\\UI-TooltipDivider-Transparent", tCoordLeft=0, tCoordRight=1, tCoordTop=0, tCoordBottom=1, tFitDropDownSizeX=true, tSizeX=0, tSizeY=8, iconInfo={tCoordLeft=0, tCoordRight=1, tCoordTop=0, tCoordBottom=1, tFitDropDownSizeX=true, tSizeX=0, tSizeY=8} };
+	local labelStr,labelStrDisabled,entries,cMax,page,filterID = "%s (|cff%s%s|r/|cff%s%s|r)","%s (%s/%s)",{},20,1,self:GetParent():GetID();
+	local separator={ text="", dist=0, isTitle=true, notCheckable=true, isNotRadio=true, sUninteractable=true, iconOnly=true, icon="Interface\\Common\\UI-TooltipDivider-Transself", tCoordLeft=0, tCoordRight=1, tCoordTop=0, tCoordBottom=1, tFitDropDownSizeX=true, tSizeX=0, tSizeY=8, iconInfo={tCoordLeft=0, tCoordRight=1, tCoordTop=0, tCoordBottom=1, tFitDropDownSizeX=true, tSizeX=0, tSizeY=8} };
 	local MenuFrame = _G.FollowerLocationInfo_LibDropDownMenu;
 	if not MenuFrame then
 		MenuFrame = LDDM.Create_DropDownMenu("FollowerLocationInfo_LibDropDownMenu",UIParent);
@@ -194,8 +202,8 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 		return (type(v[2])=="number" and v[2]>0) and "00ff00" or "999999", v[2] or "?", "ffee00", v[1] or "?";
 	end
 
-	local function SetFilter(self)
-		FollowerLocationInfoJournal_SetFilter(unpack(self.arg1));
+	local function SetFilter(_self)
+		FollowerLocationInfoJournal:SetFilter(unpack(_self.arg1));
 	end
 
 	local active = {};
@@ -318,18 +326,18 @@ function FollowerLocationInfoJournal_FilterMenu(parent)
 	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 	MenuFrame.point = "TOPLEFT";
 	MenuFrame.relativePoint = "TOPRIGHT";
-	LDDM.EasyMenu(menuList, MenuFrame, parent, 0, 0, "MENU");
+	LDDM.EasyMenu(menuList, MenuFrame, self, 0, 0, "MENU");
 end
 
 
 --------------------------------------
 --- Journal FollowerList Functions ---
 --------------------------------------
-function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
+function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkEnter(link,text,forced)
 	local forceReload,ttImageSize,tt=false,300;
 	-- all "garr" prefixed hyperlinks are part of a special tooltip type
 	-- and doesn't work with normal GameTooltip:SetHyperlink().
-	if(link:match("^garr"))then
+	if link:match("^garr") then
 		if(link:match("^garrfollowerability"))then
 			local _,id = strsplit(HEADER_COLON,link);
 			if D.build>70000000 then
@@ -356,7 +364,7 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 	else
 		tt=GameTooltip;
 		tt:Hide(); tt:ClearLines();
-		tt:SetOwner(FollowerLocationInfoJournalDesc,"ANCHOR_NONE");
+		tt:SetOwner(FollowerLocationInfoJournal.FollowerDesc,"ANCHOR_NONE");
 		if FollowerLocationInfoData.journalDocked then
 			tt:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
 		else
@@ -400,19 +408,19 @@ function FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,forced)
 			if tt:IsShown() then
 				tt:Hide();
 				tt:ClearLines();
-				FollowerLocationInfoJournal_OnHyperlinkEnter(self,link,text,true);
+				self:OnHyperlinkEnter(link,text,true);
 			end
 		end);
 	end
 end
 
-function FollowerLocationInfoJournal_OnHyperlinkLeave(self,link,text)
+function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkLeave(link,text)
 	ttShown=false;
 	GameTooltip:Hide();
 	GarrisonFollowerAbilityTooltip:Hide();
 end
 
-function FollowerLocationInfoJournal_OnHyperlinkClick(self,link,text,button)
+function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkClick(link,text,button)
 	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 	local Type = link:match("^([a-zA-Z0-9]*):");
 	-- creates an modifier string with fixed order. -- [Alt][Shift][Ctrl]
@@ -476,7 +484,7 @@ end
 --------------------------------------
 --- Journal FollowerList Functions ---
 --------------------------------------
-function FollowerLocationInfoJournalFollowerList_UpdateVisibleEntries()
+function FollowerLocationInfoJournalFollowerListMixin:UpdateVisibleEntries()
 	if(not journalCollapsedZones)then
 		journalCollapsedZones = {};
 		for i,v in pairs(D.zoneOrder)do
@@ -596,9 +604,8 @@ function FollowerLocationInfoJournalFollowerList_UpdateVisibleEntries()
 	journalVisibleEntries = entries;
 end
 
-function FollowerLocationInfoJournalFollowerList_Update()
+function FollowerLocationInfoJournalFollowerListMixin:Update()
 	if(not FollowerLocationInfoJournal:IsVisible())then return end
-	local self = FollowerLocationInfoJournalFollowerList;
 
 	local cGroups = {};
 	local nButtons,nEntries,button,index,id=#self.buttons,#journalVisibleEntries;
@@ -645,7 +652,11 @@ function FollowerLocationInfoJournalFollowerList_Update()
 				button:Disable();
 			else
 				if(button.portrait)then
-					GarrisonFollowerPortrait_Set(button.portrait,D.basics[id][portraitIdx]);
+					local portrait = D.basics[id][portraitIdx] or 0;
+					if portrait==0 then
+						portrait = 1066622; -- Interface\\Garrison\\Portraits\\FollowerPortrait_NoPortrait
+					end
+					button.portrait:SetToFileData(portrait);
 				end
 
 				button.id = id;
@@ -713,11 +724,36 @@ function FollowerLocationInfoJournalFollowerList_Update()
 	end
 end
 
-function FollowerLocationInfoJournalFollowerList_OnVerticalScroll(self,offset)
-	FauxScrollFrame_OnVerticalScroll(self, offset, self.buttonHeight, FollowerLocationInfoJournalFollowerList_Update);
+function FollowerLocationInfoJournalFollowerListMixin:SelectFollower(button)
+	if not (button and button.id) then return end
+
+	CurrentFollower_reloaded = nil;
+	if CurrentFollower~=button.id then
+		CurrentFollower = button.id;
+	else
+		CurrentFollower = nil;
+	end
+
+	for i,v in ipairs(button:GetParent().buttons) do
+		v.selected:Hide();
+	end
+	if CurrentFollower then
+		button.selected:Show();
+	end
+	self.selected = CurrentFollower;
+
+	FollowerLocationInfoJournal.FollowerDesc:SetHorizontalScroll(0);
+	FollowerLocationInfoJournal.FollowerDesc:SetVerticalScroll(0);
+
+	FollowerLocationInfoJournal:FollowerCard_Update();
+	FollowerLocationInfoJournal:FollowerDesc_Update();
 end
 
-function FollowerLocationInfoJournalFollowerList_OnLoad(self)
+function FollowerLocationInfoJournalFollowerListMixin:OnVerticalScroll(offset)
+	FauxScrollFrame_OnVerticalScroll(self, offset, self.buttonHeight, self.Update);
+end
+
+function FollowerLocationInfoJournalFollowerListMixin:OnLoad()
 	self.ScrollBar:SetPoint("TOPLEFT", self, "TOPRIGHT", 8, -16);
 	self.ScrollBar:SetPoint("BOTTOMLEFT", self, "BOTTOMRIGHT", 8, 16);
 	self.offset = 0;
@@ -739,21 +775,21 @@ function FollowerLocationInfoJournalFollowerList_OnLoad(self)
 	end
 end
 
-function FollowerLocationInfoJournal_ToggleZone(zoneID)
+function FollowerLocationInfoJournalMixin:ToggleZone(zoneID)
 	if(rawget(D.zoneNames,zoneID))then
 		journalCollapsedZones[zoneID] = not journalCollapsedZones[zoneID];
 	end
-	local scroll = FollowerLocationInfoJournalFollowerList;
+	local scroll = self.FollowerList;
 	local offset = HybridScrollFrame_GetOffset(scroll);
-	FollowerLocationInfoJournalFollowerList_UpdateVisibleEntries();
-	FollowerLocationInfoJournalFollowerList_Update();
+	scroll:UpdateVisibleEntries();
+	scroll:Update();
 end
 
 
 ---------------------------------------------------
 --- Journal Follower Card&Description Functions ---
 ---------------------------------------------------
-function FollowerLocationInfoJournalFollowerCard_Update()
+function FollowerLocationInfoJournalMixin:FollowerCard_Update()
 	local id = CurrentFollower;
 	local data = FollowerLocationInfoJournalFollowerCard.Data;
 	local model = FollowerLocationInfoJournalFollowerCard.model;
@@ -1010,7 +1046,7 @@ end;
 function AddDescription.Location(Desc)
 	local locations = {};
 	for i=2, #Desc do
-		location = {};
+		local location = {};
 		if(type(Desc[i])=="string")then
 			tinsert(location,L[Desc[i]]);
 		else
@@ -1393,8 +1429,8 @@ function AddDescription.AllParts(html,Desc)
 	return doRetry;
 end
 
-function FollowerLocationInfoJournalFollowerDesc_Update()
-	local P = FollowerLocationInfoJournalDesc;
+function FollowerLocationInfoJournalMixin:FollowerDesc_Update()
+	local P = FollowerLocationInfoJournal.FollowerDesc;
 	if not P:IsVisible() then return end
 
 	Loading(true,L["Init description generator..."],"new");
@@ -1521,7 +1557,7 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 	end
 
 	if doRetry then
-		C_Timer.After(1.4,FollowerLocationInfoJournalFollowerDesc_Update);
+		C_Timer.After(1.4,FollowerLocationInfoJournal.FollowerDesc_Update);
 		return;
 	else
 		P.html:SetText("<html><body>"..tconcat(html,"").."<br /></body></html>");
@@ -1531,78 +1567,38 @@ function FollowerLocationInfoJournalFollowerDesc_Update()
 
 	if not CurrentFollower_reloaded then
 		CurrentFollower_reloaded = true;
-		C_Timer.After(0.2,FollowerLocationInfoJournalFollowerDesc_Update);
+		C_Timer.After(0.2,FollowerLocationInfoJournal.FollowerDesc_Update);
 	end
 end
-
-function FollowerLocationInfoJournal_ShowFollower(self)
-	if not (self and self.id) then return end
-
-	CurrentFollower_reloaded = nil;
-	if CurrentFollower~=self.id then
-		CurrentFollower = self.id;
-	else
-		CurrentFollower = nil;
-	end
-
-	for i,v in ipairs(self:GetParent().buttons) do
-		v.selected:Hide();
-	end
-	if CurrentFollower then
-		self.selected:Show();
-	end
-	FollowerLocationInfoJournalFollowerList.selected = CurrentFollower;
-
-	FollowerLocationInfoJournalDesc:SetHorizontalScroll(0);
-	FollowerLocationInfoJournalDesc:SetVerticalScroll(0);
-
-	FollowerLocationInfoJournalFollowerCard_Update();
-	FollowerLocationInfoJournalFollowerDesc_Update();
-end
-
-function FollowerLocationInfoJournalFollowerDesc_OnLoad(self) end
 
 
 -------------------------------
 --- Journal Frame Functions ---
 -------------------------------
-function FollowerLocationInfoJournal_OnUpdate()
-end
-
-function FollowerLocationInfoJournal_OnShow(self)
+function FollowerLocationInfoJournalMixin:OnShow()
 	if(not D.counter.recruitable)then
 		-- D.counter can create later on slower connections.
 		-- need a little timeout.
 		if not timeout then
-			C_Timer.After(2, function() FollowerLocationInfoJournal_OnShow(self) end);
+			C_Timer.After(2, function() self:OnShow() end);
 			timeout=true;
 		end
 		return;
 	end
 	timeout=false;
 
-	FollowerLocationInfoJournalFollowerList_Update();
+	self.FollowerList:Update();
 
-	FollowerLocationInfoJournalFollowerCard_Update();
-	FollowerLocationInfoJournalFollowerDesc_Update();
+	self:FollowerCard_Update();
+	self:FollowerDesc_Update();
 
 	self.counters.Collectables.Count:SetText(D.counter.collectables[2].."/"..D.counter.collectables[1]);
 	self.counters.Recruitables.Count:SetText(D.counter.recruitables[2].."/"..D.counter.recruitables[1]);
-	self.counters:Show();
 end
 
-function FollowerLocationInfoJournal_OnHide()
-	FollowerLocationInfoJournalCounters:Hide();
-end
-
-function FollowerLocationInfoJournal_OnEvent(self,event) end
-
-function FollowerLocationInfoJournal_OnLoad(self)
+function FollowerLocationInfoJournalMixin:OnLoad()
 	D,L = FollowerLocationInfoData,FollowerLocationInfoData.Locale;
 	LC = FollowerLocationInfo.LibColors;
-
-	self.counters = FollowerLocationInfoJournalCounters;
-	self.counters:SetParent(self);
 
 	-- prevent errors if user open the journal first time in session while in combat. fallback to standalone mode.
 	if FollowerLocationInfoData.journalDocked and InCombatLockdown() then
@@ -1657,7 +1653,7 @@ function FollowerLocationInfoJournal_OnLoad(self)
 	self.counters.Collectables.Label:SetText(COLLECTED);
 	self.counters.Recruitables.Label:SetText(L["Recruited"]);
 
-	FollowerLocationInfoJournal_UpdateFilter();
+	FollowerLocationInfoJournal:UpdateFilter();
 
 	self.FollowerDesc.ScrollBar.trackBG:Hide();
 	self.FollowerDesc.ScrollBar:SetPoint("TOPLEFT",self.FollowerDesc,"TOPRIGHT",4,-12);
@@ -1667,7 +1663,7 @@ function FollowerLocationInfoJournal_OnLoad(self)
 	self:RegisterEvent("GARRISON_FOLLOWER_LIST_UPDATE");
 end
 
-function FollowerLocationInfoJournalPortraitFrame_OnShow(self)
+function FollowerLocationInfoJournalPortraitMixin:OnShow()
 	self:SetParent(CollectionJournal);
 	self:SetAllPoints();
 end

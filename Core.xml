@@ -31,7 +31,7 @@
 
 	<GameTooltip name="FollowerLocationInfo_Tooltip" inherits="GameTooltipTemplate" alpha="0" />
 
-	<Frame name="FollowerLocationInfo" toplevel="true" enableKeyboard="true" enableMouse="true" frameStrata="DIALOG" hidden="true">
+	<Frame name="FollowerLocationInfo" mixin="FollowerLocationInfoMixin" toplevel="true" enableKeyboard="true" enableMouse="true" frameStrata="DIALOG" hidden="true">
 		<Size x="460" y="320"/>
 		<Anchors>
 			<Anchor point="CENTER" y="40"/>
@@ -123,9 +123,9 @@
 			</ScrollFrame>
 		</Frames>
 		<Scripts>
-			<OnLoad function="FollowerLocationInfo_OnLoad" />
-			<OnEvent function="FollowerLocationInfo_OnEvent" />
-			<OnHide function="FollowerLocationInfo_OnHide" />
+			<OnLoad method="OnLoad" />
+			<OnEvent method="OnEvent" />
+			<OnHide method="OnHide" />
 		</Scripts>
 	</Frame>
 </Ui>

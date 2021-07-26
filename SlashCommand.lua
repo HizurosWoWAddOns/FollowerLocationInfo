@@ -11,7 +11,7 @@ local order = {
 local cmdList = {
 	journal = {
 		desc = "Show/Hide journal frame",
-		func = function() FollowerLocationInfo_ToggleJournal() end
+		func = function() FollowerLocationInfo:ToggleJournal() end
 	},
 	--[[
 	ids = {
@@ -21,12 +21,12 @@ local cmdList = {
 	--]]
 	minimap = {
 		desc = "Show/Hide minimap button",
-		func = function() FollowerLocationInfo_MinimapButton() end
+		func = function() FollowerLocationInfo:MinimapButton() end
 	},
 	reset = {
 		desc = "Reset addon settings |cffff6666and automatically reloading the UI!|r",
 		func = function()
-			--FollowerLocationInfoDB = nil;
+			FollowerLocationInfoDB = nil;
 			ReloadUI();
 		end
 	},

@@ -3,7 +3,7 @@
 
 	<Script file="Journal.lua" />
 
-	<Button name="FollowerLocationInfoJournalFollowerList_ButtonTemplate" motionScriptsWhileDisabled="true" virtual="true">
+	<Button name="FollowerLocationInfoJournalFollowerList_ButtonTemplate" mixin="FollowerLocationInfoTooltipMixin" motionScriptsWhileDisabled="true" virtual="true">
 		<Size x="200" y="32"/>
 		<Anchors><Anchor point="LEFT" x="4" /><Anchor point="RIGHT" X="1" /></Anchors>
 		<Frames>
@@ -28,7 +28,7 @@
 				<Scripts>
 					<OnClick>
 						if(self.id)then
-							FollowerLocationInfoJournal_ToggleZone(self.id);
+							FollowerLocationInfoJournal:ToggleZone(self.id);
 						end
 					</OnClick>
 				</Scripts>
@@ -112,16 +112,14 @@
 			</Anchors>
 		</HighlightTexture>
 		<Scripts>
-			<OnLoad>
-				self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
-			</OnLoad>
-			<OnClick function="FollowerLocationInfoJournal_ShowFollower"/>
-			<OnEnter function="FollowerLocationInfoTooltip_OnEnter" />
-			<OnLeave function="FollowerLocationInfoTooltip_OnLeave" />
+			<OnLoad> self:RegisterForClicks("LeftButtonUp", "RightButtonUp"); </OnLoad>
+			<OnClick> self:GetParent():SelectFollower(self); </OnClick>
+			<OnEnter method="OnEnter" />
+			<OnLeave method="OnLeave" />
 		</Scripts>
 	</Button>
 
-	<Frame name="FollowerLocationInfoFilterTemplate" virtual="TRUE" hidden="false">
+	<Frame name="FollowerLocationInfoFilterTemplate" mixin="FollowerLocationInfoJournalFilterMixin" virtual="TRUE" hidden="false">
 		<Size x="0" y="16" />
 		<Anchors>
 			<Anchor point="LEFT" x="9" />
@@ -147,7 +145,7 @@
 				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled"/>
 				<HighlightTexture file="Interface\FriendsFrame\UI-FriendsList-Highlight" alphaMode="ADD"/>
 				<Scripts>
-					<OnClick function="FollowerLocationInfoJournal_FilterMenu" />
+					<OnClick>self:GetParent().OpenMenu(self)</OnClick>
 				</Scripts>
 			</Button>
 			<Button parentKey="Remove" hidden="TRUE">
@@ -158,10 +156,8 @@
 				<PushedTexture file="Interface\Buttons\CancelButton-Down"/>
 				<HighlightTexture file="Interface\Buttons\CancelButton-Highlight" alphaMode="ADD"/>
 				<Scripts>
-					<OnLoad>
-						self:RegisterForClicks("LeftButtonUp","RightButtonUp");
-					</OnLoad>
-					<OnClick function="FollowerLocationInfoJournal_ClearFilter" />
+					<OnLoad>self:RegisterForClicks("LeftButtonUp","RightButtonUp");</OnLoad>
+					<OnClick>self:GetParent().ClearFilter(self)</OnClick>
 				</Scripts>
 			</Button>
 		</Frames>
@@ -203,7 +199,6 @@
 					</Anchors>
 					<TexCoords left="1" right="0" top="1" bottom="0"/>
 				</Texture>
-
 				<Texture parentKey="Top" atlas="collections-background-shadow-small" useAtlasSize="true">
 					<Anchors>
 						<Anchor point="LEFT" relativeKey="$parent.TopLeft" relativePoint="RIGHT" />
@@ -234,55 +229,6 @@
 				</Texture>
 			</Layer>
 		</Layers>
-	</Frame>
-
-	<Frame name="FollowerLocationInfoJournalCounters" hidden="true">
-		<Size x="400" y="64" />
-		<Frames>
-			<Frame parentKey="Collectables" useParentLevel="true" inherits="InsetFrameTemplate3">
-				<Size x="140" y="20"/>
-				<Anchors>
-					<Anchor point="TOPLEFT" />
-				</Anchors>
-				<Layers>
-					<Layer level="ARTWORK">
-						<FontString parentKey="Count" inherits="GameFontHighlightSmall" justifyH="RIGHT">
-							<Anchors>
-								<Anchor point="RIGHT" x="-10" y="0"/>
-							</Anchors>
-						</FontString>
-						<FontString parentKey="Label" inherits="GameFontNormalSmall" justifyH="LEFT">
-							<Anchors>
-								<Anchor point="LEFT" x="10" y="0"/>
-								<Anchor point="RIGHT" relativeKey="$parent.Count" relativePoint="LEFT" x="-3" y="0"/>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-			</Frame>
-
-			<Frame parentKey="Recruitables" useParentLevel="true" inherits="InsetFrameTemplate3">
-				<Size x="140" y="20"/>
-				<Anchors>
-					<Anchor point="LEFT" relativeKey="$parent.Collectables" relativePoint="RIGHT" x="10" y="0"/>
-				</Anchors>
-				<Layers>
-					<Layer level="ARTWORK">
-						<FontString parentKey="Count" inherits="GameFontHighlightSmall" justifyH="RIGHT">
-							<Anchors>
-								<Anchor point="RIGHT" x="-10" y="0"/>
-							</Anchors>
-						</FontString>
-						<FontString parentKey="Label" inherits="GameFontNormalSmall" justifyH="LEFT">
-							<Anchors>
-								<Anchor point="LEFT" x="10" y="0"/>
-								<Anchor point="RIGHT" relativeKey="$parent.Count" relativePoint="LEFT" x="-3" y="0"/>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-			</Frame>
-		</Frames>
 	</Frame>
 
 	<Frame name="FollowerLocationInfoJournalFrame" parent="UIParent" enableMouse="true" toplevel="true" hidden="true">
@@ -366,26 +312,19 @@
 					<Anchor point="TOPRIGHT" x="-10" y="-10"/>
 				</Anchors>
 				<Scripts>
-					<OnClick function="FollowerLocationInfo_ToggleJournal" />
+					<OnClick> FollowerLocationInfo:ToggleJournal(); </OnClick>
 				</Scripts>
 			</Button>
 		</Frames>
+	</Frame>
+
+	<Frame name="FollowerLocationInfoJournalPortraitFrame" mixin="FollowerLocationInfoJournalPortraitMixin" hidden="true">
 		<Scripts>
-			<!--
-			<OnLoad function="FollowerLocationInfoJournalUndocked_OnLoad"/>
-			<OnShow function="FollowerLocationInfoJournalUndocked_OnShow"/>
-			<OnHide function="FollowerLocationInfoJournalUndocked_OnHide"/>
-			-->
+			<OnShown method="OnShow"/>
 		</Scripts>
 	</Frame>
 
-	<Frame name="FollowerLocationInfoJournalPortraitFrame" hidden="true">
-		<Scripts>
-			<OnShown function="FollowerLocationInfoJournalPortraitFrame_OnShow"/>
-		</Scripts>
-	</Frame>
-
-	<Frame name="FollowerLocationInfoJournal" hidden="true">
+	<Frame name="FollowerLocationInfoJournal" mixin="FollowerLocationInfoJournalMixin" hidden="true">
 		<Frames>
 			<Frame parentKey="TopLeftInset" useParentLevel="true">
 				<Size x="260" y="97"/>
@@ -426,7 +365,7 @@
 				</Frames>
 			</Frame>
 
-			<Button parentKey="Options">
+			<Button parentKey="Options" mixin="FollowerLocationInfoTooltipMixin">
 				<Size x="33" y="33"/>
 				<Layers>
 					<Layer level="ARTWORK">
@@ -448,15 +387,63 @@
 					</Layer>
 				</Layers>
 				<Scripts>
-					<OnEnter function="FollowerLocationInfoTooltip_OnEnter" />
-					<OnLeave function="FollowerLocationInfoTooltip_OnLeave" />
+					<OnEnter method="OnEnter" />
+					<OnLeave method="OnLeave" />
 					<OnClick>
-						FollowerLocationInfo_OptionMenu(self,"TOP","BOTTOM");
+						FollowerLocationInfo:OptionMenu(self,"TOP","BOTTOM");
 					</OnClick>
 				</Scripts>
 				<PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>
 				<HighlightTexture name="$parentHighlight" file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
 			</Button>
+
+			<Frame name="$parentCounters" parentKey="counters">
+				<Size x="400" y="64" />
+				<Frames>
+					<Frame parentKey="Collectables" useParentLevel="true" inherits="InsetFrameTemplate3">
+						<Size x="140" y="20"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" />
+						</Anchors>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString parentKey="Count" inherits="GameFontHighlightSmall" justifyH="RIGHT">
+									<Anchors>
+										<Anchor point="RIGHT" x="-10" y="0"/>
+									</Anchors>
+								</FontString>
+								<FontString parentKey="Label" inherits="GameFontNormalSmall" justifyH="LEFT">
+									<Anchors>
+										<Anchor point="LEFT" x="10" y="0"/>
+										<Anchor point="RIGHT" relativeKey="$parent.Count" relativePoint="LEFT" x="-3" y="0"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+					<Frame parentKey="Recruitables" useParentLevel="true" inherits="InsetFrameTemplate3">
+						<Size x="140" y="20"/>
+						<Anchors>
+							<Anchor point="LEFT" relativeKey="$parent.Collectables" relativePoint="RIGHT" x="10" y="0"/>
+						</Anchors>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString parentKey="Count" inherits="GameFontHighlightSmall" justifyH="RIGHT">
+									<Anchors>
+										<Anchor point="RIGHT" x="-10" y="0"/>
+									</Anchors>
+								</FontString>
+								<FontString parentKey="Label" inherits="GameFontNormalSmall" justifyH="LEFT">
+									<Anchors>
+										<Anchor point="LEFT" x="10" y="0"/>
+										<Anchor point="RIGHT" relativeKey="$parent.Count" relativePoint="LEFT" x="-3" y="0"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+				</Frames>
+			</Frame>
 
 			<Frame name="$parentFilter" parentKey="Filter">
 				<Anchors>
@@ -471,7 +458,7 @@
 							<Anchor point="RIGHT" x="-8" />
 						</Anchors>
 						<Scripts>
-							<OnTextChanged function="FollowerLocationInfoJournal_SearchText" />
+							<OnTextChanged>FollowerLocationInfoJournal:SearchText(self)</OnTextChanged>
 						</Scripts>
 					</EditBox>
 					<Frame parentKey="Filter1" inherits="FollowerLocationInfoFilterTemplate" id="1">
@@ -492,7 +479,7 @@
 				</Frames>
 			</Frame>
 
-			<ScrollFrame name="$parentFollowerList" parentKey="FollowerList" inherits="FauxScrollFrameTemplate">
+			<ScrollFrame name="$parentFollowerList" parentKey="FollowerList" mixin="FollowerLocationInfoJournalFollowerListMixin" inherits="FauxScrollFrameTemplate">
 				<Size y="400" />
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.BottomLeftInset" x="0" y="-4"/>
@@ -524,8 +511,8 @@
 					</Layer>
 				</Layers>
 				<Scripts>
-					<OnVerticalScroll function="FollowerLocationInfoJournalFollowerList_OnVerticalScroll" />
-					<OnLoad function="FollowerLocationInfoJournalFollowerList_OnLoad" />
+					<OnVerticalScroll method="OnVerticalScroll" />
+					<OnLoad method="OnLoad" />
 				</Scripts>
 			</ScrollFrame>
 
@@ -580,7 +567,7 @@
 						</Scripts>
 					</PlayerModel>
 
-					<SimpleHTML parentKey="Data" hidden="true">
+					<SimpleHTML parentKey="Data" mixin="FollowerLocationInfoJournalHtmlMixin" hidden="true">
 						<Size x="280"/>
 						<Anchors>
 							<Anchor point="LEFT" relativeKey="$parent.modelBackground" relativePoint="RIGHT" x="3" />
@@ -592,9 +579,9 @@
 						<FontStringHeader2 inherits="GameFontHighlightLarge" justifyH="LEFT" />
 						<FontStringHeader3 inherits="GameFontHighlightMed2" justifyH="LEFT" />
 						<Scripts>
-							<OnHyperlinkEnter function="FollowerLocationInfoJournal_OnHyperlinkEnter"/>
-							<OnHyperlinkLeave function="FollowerLocationInfoJournal_OnHyperlinkLeave"/>
-							<OnHyperlinkClick function="FollowerLocationInfoJournal_OnHyperlinkClick"/>
+							<OnHyperlinkEnter method="OnHyperlinkEnter"/>
+							<OnHyperlinkLeave method="OnHyperlinkLeave"/>
+							<OnHyperlinkClick method="OnHyperlinkClick"/>
 						</Scripts>
 					</SimpleHTML>
 				</Frames>
@@ -664,7 +651,7 @@
 					<Frame parentKey="htmlanchor">
 						<Size x="398" y="1" />
 						<Frames>
-							<SimpleHTML parentKey="html">
+							<SimpleHTML parentKey="html" mixin="FollowerLocationInfoJournalHtmlMixin">
 								<Size x="380" y="1" />
 								<Anchors>
 									<Anchor point="TOPLEFT" x="9" y="-9" />
@@ -674,12 +661,10 @@
 								<FontStringHeader2 inherits="GameFontNormalLarge" justifyH="LEFT" justifyV="TOP" />
 								<FontStringHeader3 inherits="GameFontNormalMed2" justifyH="LEFT" justifyV="TOP" />
 								<Scripts>
-									<OnHyperlinkEnter function="FollowerLocationInfoJournal_OnHyperlinkEnter"/>
-									<OnHyperlinkLeave function="FollowerLocationInfoJournal_OnHyperlinkLeave"/>
-									<OnHyperlinkClick function="FollowerLocationInfoJournal_OnHyperlinkClick"/>
-									<OnLoad>
-										self:GetParent():GetParent().html = self;
-									</OnLoad>
+									<OnHyperlinkEnter method="OnHyperlinkEnter"/>
+									<OnHyperlinkLeave method="OnHyperlinkLeave"/>
+									<OnHyperlinkClick method="OnHyperlinkClick"/>
+									<OnLoad>self:GetParent():GetParent().html = self;</OnLoad>
 								</Scripts>
 							</SimpleHTML>
 						</Frames>
@@ -689,9 +674,8 @@
 
 		</Frames>
 		<Scripts>
-			<OnLoad function="FollowerLocationInfoJournal_OnLoad" />
-			<OnShow function="FollowerLocationInfoJournal_OnShow" />
-			<!-- <OnEvent function="FollowerLocationInfoJournal_OnEvent" /> -->
+			<OnLoad method="OnLoad" />
+			<OnShow method="OnShow" />
 		</Scripts>
 	</Frame>
 </Ui>

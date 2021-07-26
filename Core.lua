@@ -9,18 +9,25 @@ local UpdateCallbacks,UpdateLock,isLoaded=false,false,false;
 local garrLevel,MenuFrame,MenuList = 0;
 local LDDM = LibStub("LibDropDownMenu");
 
+FollowerLocationInfoMixin = {};
+FollowerLocationInfoTooltipMixin = {};
+
 BINDING_HEADER_FOLLOWERLOCATIONINFO		= "FollowerLocationInfo";
 BINDING_NAME_TOGGLEFOLLOWERLOCATIONINFO	= L["Toggle FollowerLocationInfo Journal"];
 --StaticPopupDialogs["FOLLOWERLOCATIONINFO_EXTERNALURL_DIALOG"].text = L["URL"];
 
+local infoBoxErrors = {
+	["journal not loadable"] = L["LoadError-FollowerLocationInfo_Journal"]
+}
+
 do
 	local addon_short = "FLI";
-	local colors = {"0099ff","00ff00","ff6060","44ffff","ffff00","ff8800","ff44ff","ffffff"};
+	local colors = {"82c5ff","00ff00","ff6060","44ffff","ffff00","ff8800","ff44ff","ffffff"};
 	local function colorize(...)
 		local t,c,a1 = {tostringall(...)},1,...;
 		if type(a1)=="boolean" then tremove(t,1); end
 		if a1~=false then
-			tinsert(t,1,"|cff0099ff"..((a1==true and addon_short) or (a1=="||" and "||") or addon).."|r"..(a1~="||" and HEADER_COLON or ""));
+			tinsert(t,1,"|cff82c5ff"..((a1==true and addon_short) or (a1=="||" and "||") or addon).."|r"..(a1~="||" and HEADER_COLON or ""));
 			c=2;
 		end
 		for i=c, #t do
@@ -35,6 +42,9 @@ do
 	end
 	function ns.debug(...)
 		ConsolePrint(date("|cff999999%X|r"),colorize(...));
+	end
+	function ns.debugPrint(...)
+		print(colorize("<debug>",...));
 	end
 end
 
@@ -88,7 +98,7 @@ function ns.GetLinkData(link)
 		C_Timer.After(0.314159, retry);
 	end
 
-	return data, line;
+	return data;
 end
 
 local function UpdateFollowers()
@@ -319,7 +329,7 @@ local function UpdateFollowers()
 					t.abilities,
 					t.counters,
 					t.traits,
-					(not collectable[i])
+					(not isCollectable)
 				};
 				tinsert(D.unknown,id);
 				count(D.counter,"unknown",1,1);
@@ -350,7 +360,7 @@ local function CheckAndLoadJournal()
 		end
 		LoadAddOn(addon.."_Journal");
 		if( not FollowerLocationInfoJournal)then
-			FollowerLocationInfo_ShowInfoBox("journal not loadable");
+			FollowerLocationInfo:ShowInfoBox("journal not loadable");
 			return false;
 		end
 	end
@@ -380,8 +390,8 @@ local function CreateMenuList()
 		db.ExternalURL=self.arg1;
 		LDDM.UIDropDownMenu_Refresh(MenuFrame,nil,2);
 		if FollowerLocationInfoJournal then
-			FollowerLocationInfoJournalFollowerCard_Update();
-			FollowerLocationInfoJournalFollowerDesc_Update();
+			FollowerLocationInfoJournal:FollowerCard_Update();
+			FollowerLocationInfoJournal:FollowerDesc_Update();
 		end
 	end
 
@@ -395,7 +405,7 @@ local function CreateMenuList()
 		{
 			text=L["Show minimap button"], tooltipTitle=L["Minimap"], tooltipText=L["Show/Hide minimap button"], keepShownOnClick=1, isNotRadio=true,
 			checked=function() return db.LDBi_Enabled; end,
-			func=function() FollowerLocationInfo_MinimapButton(); end
+			func=function() FollowerLocationInfo:MinimapButton(); end
 		},
 		{text=L["Broker button text"], tooltipTitle=L["Broker button text"], tooltipText=L["Choose what you want to look on broker button"], hasArrow=true, isNotRadio=true, notCheckable=true, menuList={
 			{text=L["Your coordinates"], isNotRadio=true, keepShownOnClick=1, arg1="LDB_PlayerCoords", checked=CheckFunc, func=SetFunc},
@@ -420,7 +430,7 @@ local function CreateMenuList()
 			func=function()
 				db.ShowFollowerID = not db.ShowFollowerID;
 				if FollowerLocationInfoJournal then
-					FollowerLocationInfoJournalFollowerList_Update();
+					FollowerLocationInfoJournal:FollowerList_Update();
 				end
 			end
 		},
@@ -445,49 +455,28 @@ local function CreateMenuList()
 
 end
 
---[=[ some global accessable functions ]=]
-function FollowerLocationInfo_RegisterUpdateCallback(func)
-	if(not UpdateCallbacks)then UpdateCallbacks={}; end
-	local funcID = tostring(func);
-	if(not UpdateCallbacks[funcID])then
-		UpdateCallbacks[funcID] = func;
+--[=[ Tooltip functions ]=]
+function FollowerLocationInfoTooltipMixin:OnEnter()
+	if (self.tooltip) then
+		GameTooltip:SetOwner(self,"ANCHOR_RIGHT");
+		if (type(self.tooltip)=="string") then
+			GameTooltip:SetText(self.tooltip);
+		elseif (type(self.tooltip)=="table") and (#self.tooltip>0) then
+			GameTooltip:SetText(self.tooltip[1]);
+			for i=2, #self.tooltip do
+				GameTooltip:AddLine(self.tooltip[i],1,1,1,1);
+			end
+		end
+		GameTooltip:Show();
 	end
 end
 
-function FollowerLocationInfo_UnregisterUpdateCallback(func)
-	if(not UpdateCallbacks)then return end
-	local funcID = tostring(func);
-	if(UpdateCallback[funcID])then
-		UpdateCallbacks[funcID] = nil;
-	end
+function FollowerLocationInfoTooltipMixin:OnLeave()
+	GameTooltip:Hide();
 end
 
-function FollowerLocationInfo_OptionMenu(parent,point,relativePoint)
-	local MenuFrame = _G.FollowerLocationInfo_LibDropDownMenu;
-	if not MenuFrame then
-		MenuFrame = LDDM.Create_DropDownMenu("FollowerLocationInfo_LibDropDownMenu",UIParent);
-	end
-
-	if not MenuList then
-		CreateMenuList();
-	end
-
-	MenuFrame.point = point or "TOPLEFT";
-	MenuFrame.relativePoint = relativePoint or "BOTTOMLEFT";
-
-	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
-	LDDM.EasyMenu(MenuList, MenuFrame, parent, 0, 0, "MENU");
-end
-
---- InfoBox
--- Display an frame for infomation and error messages
--- @params:
--- msg - a string that must be match to an error message entry from table infoBoxErrors.
-local infoBoxErrors = {
-	["journal not loadable"] = L["LoadError-FollowerLocationInfo_Journal"]
-}
-function FollowerLocationInfo_ShowInfoBox(msg)
-	local self = FollowerLocationInfo;
+--[=[ Frame functions ]=]
+function FollowerLocationInfoMixin:ShowInfoBox(msg)
 	local smallbr,br,deco = "<p>|n</p>","<br />","<p>|TInterface\\AddOns\\FollowerLocationInfo\\media\\%s:15:320:0:12:128:16:24:64:1:16|t</p>";
 	local message,errorMessage = {},{"<h2>|TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:0|t Houston, we have a problem!</h2>",deco:format("red")};
 
@@ -508,28 +497,7 @@ function FollowerLocationInfo_ShowInfoBox(msg)
 	self:Show();
 end
 
---[=[ Tooltip functions ]=]
-function FollowerLocationInfoTooltip_OnEnter(self)
-	if (self.tooltip) then
-		GameTooltip:SetOwner(self,"ANCHOR_RIGHT");
-		if (type(self.tooltip)=="string") then
-			GameTooltip:SetText(self.tooltip);
-		elseif (type(self.tooltip)=="table") and (#self.tooltip>0) then
-			GameTooltip:SetText(self.tooltip[1]);
-			for i=2, #self.tooltip do
-				GameTooltip:AddLine(self.tooltip[i],1,1,1,1);
-			end
-		end
-		GameTooltip:Show();
-	end
-end
-
-function FollowerLocationInfoTooltip_OnLeave(self)
-	GameTooltip:Hide();
-end
-
---[=[ Frame functions ]=]
-function FollowerLocationInfo_ToggleJournal()
+function FollowerLocationInfoMixin:ToggleJournal()
 	if FollowerLocationInfoData.journalDocked then
 		if(not CollectionsJournal)then
 			LoadAddOn("Blizzard_Collections");
@@ -557,7 +525,40 @@ function FollowerLocationInfo_ToggleJournal()
 	end
 end
 
-function FollowerLocationInfo_OnEvent(self,event,arg1)
+function FollowerLocationInfoMixin:RegisterUpdateCallback(func)
+	if(not UpdateCallbacks)then UpdateCallbacks={}; end
+	local funcID = tostring(func);
+	if(not UpdateCallbacks[funcID])then
+		UpdateCallbacks[funcID] = func;
+	end
+end
+
+function FollowerLocationInfoMixin:UnregisterUpdateCallback(func)
+	if(not UpdateCallbacks)then return end
+	local funcID = tostring(func);
+	if(UpdateCallbacks[funcID])then
+		UpdateCallbacks[funcID] = nil;
+	end
+end
+
+function FollowerLocationInfoMixin:OptionMenu(parent,point,relativePoint)
+	local MenuFrame = _G.FollowerLocationInfo_LibDropDownMenu;
+	if not MenuFrame then
+		MenuFrame = LDDM.Create_DropDownMenu("FollowerLocationInfo_LibDropDownMenu",UIParent);
+	end
+
+	if not MenuList then
+		CreateMenuList();
+	end
+
+	MenuFrame.point = point or "TOPLEFT";
+	MenuFrame.relativePoint = relativePoint or "BOTTOMLEFT";
+
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+	LDDM.EasyMenu(MenuList, MenuFrame, parent, 0, 0, "MENU");
+end
+
+function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
 	if event=="ADDON_LOADED" and arg1==addon then
 		-- check config
 		if (FollowerLocationInfoDB==nil) then
@@ -668,7 +669,7 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 			if FollowerLocationInfo:IsShown() then return end
 			if not isLoaded then
 			elseif self.error~=nil then
-				FollowerLocationInfo_ShowInfoBox(self.error);
+				FollowerLocationInfo:ShowInfoBox(self.error);
 				self.error=nil;
 			end
 		end);
@@ -676,11 +677,11 @@ function FollowerLocationInfo_OnEvent(self,event,arg1)
 	end
 end
 
-function FollowerLocationInfo_OnHide(self)
+function FollowerLocationInfoMixin:OnHide()
 	self.msg = nil;
 end
 
-function FollowerLocationInfo_OnLoad(self)
+function FollowerLocationInfoMixin:OnLoad()
 	-- library access for journals
 	self.LibColors = LibStub("LibColors-1.0");
 	self.SecureTabs = LibStub("SecureTabs-2.0");
@@ -691,4 +692,16 @@ function FollowerLocationInfo_OnLoad(self)
 	self:RegisterEvent("ADDON_LOADED");
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("GARRISON_FOLLOWER_LIST_UPDATE");
+end
+
+
+--[=[ Migration ]=]
+function FollowerLocationInfo_RegisterUpdateCallback(func)
+	ns.print("FollowerLocationInfo_RegisterUpdateCallback() are deprecated.","","Please replace with FollowerLocationInfo:RegisterUpdateCallback()");
+	FollowerLocationInfo:RegisterUpdateCallback(func)
+end
+
+function FollowerLocationInfo_UnregisterUpdateCallback(func)
+	ns.print("FollowerLocationInfo_UnregisterUpdateCallback() are deprecated.","","Please replace with FollowerLocationInfo:UnregisterUpdateCallback()");
+	FollowerLocationInfo:UnregisterUpdateCallback(func)
 end
