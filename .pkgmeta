@@ -18,22 +18,22 @@ externals:
         tag: latest
 
     libs/LibColors-1.0:
-        url: https://repos.curseforge.com/wow/libstringcoloring-1-0
+        url: https://github.com/HizurosWoWAddOns/LibColors-1.0.git
         tag: latest
 
     libs/SecureTabs-2.0:
-        url: git://github.com/Jaliborc/SecureTabs-2.0.git
+        url: https://github.com/Jaliborc/SecureTabs-2.0.git
         tag: latest
 
     libs/LibDropDownMenu:
-        url: https://repos.curseforge.com/wow/libdropdownmenu
+        url: https://github.com/HizurosWoWAddOns/LibDropDownMenu.git
         tag: latest
 
 move-folders:
     FollowerLocationInfo/Journal: FollowerLocationInfo_Journal
 #    FollowerLocationInfo/Tracker: FollowerLocationInfo_Tracker
 
-enable-nolib-creation: yes
+enable-nolib-creation: no
 
 ignore:
     - libs/LibStub/tests
