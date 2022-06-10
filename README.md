@@ -25,7 +25,7 @@ This addon is a collection of known locations of followers to collect them.
 ## Chat command / Commandline options
 **Usage:**
 
-`followerlocationinfo <command>`
+`/followerlocationinfo <command>`
 
 `/fli <command>`
 
