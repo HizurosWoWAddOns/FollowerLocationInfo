@@ -407,6 +407,11 @@ local function CreateMenuList()
 			checked=function() return db.LDBi_Enabled; end,
 			func=function() FollowerLocationInfo:MinimapButton(); end
 		},
+		{
+			text=L["AddOnLoaded"], tooltipTitle=L["AddOnLoaded"], tooltipText=L["AddOnLoadedDesc"].."|n|n|cff44ff44"..L["AddOnLoadedDescAlt"].."|r", keepShownOnClick=1, isNotRadio=true,
+			checked=function() return db.AddOnLoaded; end,
+			func=function() db.AddOnLoaded = not db.AddOnLoaded; end
+		},
 		{text=L["Broker button text"], tooltipTitle=L["Broker button text"], tooltipText=L["Choose what you want to look on broker button"], hasArrow=true, isNotRadio=true, notCheckable=true, menuList={
 			{text=L["Your coordinates"], isNotRadio=true, keepShownOnClick=1, arg1="LDB_PlayerCoords", checked=CheckFunc, func=SetFunc},
 			{text=L["Collected followers"], isNotRadio=true, keepShownOnClick=1, arg1="LDB_NumFollowers", checked=CheckFunc, func=SetFunc},
@@ -559,7 +564,7 @@ function FollowerLocationInfoMixin:OptionMenu(parent,point,relativePoint)
 end
 
 function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
-	if event=="ADDON_LOADED" and arg1==addon then
+	if event=="VARIABLES_LOADED" then
 		-- check config
 		if (FollowerLocationInfoDB==nil) then
 			FollowerLocationInfoDB={};
@@ -570,6 +575,7 @@ function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
 			LDB_TargetCoords = false,
 			LDB_NumFollowers = true,
 			LDBi_Enabled = true,
+			AddOnLoaded = true,
 
 			-- FLI Options
 			ShowFollowerID = true,
@@ -646,7 +652,9 @@ function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
 
 		isLoaded=true;
 
-		ns.print("AddOn loaded...");
+		if FollowerLocationInfoDB.AddOnLoaded or IsShiftKeyDown() then
+			ns.print(L["AddOnLoaded"]);
+		end
 	elseif event=="ADDON_LOADED" and arg1=="Blizzard_GarrisonUI" then
 		GarrisonMissionFrame:HookScript("OnHide",function()
 			UpdateFollowers();
@@ -690,6 +698,7 @@ function FollowerLocationInfoMixin:OnLoad()
 	tinsert(UISpecialFrames, self:GetName());
 
 	self:RegisterEvent("ADDON_LOADED");
+	self:RegisterEvent("VARIABLES_LOADED");
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("GARRISON_FOLLOWER_LIST_UPDATE");
 end

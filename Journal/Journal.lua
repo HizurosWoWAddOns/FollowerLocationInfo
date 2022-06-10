@@ -183,7 +183,6 @@ end
 function FollowerLocationInfoJournalFilterMixin:OpenMenu()
 	local menus,disabled = {classes={},classspec={},qualities={},abilities={},traits={},counters={},others={}},{};
 	local labelStr,labelStrDisabled,entries,cMax,page,filterID = "%s (|cff%s%s|r/|cff%s%s|r)","%s (%s/%s)",{},20,1,self:GetParent():GetID();
-	local separator={ text="", dist=0, isTitle=true, notCheckable=true, isNotRadio=true, sUninteractable=true, iconOnly=true, icon="Interface\\Common\\UI-TooltipDivider-Transself", tCoordLeft=0, tCoordRight=1, tCoordTop=0, tCoordBottom=1, tFitDropDownSizeX=true, tSizeX=0, tSizeY=8, iconInfo={tCoordLeft=0, tCoordRight=1, tCoordTop=0, tCoordBottom=1, tFitDropDownSizeX=true, tSizeX=0, tSizeY=8} };
 	local MenuFrame = _G.FollowerLocationInfo_LibDropDownMenu;
 	if not MenuFrame then
 		MenuFrame = LDDM.Create_DropDownMenu("FollowerLocationInfo_LibDropDownMenu",UIParent);
@@ -311,7 +310,7 @@ function FollowerLocationInfoJournalFilterMixin:OpenMenu()
 	local menuList={
 		{ text = COLLECTED, func=SetFilter, arg1={filterID,"collected",true}, disabled = filter_collected==true, notCheckable=true},
 		{ text = NOT_COLLECTED, func=SetFilter, arg1={filterID,"collected",false}, disabled = filter_collected==false, notCheckable=true},
-		separator,
+		{ separator = true },
 		{ text = L["Classes"], menuList=menus.classes, disabled = disabled.classes, notCheckable=true, hasArrow=true },
 		{ text = SPECS, menuList=menus.classspec, disabled = disabled.classspec, notCheckable=true, hasArrow=true },
 		{ text = QUALITY, menuList=menus.qualities, disabled = disabled.qualities, notCheckable=true, hasArrow=true },
@@ -319,7 +318,7 @@ function FollowerLocationInfoJournalFilterMixin:OpenMenu()
 		{ text = ABILITIES, menuList=menus.abilities, disabled = disabled.abilities, notCheckable=true, hasArrow=true },
 		{ text = L["Counters"], menuList=menus.counters, disabled = disabled.counters, notCheckable=true, hasArrow=true },
 		{ text = L["Obtainable by"], menuList=menus.others, disalbed = disabled.others, notCheckable=true, hasArrow=true },
-		separator,
+		{ separator = true },
 		{text=CANCEL, notCheckable=true, isNotRadio=true, func=function() LDDM.CloseDropDownMenus(); end}
 	};
 
