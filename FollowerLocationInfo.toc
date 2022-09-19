@@ -1,4 +1,4 @@
-## Interface: 90205
+## Interface: 90207
 ## Title: FollowerLocationInfo
 ## Version: @project-version@
 ## Title-zhTW: 追隨者位置資訊
