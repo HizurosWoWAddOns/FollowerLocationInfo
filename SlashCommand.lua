@@ -49,10 +49,10 @@ SlashCmdList["FOLLOWERLOCATIONINFO"] = function(cmd)
 	if cmdList[cmd] then
 		cmdList[cmd].func();
 	else
-		ns.print(L["Chat command usage"]);
+		ns:print(L["Chat command usage"]);
 		_print("/followerlocationinfo "..L["<command>"]);
 		_print(L["or"].." /fli "..L["<command>"]);
-		ns.print(L["Commands"]);
+		ns:print(L["Commands"]);
 		for _, key in ipairs(order)do
 			if cmdList[key] then
 				_print(key,L[cmdList[key].desc]);

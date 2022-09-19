@@ -24,6 +24,7 @@
 	<Script file="localizations\locale_zhTW.lua"/>
 	<!-- /localizations -->
 
+	<Script file="libs/HizurosSharedTools/HizurosSharedTools.lua"/>
 	<Script file="Core.lua" />
 	<Script file="DataBroker.lua"/>
 	<Script file="ExternalURL.lua"/>

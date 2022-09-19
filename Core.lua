@@ -1,6 +1,8 @@
 
 FollowerLocationInfoDB = {};
 local addon, ns = ...;
+ns.debugMode = "@project-version@"=="@".."project-version".."@";
+LibStub("HizurosSharedTools").RegisterPrint(ns,addon,"FLI");
 
 local D = FollowerLocationInfoData;
 local L = D.Locale;
@@ -19,34 +21,6 @@ BINDING_NAME_TOGGLEFOLLOWERLOCATIONINFO	= L["Toggle FollowerLocationInfo Journal
 local infoBoxErrors = {
 	["journal not loadable"] = L["LoadError-FollowerLocationInfo_Journal"]
 }
-
-do
-	local addon_short = "FLI";
-	local colors = {"82c5ff","00ff00","ff6060","44ffff","ffff00","ff8800","ff44ff","ffffff"};
-	local function colorize(...)
-		local t,c,a1 = {tostringall(...)},1,...;
-		if type(a1)=="boolean" then tremove(t,1); end
-		if a1~=false then
-			tinsert(t,1,"|cff82c5ff"..((a1==true and addon_short) or (a1=="||" and "||") or addon).."|r"..(a1~="||" and HEADER_COLON or ""));
-			c=2;
-		end
-		for i=c, #t do
-			if not t[i]:find("\124c") then
-				t[i],c = "|cff"..colors[c]..t[i].."|r", c<#colors and c+1 or 1;
-			end
-		end
-		return unpack(t);
-	end
-	function ns.print(...)
-		print(colorize(...));
-	end
-	function ns.debug(...)
-		ConsolePrint(date("|cff999999%X|r"),colorize(...));
-	end
-	function ns.debugPrint(...)
-		print(colorize("<debug>",...));
-	end
-end
 
 local function count(t,v,d)
 	if(t[v]==nil)then t[v]=0; end
@@ -653,7 +627,7 @@ function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
 		isLoaded=true;
 
 		if FollowerLocationInfoDB.AddOnLoaded or IsShiftKeyDown() then
-			ns.print(L["AddOnLoaded"]);
+			ns:print(L["AddOnLoaded"]);
 		end
 	elseif event=="ADDON_LOADED" and arg1=="Blizzard_GarrisonUI" then
 		GarrisonMissionFrame:HookScript("OnHide",function()
@@ -706,11 +680,11 @@ end
 
 --[=[ Migration ]=]
 function FollowerLocationInfo_RegisterUpdateCallback(func)
-	ns.print("FollowerLocationInfo_RegisterUpdateCallback() are deprecated.","","Please replace with FollowerLocationInfo:RegisterUpdateCallback()");
+	ns:print("FollowerLocationInfo_RegisterUpdateCallback() are deprecated.","","Please replace with FollowerLocationInfo:RegisterUpdateCallback()");
 	FollowerLocationInfo:RegisterUpdateCallback(func)
 end
 
 function FollowerLocationInfo_UnregisterUpdateCallback(func)
-	ns.print("FollowerLocationInfo_UnregisterUpdateCallback() are deprecated.","","Please replace with FollowerLocationInfo:UnregisterUpdateCallback()");
+	ns:print("FollowerLocationInfo_UnregisterUpdateCallback() are deprecated.","","Please replace with FollowerLocationInfo:UnregisterUpdateCallback()");
 	FollowerLocationInfo:UnregisterUpdateCallback(func)
 end

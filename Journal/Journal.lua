@@ -1,6 +1,9 @@
 
 local addon, ns = ...;
-local Addon = gsub(addon,"_Journal","");
+local Addon = addon:gsub("_Journal","");
+ns.debugMode = "@project-version@"=="@".."project-version".."@";
+LibStub("HizurosSharedTools").RegisterPrint(ns,Addon,"FLI");
+
 local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeightIdx,modelScaleIdx,abilitiesIdx,countersIdx,traitsIdx,isCollectableIdx = 1,2,3,4,5,6,7,8,9,10,11,12; -- table indexes for FollowerLocationInfoData.basics entries.
 local L,D,LC,journalVisibleEntries,activeFilter={},{},{},{},{};
 local tconcat,tsort = table.concat,table.sort;
@@ -21,33 +24,6 @@ FollowerLocationInfoJournalPortraitMixin = {}
 ----------------------------
 --- Misc local functions ---
 ----------------------------
-do
-	local addon_short = "FLI";
-	local colors = {"82c5ff","00ff00","ff6060","44ffff","ffff00","ff8800","ff44ff","ffffff"};
-	local function colorize(...)
-		local t,c,a1 = {tostringall(...)},1,...;
-		if type(a1)=="boolean" then tremove(t,1); end
-		if a1~=false then
-			tinsert(t,1,"|cff82c5ff"..((a1==true and addon_short) or (a1=="||" and "||") or addon).."|r"..(a1~="||" and HEADER_COLON or ""));
-			c=2;
-		end
-		for i=c, #t do
-			if not t[i]:find("\124c") then
-				t[i],c = "|cff"..colors[c]..t[i].."|r", c<#colors and c+1 or 1;
-			end
-		end
-		return unpack(t);
-	end
-	function ns.print(...)
-		print(colorize(...));
-	end
-	function ns.debug(...)
-		ConsolePrint(date("|cff999999%X|r"),colorize(...));
-	end
-	function ns.debugPrint(...)
-		print(colorize("<debug>",...));
-	end
-end
 
 local function pairsByKeys(t, f)
 	local i,a = 0,{};
@@ -868,7 +844,7 @@ function FollowerLocationInfoJournalMixin:FollowerCard_Update()
 			classSpec = D.classSpec[D.playerSpec[classID][classSpec]][1];
 		else
 			--[=[
-			ns.print(
+			ns:print(
 				classID,
 				classSpec,
 				D.playerSpec[classID][classSpec],
@@ -1602,7 +1578,7 @@ function FollowerLocationInfoJournalMixin:OnLoad()
 	-- prevent errors if user open the journal first time in session while in combat. fallback to standalone mode.
 	if FollowerLocationInfoData.journalDocked and InCombatLockdown() then
 		FollowerLocationInfoData.journalDocked = false;
-		ns.print(L["You have opened the collections journal first time this session while you are in combat. FLI fallback into standalone mode to prevent error messages. Don't worry this is temporary."]);
+		ns:print(L["You have opened the collections journal first time this session while you are in combat. FLI fallback into standalone mode to prevent error messages. Don't worry this is temporary."]);
 	end
 
 	if FollowerLocationInfoData.journalDocked then
