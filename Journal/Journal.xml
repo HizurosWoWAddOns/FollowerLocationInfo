@@ -320,7 +320,7 @@
 
 	<Frame name="FollowerLocationInfoJournalPortraitFrame" mixin="FollowerLocationInfoJournalPortraitMixin" hidden="true">
 		<Scripts>
-			<OnShown method="OnShow"/>
+			<OnShow method="OnShow"/>
 		</Scripts>
 	</Frame>
 

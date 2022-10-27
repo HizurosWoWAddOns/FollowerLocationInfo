@@ -37,11 +37,6 @@
 		<Anchors>
 			<Anchor point="CENTER" y="40"/>
 		</Anchors>
-		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Gold-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Gold-Border" tile="true">
-			<BackgroundInsets left="8" right="8" top="8" bottom="8"/>
-			<TileSize val="32"/>
-			<EdgeSize val="32"/>
-		</Backdrop>
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture>
