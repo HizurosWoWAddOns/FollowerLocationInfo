@@ -1575,6 +1575,7 @@ function FollowerLocationInfoJournalMixin:OnLoad()
 	D,L = FollowerLocationInfoData,FollowerLocationInfoData.Locale;
 	LC = FollowerLocationInfo.LibColors;
 
+	--[[
 	-- prevent errors if user open the journal first time in session while in combat. fallback to standalone mode.
 	if FollowerLocationInfoData.journalDocked and InCombatLockdown() then
 		FollowerLocationInfoData.journalDocked = false;
@@ -1589,8 +1590,8 @@ function FollowerLocationInfoJournalMixin:OnLoad()
 		portraitFrame:SetParent(CollectionsJournal);
 		portraitFrame:SetAllPoints();
 		portraitFrame:Hide();
-		SetPortraitToTexture(portraitFrame.portrait, "Interface\\Icons\\Achievement_GarrisonFollower_Rare");
-		portraitFrame.TitleText:SetText(Addon);
+		SetPortraitToTexture(portraitFrame.PortraitContainer.portrait or portraitFrame.portrait, "Interface\\Icons\\Achievement_GarrisonFollower_Rare");
+		(portraitFrame.TitleContainer.TitleText or portraitFrame.TitleText):SetText(Addon);
 		self.Tab = FollowerLocationInfo.SecureTabs:Add(CollectionsJournal, portraitFrame, label);
 
 		self:SetParent(portraitFrame);
@@ -1601,6 +1602,7 @@ function FollowerLocationInfoJournalMixin:OnLoad()
 		self.counters:SetPoint("TOPLEFT",CollectionsJournal,"TOPLEFT", 65, -33);
 		self.Options:SetPoint("TOPRIGHT",CollectionsJournal,"TOPRIGHT",-6,-26);
 	else
+	--]]
 		self:SetParent(FollowerLocationInfoJournalFrame);
 		self:SetPoint("TOPLEFT",FollowerLocationInfoJournalFrame.HeaderBar,"BOTTOMLEFT",0,-3);
 		self:SetPoint("RIGHT",FollowerLocationInfoJournalFrame.HeaderBar,"RIGHT",0,0);
@@ -1623,7 +1625,7 @@ function FollowerLocationInfoJournalMixin:OnLoad()
 		self.FollowerDesc.ScrollBarBottom:Hide();
 
 		UIPanelWindows["FollowerLocationInfoJournalFrame"] = { area = "left", pushable = 0, whileDead = 1, width = 830};
-	end
+	--end
 
 	self.counters.Collectables.Label:SetText(COLLECTED);
 	self.counters.Recruitables.Label:SetText(L["Recruited"]);
