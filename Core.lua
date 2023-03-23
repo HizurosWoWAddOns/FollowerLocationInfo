@@ -538,7 +538,7 @@ function FollowerLocationInfoMixin:OptionMenu(parent,point,relativePoint)
 end
 
 function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
-	if event=="VARIABLES_LOADED" then
+	if event=="ADDON_LOADED" and addon==... then
 		-- check config
 		if (FollowerLocationInfoDB==nil) then
 			FollowerLocationInfoDB={};
@@ -672,7 +672,6 @@ function FollowerLocationInfoMixin:OnLoad()
 	tinsert(UISpecialFrames, self:GetName());
 
 	self:RegisterEvent("ADDON_LOADED");
-	self:RegisterEvent("VARIABLES_LOADED");
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("GARRISON_FOLLOWER_LIST_UPDATE");
 end
