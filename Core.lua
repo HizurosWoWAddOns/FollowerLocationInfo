@@ -90,7 +90,7 @@ local function UpdateFollowers()
 	dataFaction = dataFaction and "Alliance" or "Horde";
 	local blizz = {};
 	local pLevel = UnitLevel("player");
-	garrLevel = (garrLevel>0 and garrLevel) or C_Garrison.GetGarrisonInfo(LE_GARRISON_TYPE_6_0 or Enum.GarrisonType.Type_6_0) or 0;
+	garrLevel = (garrLevel>0 and garrLevel) or C_Garrison.GetGarrisonInfo(LE_GARRISON_TYPE_6_0 or Enum.GarrisonType.Type_6_0_Garrison) or 0;
 
 	-- Sometimes PLAYER_ENTERING_WORLD aren't late enough to get some data from blizz.
 	if pLevel>=90 and garrLevel==0 then
@@ -212,7 +212,7 @@ local function UpdateFollowers()
 	end
 
 	if dataFaction==D.Faction then
-		blizz = C_Garrison.GetFollowers(LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0) or {};
+		blizz = C_Garrison.GetFollowers(LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower) or {};
 		D.counter.blizz=#blizz;
 	end
 
@@ -538,7 +538,7 @@ function FollowerLocationInfoMixin:OptionMenu(parent,point,relativePoint)
 end
 
 function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
-	if event=="ADDON_LOADED" and addon==... then
+	if event=="ADDON_LOADED" and addon==arg1 then
 		-- check config
 		if (FollowerLocationInfoDB==nil) then
 			FollowerLocationInfoDB={};

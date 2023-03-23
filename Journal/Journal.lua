@@ -316,7 +316,7 @@ function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkEnter(link,text,forced)
 		if(link:match("^garrfollowerability"))then
 			local _,id = strsplit(HEADER_COLON,link);
 			if D.build>70000000 then
-				local tooltip = _G[GarrisonFollowerOptions[LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0].abilityTooltipFrame];
+				local tooltip = _G[GarrisonFollowerOptions[LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower].abilityTooltipFrame];
 				tooltip:ClearAllPoints();
 				if FollowerLocationInfoData.journalDocked then
 					tooltip:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
@@ -324,7 +324,7 @@ function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkEnter(link,text,forced)
 					tooltip:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
 				end
 				--tooltip:SetPoint("LEFT", self, "RIGHT", 4, 0);
-				GarrisonFollowerAbilityTooltip_Show(tooltip, tonumber(id), LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0);
+				GarrisonFollowerAbilityTooltip_Show(tooltip, tonumber(id), LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower);
 			else
 				tt=GarrisonFollowerAbilityTooltip;
 				tt:ClearAllPoints();
@@ -333,7 +333,7 @@ function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkEnter(link,text,forced)
 				else
 					tt:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
 				end
-				GarrisonFollowerAbilityTooltip_Show(tonumber(id),LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0);
+				GarrisonFollowerAbilityTooltip_Show(tonumber(id),LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower);
 			end
 		end
 	else
@@ -890,11 +890,11 @@ local stateColor = {[0]="ff0000","ff9900","04ff07","ffffff"};
 local SharedElements,AddDescription = {},{};
 
 SharedElements["Garrison building"]=function(_,id)
-	local glvl = C_Garrison.GetGarrisonInfo(LE_GARRISON_TYPE_6_0 or Enum.GarrisonType.Type_6_0);
+	local glvl = C_Garrison.GetGarrisonInfo(LE_GARRISON_TYPE_6_0 or Enum.GarrisonType.Type_6_0_Garrison);
 	local result,state,Name,Lvl,name,lvl,_= {},0;
 	_,name,_,_,_,lvl = C_Garrison.GetBuildingInfo(id);
 	if glvl~=nil and  glvl>0 then
-		for i,v in ipairs(C_Garrison.GetBuildings(LE_GARRISON_TYPE_6_0 or Enum.GarrisonType.Type_6_0))do
+		for i,v in ipairs(C_Garrison.GetBuildings(LE_GARRISON_TYPE_6_0 or Enum.GarrisonType.Type_6_0_Garrison))do
 			_,Name,_,_,_,Lvl = C_Garrison.GetBuildingInfo(v.buildingID);
 			if(v.buildingID==id) or (name==Name)then
 				state = 1;
