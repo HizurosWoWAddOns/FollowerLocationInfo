@@ -1,4 +1,4 @@
-## Interface: 100007
+## Interface: 100100
 ## Title: FollowerLocationInfo
 ## Version: @project-version@
 ## Title-zhTW: 追隨者位置資訊
