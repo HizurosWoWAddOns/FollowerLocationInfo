@@ -3,6 +3,7 @@
 ## Version: @project-version@
 ## Title-zhTW: 追隨者位置資訊
 ## Notes-zhTW: 追隨者位置資訊
+## IconTexture: 1033583
 ## Author: Hizuro
 ## SavedVariables: FollowerLocationInfoDB, FollowerLocationInfoCache, FollowerLocationInfoCollectorCache
 ## OptionalDeps: LibStub, CallbackHandler-1.0, LibDataBroker-1.1, LibDBIcon-1.0, LibColors-1.0, SecureTabs-2.0, LibDropDownMenu
