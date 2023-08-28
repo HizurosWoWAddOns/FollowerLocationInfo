@@ -23,7 +23,8 @@ externals:
 
     libs/SecureTabs-2.0:
         url: https://github.com/Jaliborc/SecureTabs-2.0.git
-        tag: latest
+        ## tag: latest
+        commit: 0b385e0ad6c938649a351449e86585d92367d4a6
 
     libs/LibDropDownMenu:
         url: https://github.com/HizurosWoWAddOns/LibDropDownMenu.git
