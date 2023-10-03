@@ -33,6 +33,10 @@ externals:
     libs/HizurosSharedTools:
         url: https://github.com/HizurosWoWAddOns/HizurosSharedTools.git
 
+# missing externals on addon page
+required-dependencies:
+    - securetabs
+
 move-folders:
     FollowerLocationInfo/Journal: FollowerLocationInfo_Journal
 #    FollowerLocationInfo/Tracker: FollowerLocationInfo_Tracker
