@@ -316,7 +316,7 @@ function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkEnter(link,text,forced)
 		if(link:match("^garrfollowerability"))then
 			local _,id = strsplit(HEADER_COLON,link);
 			if D.build>70000000 then
-				local tooltip = _G[GarrisonFollowerOptions[LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower].abilityTooltipFrame];
+				local tooltip = _G[GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower].abilityTooltipFrame];
 				tooltip:ClearAllPoints();
 				if FollowerLocationInfoData.journalDocked then
 					tooltip:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
@@ -324,7 +324,7 @@ function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkEnter(link,text,forced)
 					tooltip:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
 				end
 				--tooltip:SetPoint("LEFT", self, "RIGHT", 4, 0);
-				GarrisonFollowerAbilityTooltip_Show(tooltip, tonumber(id), LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower);
+				GarrisonFollowerAbilityTooltip_Show(tooltip, tonumber(id), Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower);
 			else
 				tt=GarrisonFollowerAbilityTooltip;
 				tt:ClearAllPoints();
@@ -333,7 +333,7 @@ function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkEnter(link,text,forced)
 				else
 					tt:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
 				end
-				GarrisonFollowerAbilityTooltip_Show(tonumber(id),LE_FOLLOWER_TYPE_GARRISON_6_0 or Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower);
+				GarrisonFollowerAbilityTooltip_Show(tonumber(id),Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower);
 			end
 		end
 	else
