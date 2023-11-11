@@ -10,6 +10,8 @@ local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeight
 local UpdateCallbacks,UpdateLock,isLoaded=false,false,false;
 local garrLevel,MenuFrame,MenuList = 0;
 local LDDM = LibStub("LibDropDownMenu");
+local IsAddOnLoaded = IsAddOnLoaded or C_AddOns.IsAddOnLoaded;
+local DisableAddOn = DisableAddOn or C_AddOns.DisableAddOn;
 
 FollowerLocationInfoMixin = {};
 FollowerLocationInfoTooltipMixin = {};
@@ -330,8 +332,10 @@ local function CheckAndLoadJournal()
 	if(not FollowerLocationInfoJournal)then
 		local _,_,_,_,status = GetAddOnInfo(addon.."_Journal");
 		if status~="MISSING" then
+			local EnableAddOn = EnableAddOn or C_AddOns.EnableAddOn; --  Patch 10.2
 			EnableAddOn(addon.."_Journal");
 		end
+		local LoadAddOn = LoadAddOn or C_AddOns.LoadAddOn; -- Unknown
 		LoadAddOn(addon.."_Journal");
 		if( not FollowerLocationInfoJournal)then
 			FollowerLocationInfo:ShowInfoBox("journal not loadable");
