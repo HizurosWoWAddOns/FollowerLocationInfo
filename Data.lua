@@ -69,7 +69,7 @@ local playerTraitSpells = {
 	--[1804] = "Lockpicking",[2656] = "Smelting",[3273]  = "First Aid",[2550]  = "Cooking",[53428] = "Runeforging",
 }
 for id,traitId in pairs(playerTraitSpells) do
-	local name = GetSpellInfo(id);
+	local name = C_Spell.GetSpellInfo(id);
 	D.playerTraits[name]=traitId;
 end
 

@@ -119,7 +119,7 @@ function ns.LDB_Init()
 		OnTooltipShow = LDB_Tooltip
 	});
 
-	if GetAddOnInfo("SlideBar") and GetAddOnEnableState(UnitName("player"),"SlideBar")>1 then
+	if C_AddOns.GetAddOnInfo("SlideBar") and C_AddOns.GetAddOnEnableState(UnitName("player"),"SlideBar")>1 then
 		LDB:NewDataObject(addon..".Launcher", {
 			type = "launcher",
 			icon = "Interface\\Icons\\Achievement_GarrisonFollower_Rare",

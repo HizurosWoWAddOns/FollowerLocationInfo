@@ -10,8 +10,6 @@ local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeight
 local UpdateCallbacks,UpdateLock,isLoaded=false,false,false;
 local garrLevel,MenuFrame,MenuList = 0;
 local LDDM = LibStub("LibDropDownMenu");
-local IsAddOnLoaded = IsAddOnLoaded or C_AddOns.IsAddOnLoaded;
-local DisableAddOn = DisableAddOn or C_AddOns.DisableAddOn;
 
 FollowerLocationInfoMixin = {};
 FollowerLocationInfoTooltipMixin = {};
@@ -330,13 +328,11 @@ end
 
 local function CheckAndLoadJournal()
 	if(not FollowerLocationInfoJournal)then
-		local _,_,_,_,status = GetAddOnInfo(addon.."_Journal");
+		local _,_,_,_,status = C_AddOns.GetAddOnInfo(addon.."_Journal");
 		if status~="MISSING" then
-			local EnableAddOn = EnableAddOn or C_AddOns.EnableAddOn; --  Patch 10.2
-			EnableAddOn(addon.."_Journal");
+			C_AddOns.EnableAddOn(addon.."_Journal");
 		end
-		local LoadAddOn = LoadAddOn or C_AddOns.LoadAddOn; -- Unknown
-		LoadAddOn(addon.."_Journal");
+		C_AddOns.LoadAddOn(addon.."_Journal");
 		if( not FollowerLocationInfoJournal)then
 			FollowerLocationInfo:ShowInfoBox("journal not loadable");
 			return false;
@@ -483,7 +479,7 @@ end
 function FollowerLocationInfoMixin:ToggleJournal()
 	if FollowerLocationInfoData.journalDocked then
 		if(not CollectionsJournal)then
-			LoadAddOn("Blizzard_Collections");
+			C_AddOns.LoadAddOn("Blizzard_Collections");
 		end
 
 		if not CheckAndLoadJournal() then
@@ -620,10 +616,10 @@ function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
 
 		D.Version = {Core="@project-version@",Data=""};
 
-		local _,title = GetAddOnInfo(addon.."_Data");
+		local _,title = C_AddOns.GetAddOnInfo(addon.."_Data");
 		if title then
-			if IsAddOnLoaded(addon.."_Data") then
-				DisableAddOn(addon.."_Data");
+			if C_AddOns.IsAddOnLoaded(addon.."_Data") then
+				C_AddOns.DisableAddOn(addon.."_Data");
 			end
 			self.error = "FollowerLocationInfo_Data are deprecated. Please uninstall it.";
 		end
@@ -638,7 +634,7 @@ function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
 			UpdateFollowers();
 		end);
 	elseif event=="ADDON_LOADED" and arg1=="Blizzard_Collections" and FollowerLocationInfoData.journalDocked then
-		LoadAddOn("FollowerLocationInfo_Journal");
+		C_AddOns.LoadAddOn("FollowerLocationInfo_Journal");
 	elseif isLoaded then
 		self.ExternalURL_unsupportedTypes = ns.ExternalURL_unsupportedTypes;
 		if event=="PLAYER_ENTERING_WORLD" then

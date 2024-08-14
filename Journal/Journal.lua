@@ -932,12 +932,12 @@ end
 
 SharedElements.Professions=function(_,id,skillNeed)
 	local state, current, Name, icon, skillLevel, maxSkillLevel=0, L["Not learned"];
-	local name,_,icon = GetSpellInfo(id);
+	local info = C_Spell.GetSpellInfo(id);
 	local p = {GetProfessions()};
 	for i=1,#p do
 		if p[i] then
 			Name, icon, skillLevel, maxSkillLevel = GetProfessionInfo(p[i]);
-			if(name==Name)then
+			if(info.name==Name)then
 				state = 1;
 				current = skillLevel.."/"..maxSkillLevel;
 				if(skillLevel>=skillNeed)then
@@ -947,23 +947,23 @@ SharedElements.Professions=function(_,id,skillNeed)
 			end
 		end
 	end
-	return	name,
+	return	info.name,
 			SKILL.." "..skillNeed,
 			nil, -- CreateExternalURL("p",),
 			{state=state,current=current};
 end;
 
 SharedElements.Reputation=function(_,id,standingNum)
-	local name, _, standingID, barMin, barMax, barValue, _, _, _, _, hasRep, _, _, _, hasBonusRepGain, canBeLFGBonus = GetFactionInfoByID(id);
-	local standingColor,chk,current = "red","",("%s ( %d / %d )"):format(_G["FACTION_STANDING_LABEL"..standingID],barValue-barMin,barMax);
+	local info = C_Reputation.GetFactionDataByID(id);
+	local standingColor,chk,current = "red","",("%s ( %d / %d )"):format(_G["FACTION_STANDING_LABEL"..info.reaction],info.currentStanding-info.currentReactionThreshold,info.nextReactionThreshold);
 	local state = 0;
-	if standingID then
+	if info.reaction then
 		state = 1;
-		if standingID>=standingNum then
+		if info.reaction>=standingNum then
 			state = 2;
 		end
 	end
-	return	name,
+	return	info.name,
 			_G["FACTION_STANDING_LABEL"..standingNum],
 			CreateExternalURL("f",id),
 			{state=state,current=current};
@@ -1127,7 +1127,7 @@ function AddDescription.Missions(Desc)
 			local rewardList,rewards = C_Garrison.GetMissionRewardInfo(Desc[i]),{};
 			if rewardList then
 				for _,reward in pairs(rewardList)do
-					local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(reward.itemID);
+					local name,link,_,_,_,_,_,_,_,icon = C_Item.GetItemInfo(reward.itemID);
 					local hlink = CreateExternalURL("i",reward.itemID);
 					if link and icon then
 						tinsert(rewards,
@@ -1217,7 +1217,7 @@ end
 function AddDescription.Spell(Desc)
 	local hlink = CreateExternalURL("s",Desc[2]);
 	return p:format(
-		"|T"..GetSpellTexture(Desc[2])..":14:14:0:0|t "..GetSpellLink(Desc[2])..
+		"|T"..(C_Spell and C_Spell.GetSpellTexture or GetSpellTexture)(Desc[2])..":14:14:0:0|t "..(C_Spell and C_Spell.GetSpellLink or GetSpellLink)(Desc[2])..
 		(hlink~=nil and "|n"..listPrefix..hlink or "")
 	), SPELLS;
 end
@@ -1227,7 +1227,7 @@ function AddDescription.Items(Desc)
 	for i=2, #Desc do
 		local item = {};
 		local v,name,link,icon,coords,_ = Desc[i];
-		name,link,_,_,_,_,_,_,_,icon = GetItemInfo(v[1]);
+		name,link,_,_,_,_,_,_,_,icon = C_Item.GetItemInfo(v[1]);
 		if v.id~=nil and v.id~=CurrentFollower then
 			link = false;
 		end
@@ -1347,7 +1347,7 @@ function AddDescription.Price(Desc)
 		local price = {};
 		if Desc[i][1] == "Gold" then
 			tinsert(price,BONUS_ROLL_REWARD_MONEY);
-			tinsert(price,GetCoinTextureString(Desc[i][2]));
+			tinsert(price,C_CurrencyInfo.GetCoinTextureString(Desc[i][2]));
 		elseif Desc[i][1] == "Currency" then
 			local name,icon,_
 			if GetCurrencyInfo then
@@ -1364,7 +1364,7 @@ function AddDescription.Price(Desc)
 				if link then tinsert(price,link); end
 			end
 		elseif Desc[i][1] == "Item" then
-			local name,link,_,_,_,_,_,_,_,icon = GetItemInfo(Desc[i][2]);
+			local name,link,_,_,_,_,_,_,_,icon = C_Item.GetItemInfo(Desc[i][2]);
 			if name and icon then
 				tinsert(price,link);
 				tinsert(price,("%s |T%s:0|t"):format(Desc[i][3],icon));
