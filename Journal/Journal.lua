@@ -913,19 +913,19 @@ SharedElements["Garrison building"]=function(_,id)
 end;
 
 SharedElements["Brawler's Guild"]=function(_, factionId, rank)
-	local k, friendRep, friendMaxRep, friendName, _, _, friendTextLevel, friendThreshold, nextFriendThreshold = GetFriendshipReputation(factionId);
-	if k~=nil then
-		local state,standingNum = 0,tonumber(friendTextLevel:match("(%d+)"));
+	local friendshipInfo = ns.deprecated.C_GossipInfo.GetFriendshipReputation(factionId)
+	if friendshipInfo and friendshipInfo.name~=nil then
+		local state,standingNum = 0,tonumber(friendshipInfo.reaction:match("(%d+)"));
 		if standingNum then
 			state = 1;
 			if standingNum>=rank then
 				state = 2;
 			end
 		end
-		return	friendName,
+		return	friendshipInfo.name,
 				RANK .. " " .. rank,
 				CreateExternalURL("f",factionId),
-				{state=state,current=("%s ( %d / %d )"):format(friendTextLevel,friendRep-friendThreshold,nextFriendThreshold)}
+				{state=state,current=("%s ( %d / %d )"):format(friendshipInfo.reaction,friendshipInfo.standing-friendshipInfo.reactionThreshold, friendshipInfo.nextThreshold)}
 	end
 	return SharedElements.Reputation(_, factionId, rank); -- [1691] Brawler's guild (Season 2) was changed to normal faction...
 end
