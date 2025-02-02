@@ -323,7 +323,6 @@ function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkEnter(link,text,forced)
 				else
 					tooltip:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
 				end
-				--tooltip:SetPoint("LEFT", self, "RIGHT", 4, 0);
 				GarrisonFollowerAbilityTooltip_Show(tooltip, tonumber(id), Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower);
 			else
 				tt=GarrisonFollowerAbilityTooltip;
@@ -843,14 +842,6 @@ function FollowerLocationInfoJournalMixin:FollowerCard_Update()
 		if classID and classSpec and D.playerSpec[classID] and D.playerSpec[classID][classSpec] and D.classSpec[D.playerSpec[classID][classSpec]] then
 			classSpec = D.classSpec[D.playerSpec[classID][classSpec]][1];
 		else
-			--[=[
-			ns:print(
-				classID,
-				classSpec,
-				D.playerSpec[classID][classSpec],
-				D.classSpec[D.playerSpec[classID][classSpec]]
-			);
-			--]=]
 			classSpec = UNKNOWN;
 		end
 
