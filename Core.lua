@@ -163,7 +163,7 @@ local function UpdateFollowers()
 			end
 		end
 
-		if D.classSpec[data[classSpecIdx]]==nil then
+		if rawget(D.classSpec,data[classSpecIdx])==nil then
 			local v = C_Garrison.GetFollowerInfo(id);
 			local class = gsub(v.classAtlas,"GarrMission_ClassIcon%-",""):lower();
 			D.classSpec[data[classSpecIdx]]={
@@ -188,7 +188,8 @@ local function UpdateFollowers()
 	end
 
 	-- add demonhunter class specs
-	if D.classSpec[63]==nil then
+	--[[
+	if rawget(D.classSpec[63])==nil then
 		local id = 498;
 		local v = C_Garrison.GetFollowerInfo(id);
 		local class = gsub(v.classAtlas,"GarrMission_ClassIcon%-",""):lower();
@@ -199,7 +200,8 @@ local function UpdateFollowers()
 			D.ClassName2ID[class] -- class id
 		};
 	end
-	if D.classSpec[64]==nil then
+
+	if rawget(D.classSpec[64])==nil then
 		local id = 722;
 		local v = C_Garrison.GetFollowerInfo(id);
 		local class = gsub(v.classAtlas,"GarrMission_ClassIcon%-",""):lower();
@@ -210,6 +212,7 @@ local function UpdateFollowers()
 			D.ClassName2ID[class] -- class id
 		};
 	end
+	--]]
 
 	if dataFaction==D.Faction then
 		blizz = C_Garrison.GetFollowers(Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower) or {};

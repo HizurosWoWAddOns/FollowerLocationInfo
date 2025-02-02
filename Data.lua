@@ -60,7 +60,8 @@ D.playerSpec = {
 	{32,33,34}, -- 9 WARLOCK
 	{17,18,19}, -- 10 MONK
 	{5,7,8,9}, -- 11 DRUID
-	{63,64} -- 12 DEMONHUNTER
+	{63,64}, -- 12 DEMONHUNTER
+	{1467,1468,1473}, -- 13 EVOKER
 };
 D.playerTraits = {};
 local playerTraitSpells = {
@@ -108,7 +109,6 @@ D.zone2zoneGroup = {
 D.counter = {blizz=0,collectables={0,0},recruitables={0,0},class={},classspec={},abilities={},counters={},traits={},qualities={}};
 D.followerIDs = {};
 D.followerByZone = {};
-D.classSpec = {};
 D.abilities = {};
 D.counters = {};
 D.unknown = {};
@@ -166,6 +166,40 @@ D.zoneNames = setmetatable({},{
 	end
 });
 
+do
+	-- [classSpecId] = <followerID[interger]>|<className[string]>
+	local missingClasses = {
+		[63] = 498,
+		[64] = 722,
+		[1467] = "EVOKER",
+		[1468] = "EVOKER",
+		[1473] = "EVOKER",
+	}
+
+	D.classSpec = setmetatable({},{
+		__index = function(t,id)
+			if not missingClasses[id] then
+				return;
+			end
+			local obj,class,className,classNameSpecial = missingClasses[id];
+			class = obj;
+			className,classNameSpecial = LOCALIZED_CLASS_NAMES_MALE[class:upper()],nil;
+			if type(obj)=="number" then
+				local fInfo = C_Garrison.GetFollwerInfo(obj)
+				class = gsub(fInfo.classAtlas,"GarrMission_ClassIcon%-","");
+				className = C_Garrison.GetFollowerClassSpecName(obj) -- localized class specialization name
+			end
+			local entry = {
+				classNameSpecial or className,
+				class,
+				className,
+				D.ClassName2ID[class] -- class id
+			}
+			rawset(t,id,entry);
+			return entry;
+		end
+	})
+end
 
 local levelI,qualityI,classI,classSpecI,portraitI,modelI,modelHeightI,modelScaleI,abilitiesI,countersI,traitsI,isCollectableI = 1,2,3,4,5,6,7,8,9,10,11,12;
 D.basics = setmetatable({},{

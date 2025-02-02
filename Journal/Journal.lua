@@ -840,7 +840,7 @@ function FollowerLocationInfoJournalMixin:FollowerCard_Update()
 		local quality = 6;
 		local _,class,classID = UnitClass("player"); -- 6
 		local classSpec = GetSpecialization(); -- 2
-		if classID and classSpec and D.playerSpec[classID][classSpec] and D.classSpec[D.playerSpec[classID][classSpec]] then
+		if classID and classSpec and D.playerSpec[classID] and D.playerSpec[classID][classSpec] and D.classSpec[D.playerSpec[classID][classSpec]] then
 			classSpec = D.classSpec[D.playerSpec[classID][classSpec]][1];
 		else
 			--[=[
