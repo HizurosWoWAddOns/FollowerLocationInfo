@@ -1,4 +1,4 @@
-## Interface: 110007
+## Interface: 110100
 ## Title: FollowerLocationInfo Journal
 ## Version: @project-version@
 ## Title-zhTW: 追隨者位置資訊 Journal
@@ -7,5 +7,17 @@
 ## Author: Hizuro
 ## LoadOnDemand: 1
 ## Dependencies: FollowerLocationInfo
+
+## Category-enUS: Expansion Features
+## Category-deDE: Erweiterungsfeatures
+## Category-esES: Características
+## Category-esMX: Características de expansiones
+## Category-frFR: Contenu d’extension
+## Category-itIT: Contenuti specifici
+## Category-koKR: 확장팩 특징
+## Category-ptBR: Características da Expansão
+## Category-ruRU: Особый контент
+## Category-zhCN: 特色更新
+## Category-zhTW: 資料片特色
 
 Journal.xml
