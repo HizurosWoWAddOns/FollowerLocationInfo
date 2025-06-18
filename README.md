@@ -1,5 +1,5 @@
 # FollowerLocationInfo (WoW AddOn)
-![Build](https://github.com/HizurosWoWAddOns/FollowerLocationInfo/actions/workflows/bigwigsmods-packager.yml/badge.svg)
+![Build](https://img.shields.io/github/actions/workflow/status/HizurosWoWAddOns/FollowerLocationInfo/packager.yml?style=flat-square)
 ![Tag](https://img.shields.io/github/v/tag/HizurosWoWAddOns/FollowerLocationInfo?style=flat-square)
 ![Downloads](https://img.shields.io/github/downloads/HizurosWoWAddOns/FollowerLocationInfo/total?style=flat-square)
 ![Downloads](https://img.shields.io/github/downloads/HizurosWoWAddOns/FollowerLocationInfo/latest/total?style=flat-square)
