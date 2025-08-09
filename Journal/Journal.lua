@@ -904,7 +904,7 @@ SharedElements["Garrison building"]=function(_,id)
 end;
 
 SharedElements["Brawler's Guild"]=function(_, factionId, rank)
-	local friendshipInfo = ns.deprecated.C_GossipInfo.GetFriendshipReputation(factionId)
+	local friendshipInfo = C_GossipInfo.GetFriendshipReputation(factionId)
 	if friendshipInfo and friendshipInfo.name~=nil then
 		local state,standingNum = 0,tonumber(friendshipInfo.reaction:match("(%d+)"));
 		if standingNum then
