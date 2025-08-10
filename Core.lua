@@ -187,33 +187,6 @@ local function UpdateFollowers()
 		count(D.counter,data[isCollectableIdx] and "collectable" or "recruitable",1);
 	end
 
-	-- add demonhunter class specs
-	--[[
-	if rawget(D.classSpec[63])==nil then
-		local id = 498;
-		local v = C_Garrison.GetFollowerInfo(id);
-		local class = gsub(v.classAtlas,"GarrMission_ClassIcon%-",""):lower();
-		D.classSpec[63]={
-			C_Garrison.GetFollowerClassSpecName(id), -- localized class specialization name
-			class, -- englsh class name
-			LOCALIZED_CLASS_NAMES_MALE[class:upper()], -- localized class name
-			D.ClassName2ID[class] -- class id
-		};
-	end
-
-	if rawget(D.classSpec[64])==nil then
-		local id = 722;
-		local v = C_Garrison.GetFollowerInfo(id);
-		local class = gsub(v.classAtlas,"GarrMission_ClassIcon%-",""):lower();
-		D.classSpec[64]={
-			C_Garrison.GetFollowerClassSpecName(id), -- localized class specialization name
-			class, -- englsh class name
-			LOCALIZED_CLASS_NAMES_MALE[class:upper()], -- localized class name
-			D.ClassName2ID[class] -- class id
-		};
-	end
-	--]]
-
 	if dataFaction==D.Faction then
 		blizz = C_Garrison.GetFollowers(Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower) or {};
 		D.counter.blizz=#blizz;

@@ -169,8 +169,8 @@ D.zoneNames = setmetatable({},{
 do
 	-- [classSpecId] = <followerID[interger]>|<className[string]>
 	local missingClasses = {
-		[63] = 498,
-		[64] = 722,
+		[63] = 498, -- "DEMONHUNTER",
+		[64] = 722, -- "DEMONHUNTER",
 		[1467] = "EVOKER",
 		[1468] = "EVOKER",
 		[1473] = "EVOKER",
@@ -181,13 +181,14 @@ do
 			if not missingClasses[id] then
 				return;
 			end
-			local obj,class,className,classNameSpecial = missingClasses[id];
+			local obj,class,className,classNameSpecial = missingClasses[id],nil,nil,nil;
 			class = obj;
-			className,classNameSpecial = LOCALIZED_CLASS_NAMES_MALE[class:upper()],nil;
 			if type(obj)=="number" then
-				local fInfo = C_Garrison.GetFollwerInfo(obj)
+				local fInfo = C_Garrison.GetFollowerInfo(obj)
 				class = gsub(fInfo.classAtlas,"GarrMission_ClassIcon%-","");
 				className = C_Garrison.GetFollowerClassSpecName(obj) -- localized class specialization name
+			elseif type(obj)=="string" then
+				className,classNameSpecial = LOCALIZED_CLASS_NAMES_MALE[class:upper()],nil;
 			end
 			local entry = {
 				classNameSpecial or className,
