@@ -663,3 +663,14 @@ function FollowerLocationInfo_UnregisterUpdateCallback(func)
 	ns:print("FollowerLocationInfo_UnregisterUpdateCallback() are deprecated.","","Please replace with FollowerLocationInfo:UnregisterUpdateCallback()");
 	FollowerLocationInfo:UnregisterUpdateCallback(func)
 end
+
+if AddonCompartmentFrame then
+	AddonCompartmentFrame:RegisterAddon({
+		icon = "Interface\\Icons\\Achievement_GarrisonFollower_Rare",
+		text = addon,
+		notCheckable = true,
+		func = function()
+			_G["FollowerLocationInfo"]:ToggleJournal();
+		end
+	 })
+end
