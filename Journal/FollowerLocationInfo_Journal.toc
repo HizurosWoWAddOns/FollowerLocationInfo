@@ -1,4 +1,4 @@
-## Interface: 110100
+## Interface: 110200
 ## Title: FollowerLocationInfo Journal
 ## Version: @project-version@
 ## Title-zhTW: 追隨者位置資訊 Journal
