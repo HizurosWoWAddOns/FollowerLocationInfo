@@ -42,6 +42,7 @@ function FollowerLocationInfoMixin:MinimapButton()
 	end
 end
 
+local lock="";
 function ns.LDB_Update()
 	if not LDB_Object then return end
 	local label = {};
@@ -62,6 +63,12 @@ function ns.LDB_Update()
 			tinsert(label,"−.−−, −.−−");
 		end
 	end
+
+	local str = table.concat(label,"-")..tostring(FollowerLocationInfoDB.LDB_NumFollowers);
+	if lock==str then
+		return; -- no changes no update
+	end
+	lock = str;
 
 	-- follower count / max
 	if(FollowerLocationInfoDB.LDB_NumFollowers)then
