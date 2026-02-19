@@ -1576,12 +1576,16 @@ function FollowerLocationInfoJournalMixin:OnLoad()
 	if FollowerLocationInfoData.journalDocked then
 		local label = addon;
 		if true then label = "FLI"; end
-
+		local portrait = "Interface\\Icons\\Achievement_GarrisonFollower_Rare";
 		local portraitFrame = CreateFrame("Frame","FollowerLocationInfoJournalPortraitFrame",UIParent,"PortraitFrameTemplate");
 		portraitFrame:SetParent(CollectionsJournal);
 		portraitFrame:SetAllPoints();
 		portraitFrame:Hide();
-		SetPortraitToTexture(portraitFrame.PortraitContainer.portrait or portraitFrame.portrait, "Interface\\Icons\\Achievement_GarrisonFollower_Rare");
+		if SetPortraitToTexture then
+			SetPortraitToTexture(portraitFrame.PortraitContainer.portrait or portraitFrame.portrait, portrait);
+		else
+			portraitFrame:SetPortraitToAsset(portrait);
+		end
 		(portraitFrame.TitleContainer.TitleText or portraitFrame.TitleText):SetText(Addon);
 		self.Tab = FollowerLocationInfo.SecureTabs:Add(CollectionsJournal, portraitFrame, label);
 
