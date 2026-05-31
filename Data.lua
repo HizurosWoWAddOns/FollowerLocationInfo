@@ -1,7 +1,9 @@
 
-FollowerLocationInfoData = {};
-local D = FollowerLocationInfoData;
+
 local addon,ns = ...;
+ns.Data = {};
+local D = ns.Data;
+local L = ns.L;
 
 local function count(t,v,d)
 	if(t[v]==nil)then t[v]=0; end
@@ -11,29 +13,6 @@ end
 D.build = tonumber(gsub(({GetBuildInfo()})[1],"[|.]","")..({GetBuildInfo()})[2])
 
 D.locale = GetLocale();
-
-D.Locale = setmetatable({
-	Traits = GARRISON_TRAITS,
-	Abilities = ABILITIES,
-	Achievements = ACHIEVEMENTS,
-	Missions = GARRISON_MISSIONS,
-	Quests = QUESTS_LABEL,
-	Reputation = REPUTATION,
-	Merchant = MERCHANT
-},{
-	__index=function(t,k)
-		local v=tostring(k);
-		rawset(t,k,v);
-		return v;
-	end
-});
-local L = D.Locale;
-
--- Fetch some localizations from blizzards functions
-L["Brawler's Guild"] = GetCategoryInfo(15202);
-L["Classes"] = strtrim(gsub(ITEM_CLASSES_ALLOWED, (LOCALE_zhCN or LOCALE_zhTW) and "\239\188\154%%s" or ": %%s", ""));
-L["Requirements"] = strtrim(gsub(QUEST_TOOLTIP_REQUIREMENTS, (LOCALE_zhCN or LOCALE_zhTW) and "\239\188\154" or ":", ""));
---
 
 D.Faction = UnitFactionGroup("player");
 
@@ -249,7 +228,29 @@ D.basics = setmetatable({},{
 	end
 });
 
-D.Outpost = {};
+do
+	D.Outpost = {};
+	-- zone name and id's (new = uiMapID since BfA)
+	-- new: 535, old: 946, name: Talador
+	-- new: 542, old: 948, name: Spikes of Arak
+	-- new: 543, old: 949, name: Gorgrond
+	-- new: 550, old: 950, name: Nagrand
+
+	-- ["<zoneID>.<optionNum>"] = {"<optionName>",<coordX>,<coordY>}
+	if D.faction then
+		-- alliance outposts
+		D.Outpost[535] = {{"outpost_535_1",70,20.3},     {"outpost_535_2",70,20.3}};
+		D.Outpost[542] = {{"outpost_542_1",39.63,61.20}, {"outpost_542_2",39.63,61.20}};
+		D.Outpost[543] = {{"outpost_543_1",53.01,59.57}, {"outpost_543_2",53.01,59.57}};
+		D.Outpost[550] = {{"outpost_550_1",63.03,62.18}, {"outpost_550_2",63.03,62.18}};
+	else
+		-- horde outposts
+		D.Outpost[535] = {{"outpost_535_1",70,95,30.37}, {"outpost_535_2",70,95,30.37}};
+		D.Outpost[542] = {{"outpost_542_1",40.05,43.06}, {"outpost_542_2",40.05,43.06}};
+		D.Outpost[543] = {{"outpost_543_1",46.28,69.46}, {"outpost_543_2",46.28,69.46}};
+		D.Outpost[550] = {{"outpost_550_1",83.14,43.78}, {"outpost_550_2",83.14,43.78}};
+	end
+end
 
 do
 	local _rawset = function(t,k,v,f)
@@ -351,24 +352,3 @@ D.NpcName = setmetatable({},{
 	end
 });
 
-D.ObjectName = setmetatable({},{
-	__index=function(t,k)
-		local v;
-		local K = gsub(tostring(k),"^0%.","");
-		if FollowerLocationInfoCache.objectNames[K] then
-			v = FollowerLocationInfoCache.objectNames[K];
-		end
-		local ld = ns.GetLinkData("unit:GameObject-0-970-1-1-"..K.."-0");
-		if ld and type(ld[1])=="string" and strlen(ld[1])>0 then
-			v = ld[1];
-			FollowerLocationInfoCache.objectNames[K] = ld[1];
-		end
-		if(not v and rawget(L,"object_"..K))then
-			return L["object_"..K];
-		end
-		if v then
-			rawset(t,k,v);
-			return v;
-		end
-	end
-});

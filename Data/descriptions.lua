@@ -1,9 +1,7 @@
 
-local desc = FollowerLocationInfoData.descriptions;
-
-local alternativeInfo_outpost = "Did you choose the other outpost building?|nYou have two alternatives.|n1. Reset your outpost building.|n &#xA0; &#xA0; &#xA0; (Talk with a NPC in the outpost)|n2. Buy a contract from a vendor in your garrison.";
-local alternativeInfo_questrow = "The quest row is completed. Now the other followers are buyable from a vendor in your garrison."
-local alternativeInfo_missionfailed = "If the mission failed then you can buy the contract from a vendor in your garrison."
+local addon, ns = ...;
+local L = ns.L
+local desc = ns.Data.descriptions;
 
 --[=[ 525 Frostfire Ridge ]=]
 	desc[32] = { -- 525, 32, Dagg
@@ -56,7 +54,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119242}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		},
 		{
@@ -87,7 +85,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119243}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		}
 	};
@@ -114,7 +112,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119420}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		},
 		{
@@ -136,7 +134,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119418}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		}
 	};
@@ -373,7 +371,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				},
 				{"Price", {"Gold", 50000000}},
 				visible = {"quest", 34788},
-				text = alternativeInfo_questrow
+				text = L["alternativeInfo_questrow"]
 			}
 		},
 		{
@@ -397,7 +395,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				},
 				{"Price", {"Gold", 50000000}},
 				visible = {"quest", 34124},
-				text = alternativeInfo_questrow
+				text = L["alternativeInfo_questrow"]
 			}
 		},
 	}; -- TODO: horde version incomplete?
@@ -417,7 +415,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119267}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		},
 		{
@@ -432,7 +430,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119267}},
 				{"Price", {"Gold", 50000000}},
 				visible=true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		}
 	};
@@ -546,7 +544,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119244}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		},
 		{
@@ -558,7 +556,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119245}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		}
 	}; -- TODO: incomplete
@@ -599,7 +597,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119254}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		},
 		{
@@ -612,7 +610,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119255}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		}
 	}; -- TODO: incomplete
@@ -643,7 +641,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119256}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		},
 		{
@@ -663,7 +661,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119257}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		}
 	}; -- TODO: incomplete, missing quest row
@@ -679,7 +677,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119252}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		},
 		{
@@ -691,7 +689,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119253}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_outpost
+				text = L["alternativeInfo_outpost"]
 			}
 		}
 	}; -- TODO: incomplete, mission quest row
@@ -916,7 +914,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {119288}},
 				{"Price", {"Gold", 100000}},
 				visible = true,
-				text = alternativeInfo_missionfailed
+				text = L["alternativeInfo_missionfailed"]
 			}
 		},
 		{
@@ -927,7 +925,7 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 				{"Items", {114825}},
 				{"Price", {"Gold", 50000000}},
 				visible = true,
-				text = alternativeInfo_missionfailed
+				text = L["alternativeInfo_missionfailed"]
 			}
 		}
 	};
@@ -1131,11 +1129,6 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 		}
 	};
 
-
-
-
-
-
 --[=[ some strings for localization collector script ]=]
 --[[
 	L["Cave on image 1"]
@@ -1144,3 +1137,5 @@ local alternativeInfo_missionfailed = "If the mission failed then you can buy th
 	L["Path to blook"]
 	L["You've choosed the other outpost building?|nYou have two alternatives.|n1. Reset your outpost building by talking with an NPC in the outpost.|n2. Buy a contract in your garrison."]
 --]]
+
+

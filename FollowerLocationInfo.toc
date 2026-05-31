@@ -1,4 +1,4 @@
-## Interface: 120001
+## Interface: 120005
 ## Title: FollowerLocationInfo
 ## Version: @project-version@
 
@@ -22,14 +22,5 @@
 ## Category-zhTW: 資料片特色
 
 ## X-Curse-Project-ID: 85399
-
-libs\LibStub\LibStub.lua
-libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
-libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
-libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
-libs\LibColors-1.0\LibColors-1.0.lua
-libs\SecureTabs-2.0\SecureTabs-2.0.lua
-libs\LibDropDownMenu\LibDropDownMenu.xml
-libs\HizurosSharedTools\HizurosSharedTools.lua
 
 Core.xml

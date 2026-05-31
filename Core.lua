@@ -4,12 +4,13 @@ local addon, ns = ...;
 ns.debugMode = "@project-version@"=="@".."project-version".."@";
 LibStub("HizurosSharedTools").RegisterPrint(ns,addon,"FLI");
 
-local D = FollowerLocationInfoData;
-local L = D.Locale;
-local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeightIdx,modelScaleIdx,abilitiesIdx,countersIdx,traitsIdx,isCollectableIdx = 1,2,3,4,5,6,7,8,9,10,11,12; -- table indexes for FollowerLocationInfoData.basics entries.
+local D = ns.Data;
+local L = ns.L;
+local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeightIdx,modelScaleIdx,abilitiesIdx,countersIdx,traitsIdx,isCollectableIdx = 1,2,3,4,5,6,7,8,9,10,11,12; -- table indexes for ns.Data.basics entries.
 local UpdateCallbacks,UpdateLock,isLoaded=false,false,false;
 local garrLevel,MenuFrame,MenuList = 0;
 local LDDM = LibStub("LibDropDownMenu");
+local ST = LibStub("SecureTabs-2.0");
 
 FollowerLocationInfoMixin = {};
 FollowerLocationInfoTooltipMixin = {};
@@ -453,7 +454,7 @@ function FollowerLocationInfoMixin:ShowInfoBox(msg)
 end
 
 function FollowerLocationInfoMixin:ToggleJournal()
-	if FollowerLocationInfoData.journalDocked then
+	if ns.journalDocked then
 		if(not CollectionsJournal)then
 			C_AddOns.LoadAddOn("Blizzard_Collections");
 		end
@@ -467,7 +468,7 @@ function FollowerLocationInfoMixin:ToggleJournal()
 			ToggleCollectionsJournal();
 		end
 		if journalShow then
-			FollowerLocationInfo.SecureTabs:Select(FollowerLocationInfoJournal.Tab);
+			ST:Select(FollowerLocationInfoJournal.Tab);
 		end
 	else
 		if not CheckAndLoadJournal() then
@@ -558,11 +559,10 @@ function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
 		end
 
 		--- Clear name caches on changed cvar "textLocale"
-		if (FollowerLocationInfoCache.Locale~=D.locale) then
-			FollowerLocationInfoCache.Locale=D.locale;
+		if (FollowerLocationInfoCache.Locale~=ns.L) then
+			FollowerLocationInfoCache.Locale=ns.L;
 			FollowerLocationInfoCache.questNames = {};
 			FollowerLocationInfoCache.npcNames = {};
-			FollowerLocationInfoCache.objectNames = {};
 			FollowerLocationInfoCache.npcTitles = {};
 		end
 
@@ -577,12 +577,6 @@ function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
 		if (FollowerLocationInfoCache.npcTitles==nil) then
 			FollowerLocationInfoCache.npcTitles = {};
 		end
-
-		if (FollowerLocationInfoCache.objectNames==nil) then
-			FollowerLocationInfoCache.objectNames = {};
-		end
-
-		FollowerLocationInfoData.journalDocked = not FollowerLocationInfoDB.standalone;
 
 		ns.LDB_Init();
 
@@ -601,6 +595,7 @@ function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
 		end
 
 		isLoaded=true;
+		ns.journalDocked = not FollowerLocationInfoDB.standalone;
 
 		if FollowerLocationInfoDB.AddOnLoaded or IsShiftKeyDown() then
 			ns:print(L["AddOnLoaded"]);
@@ -609,8 +604,8 @@ function FollowerLocationInfoMixin:OnEvent(event,arg1,...)
 		GarrisonMissionFrame:HookScript("OnHide",function()
 			UpdateFollowers();
 		end);
-	elseif event=="ADDON_LOADED" and arg1=="Blizzard_Collections" and FollowerLocationInfoData.journalDocked then
-		C_AddOns.LoadAddOn("FollowerLocationInfo_Journal");
+	elseif event=="ADDON_LOADED" and arg1=="Blizzard_Collections" and ns.journalDocked then
+		ns.initJournal(FollowerLocationInfoJournal)
 	elseif isLoaded then
 		self.ExternalURL_unsupportedTypes = ns.ExternalURL_unsupportedTypes;
 		if event=="PLAYER_ENTERING_WORLD" then
@@ -640,10 +635,6 @@ function FollowerLocationInfoMixin:OnHide()
 end
 
 function FollowerLocationInfoMixin:OnLoad()
-	-- library access for journals
-	self.LibColors = LibStub("LibColors-1.0");
-	self.SecureTabs = LibStub("SecureTabs-2.0");
-
 	self:SetScale(0.8);
 	tinsert(UISpecialFrames, self:GetName());
 

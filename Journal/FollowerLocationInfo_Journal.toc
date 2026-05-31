@@ -1,5 +1,5 @@
-## Interface: 120001
-## Title: FollowerLocationInfo Journal
+## Interface: 120005
+## Title: [Deprecated/Please remove] FollowerLocationInfo Journal
 ## Version: @project-version@
 ## Title-zhTW: 追隨者位置資訊 Journal
 ## Notes-zhTW: 追隨者位置資訊 Journal
@@ -20,4 +20,3 @@
 ## Category-zhCN: 特色更新
 ## Category-zhTW: 資料片特色
 
-Journal.xml

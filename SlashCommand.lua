@@ -1,6 +1,6 @@
 
 local addon, ns = ...;
-local L = FollowerLocationInfoData.Locale;
+local L = ns.L;
 local order = {
 	"journal",
 	--"ids",

@@ -1,6 +1,6 @@
 
 --[=[
-	FollowerLocationInfoData.basics[ <followerID> ] = {
+	ns.Data.basics[ <followerID> ] = {
 		< level [number] >,
 		< quality [number] >,
 		< class_id [number] >,
@@ -24,8 +24,9 @@
 	Because? Blizzards C_Garrison API is returning opposite faction follower infos on characters without own garrison.
 --]=]
 
-local B = FollowerLocationInfoData.basics;
-if FollowerLocationInfoData.faction==1 then
+local addon, ns = ...;
+local B = ns.Data.basics;
+if ns.Data.faction==1 then
 	-- alliance
 	B[32] = {90,2,4,28,1066116,55124,0.5,1,{104},{9},{},true};
 	B[34] = {90,2,11,8,1066112,55047,0.5,1,{108},{1},{},true};

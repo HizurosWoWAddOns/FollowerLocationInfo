@@ -1,11 +1,8 @@
 
 local addon, ns = ...;
-local Addon = addon:gsub("_Journal","");
-ns.debugMode = "@project-version@"=="@".."project-version".."@";
-LibStub("HizurosSharedTools").RegisterPrint(ns,Addon,"FLI");
 
-local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeightIdx,modelScaleIdx,abilitiesIdx,countersIdx,traitsIdx,isCollectableIdx = 1,2,3,4,5,6,7,8,9,10,11,12; -- table indexes for FollowerLocationInfoData.basics entries.
-local L,D,LC,journalVisibleEntries,activeFilter={},{},{},{},{};
+local levelIdx,qualityIdx,classIdx,classSpecIdx,portraitIdx,modelIdx,modelHeightIdx,modelScaleIdx,abilitiesIdx,countersIdx,traitsIdx,isCollectableIdx = 1,2,3,4,5,6,7,8,9,10,11,12; -- table indexes for ns.Data.basics entries.
+local L,D,journalVisibleEntries,activeFilter=ns.L,ns.Data,{},{};
 local tconcat,tsort = table.concat,table.sort;
 local CurrentFollower,CurrentFollower_reloaded,journalCollapsedZones;
 local searchText,ttShown,timeout = false,false,false;
@@ -14,12 +11,14 @@ local NUM_FILTERS = 3;
 local listPrefix = LOCALE_zhCN and "&#xB7;" or "&#xA0;&#x2022;&#xA0;";
 local filter_collected = nil;
 local LDDM = LibStub("LibDropDownMenu");
+local LC = LibStub("LibColors-1.0");
+local ST = LibStub("SecureTabs-2.0");
 
 FollowerLocationInfoJournalMixin = {};
 FollowerLocationInfoJournalFilterMixin = {};
 FollowerLocationInfoJournalHtmlMixin = {};
 FollowerLocationInfoJournalFollowerListMixin = {};
-FollowerLocationInfoJournalPortraitMixin = {}
+FollowerLocationInfoJournalPortraitMixin = {};
 
 ----------------------------
 --- Misc local functions ---
@@ -318,7 +317,7 @@ function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkEnter(link,text,forced)
 			if D.build>70000000 then
 				local tooltip = _G[GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower].abilityTooltipFrame];
 				tooltip:ClearAllPoints();
-				if FollowerLocationInfoData.journalDocked then
+				if ns.journalDocked then
 					tooltip:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
 				else
 					tooltip:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
@@ -327,7 +326,7 @@ function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkEnter(link,text,forced)
 			else
 				tt=GarrisonFollowerAbilityTooltip;
 				tt:ClearAllPoints();
-				if FollowerLocationInfoData.journalDocked then
+				if ns.journalDocked then
 					tt:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
 				else
 					tt:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
@@ -339,7 +338,7 @@ function FollowerLocationInfoJournalHtmlMixin:OnHyperlinkEnter(link,text,forced)
 		tt=GameTooltip;
 		tt:Hide(); tt:ClearLines();
 		tt:SetOwner(FollowerLocationInfoJournal.FollowerDesc,"ANCHOR_NONE");
-		if FollowerLocationInfoData.journalDocked then
+		if ns.journalDocked then
 			tt:SetPoint("LEFT", CollectionsJournal, "RIGHT", 1, 0);
 		else
 			tt:SetPoint("LEFT", FollowerLocationInfoJournalFrame, "RIGHT", -10, 0);
@@ -734,7 +733,7 @@ function FollowerLocationInfoJournalFollowerListMixin:OnLoad()
 	self.buttonHeight = 33;
 
 	local maxButtons = 12;
-	if FollowerLocationInfoData.journalDocked then
+	if ns.journalDocked then
 		maxButtons = 13;
 	end
 
@@ -1043,12 +1042,14 @@ function AddDescription.Quests(Desc)
 		if(type(v[1])=="number")then
 			-- true=completed, number=inQuestLog, nil=open/notInLog
 			index = (GetQuestLogIndexByID or C_QuestLog.GetLogIndexForQuestID)(v[1]);
-			if(index and index>0)then
-				D.QuestName[v[1]] = (GetQuestLogTitle or C_QuestLog.GetTitleForLogIndex)(index);
-			end
+			--if(index and index>0)then
+			--	D.QuestName[v[1]] = (GetQuestLogTitle or C_QuestLog.GetTitleForLogIndex)(index);
+			--end
 
-			if(type(D.QuestName[v[1]])=="string")then
-				tinsert(quest,lnk:format("ffffcc00", ("quest:%d:%d"):format(v[1],v[2]), D.QuestName[v[1]]));
+			if rawget(L,"quest_"..v[1]) then
+				tinsert(quest,lnk:format("ffffcc00", ("quest:%d:%d"):format(v[1],v[2]), L["quest_"..v[1]]));
+			--elseif(type(D.QuestName[v[1]])=="string")then
+			--	tinsert(quest,lnk:format("ffffcc00", ("quest:%d:%d"):format(v[1],v[2]), D.QuestName[v[1]]));
 			else
 				doRetry = true;
 			end
@@ -1059,9 +1060,10 @@ function AddDescription.Quests(Desc)
 				if(rawget(L,"object_"..objId))then
 					tinsert(quest,L["object_"..objId]);
 				end
-				--tinsert(quest,D.ObjectName[v[3]]);
 			elseif(v[3]>=1)then
-				if(type(D.NpcName[v[3]])=="string")then
+				if rawget(L,"npc_"..v[3]) then
+					tinsert(quest,L["npc_"..v[3]]);
+				elseif(type(D.NpcName[v[3]])=="string")then
 					tinsert(quest,D.NpcName[v[3]]);
 				else
 					doRetry = true;
@@ -1153,7 +1155,10 @@ function AddDescription.Merchant(Desc)
 	for i=2, #Desc do
 		Loading(true,L["Query data (npcID: %d)..."]:format(Desc[i][1]));
 		local merchant = {};
-		local name = D.NpcName[Desc[i][1]];
+		if not rawget(L,"npc_"..Desc[i][1]) then
+			ns:debug("npc",Desc[i][1])
+		end
+		local name = L["npc_"..Desc[i][1]];
 		if(name)then
 			tinsert(merchant,name);
 			local location, tomtom = SharedElements.Location(Desc[i][2],Desc[i][3],Desc[i][4],(type(Desc[i][3])=="table" or type(Desc[i][3])=="string") and Desc[i][3] or nil,name);
@@ -1177,7 +1182,7 @@ end
 
 function AddDescription.Npc(Desc)
 	Loading(true,L["Query data (npcID: %d)..."]:format(Desc[2]));
-	local name,npc,doRetry = D.NpcName[Desc[2]],false;
+	local name,npc,doRetry = L["npc_"..Desc[2]],nil;
 	if(name)then
 		npc = {};
 		tinsert(npc,name);
@@ -1541,39 +1546,22 @@ end
 -------------------------------
 --- Journal Frame Functions ---
 -------------------------------
-function FollowerLocationInfoJournalMixin:OnShow()
-	if(not D.counter.recruitable)then
-		-- D.counter can create later on slower connections.
-		-- need a little timeout.
-		if not timeout then
-			C_Timer.After(2, function() self:OnShow() end);
-			timeout=true;
-		end
-		return;
+local initJournal = true;
+function ns.initJournal(self)
+	if not initJournal then
+		return
 	end
-	timeout=false;
+	initJournal = false;
 
-	self.FollowerList:Update();
-
-	self:FollowerCard_Update();
-	self:FollowerDesc_Update();
-
-	self.counters.Collectables.Count:SetText(D.counter.collectables[2].."/"..D.counter.collectables[1]);
-	self.counters.Recruitables.Count:SetText(D.counter.recruitables[2].."/"..D.counter.recruitables[1]);
-end
-
-function FollowerLocationInfoJournalMixin:OnLoad()
-	D,L = FollowerLocationInfoData,FollowerLocationInfoData.Locale;
-	LC = FollowerLocationInfo.LibColors;
-
+	ns.journalDocked = not FollowerLocationInfoDB.standalone;
 
 	-- prevent errors if user open the journal first time in session while in combat. fallback to standalone mode.
-	if FollowerLocationInfoData.journalDocked and InCombatLockdown() then
-		FollowerLocationInfoData.journalDocked = false;
+	if ns.journalDocked and InCombatLockdown() then
+		ns.journalDocked = false;
 		ns:print(L["You have opened the collections journal first time this session while you are in combat. FLI fallback into standalone mode to prevent error messages. Don't worry this is temporary."]);
 	end
 
-	if FollowerLocationInfoData.journalDocked then
+	if ns.journalDocked then
 		local label = addon;
 		if true then label = "FLI"; end
 		local portrait = "Interface\\Icons\\Achievement_GarrisonFollower_Rare";
@@ -1586,8 +1574,8 @@ function FollowerLocationInfoJournalMixin:OnLoad()
 		else
 			portraitFrame:SetPortraitToAsset(portrait);
 		end
-		(portraitFrame.TitleContainer.TitleText or portraitFrame.TitleText):SetText(Addon);
-		self.Tab = FollowerLocationInfo.SecureTabs:Add(CollectionsJournal, portraitFrame, label);
+		(portraitFrame.TitleContainer.TitleText or portraitFrame.TitleText):SetText(addon);
+		self.Tab = ST:Add(CollectionsJournal, portraitFrame, label);
 
 		self:SetParent(portraitFrame);
 		self:SetPoint("TOPLEFT", 0, -60);
@@ -1618,7 +1606,6 @@ function FollowerLocationInfoJournalMixin:OnLoad()
 		self.FollowerDesc.ScrollBarMiddle:Hide();
 		self.FollowerDesc.ScrollBarBottom:Hide();
 
-		UIPanelWindows["FollowerLocationInfoJournalFrame"] = { area = "left", pushable = 0, whileDead = 1, width = 830};
 	end
 
 	self.counters.Collectables.Label:SetText(COLLECTED);
@@ -1629,9 +1616,35 @@ function FollowerLocationInfoJournalMixin:OnLoad()
 	self.FollowerDesc.ScrollBar.trackBG:Hide();
 	self.FollowerDesc.ScrollBar:SetPoint("TOPLEFT",self.FollowerDesc,"TOPRIGHT",4,-12);
 	self.FollowerDesc.ScrollBar:SetPoint("BOTTOMLEFT",self.FollowerDesc,"BOTTOMRIGHT",4,11);
+end
 
-	self:RegisterEvent("PLAYER_ENTERING_WORLD");
-	self:RegisterEvent("GARRISON_FOLLOWER_LIST_UPDATE");
+function FollowerLocationInfoJournalMixin:OnShow()
+	if initJournal then
+		ns.initJournal(FollowerLocationInfoJournal);
+	end
+
+	if(not D.counter.recruitable)then
+		-- D.counter can create later on slower connections.
+		-- need a little timeout.
+		if not timeout then
+			C_Timer.After(2, function() self:OnShow() end);
+			timeout=true;
+		end
+		return;
+	end
+	timeout=false;
+
+	self.FollowerList:Update();
+
+	self:FollowerCard_Update();
+	self:FollowerDesc_Update();
+
+	self.counters.Collectables.Count:SetText(D.counter.collectables[2].."/"..D.counter.collectables[1]);
+	self.counters.Recruitables.Count:SetText(D.counter.recruitables[2].."/"..D.counter.recruitables[1]);
+end
+
+function FollowerLocationInfoJournalMixin:OnLoad()
+	UIPanelWindows["FollowerLocationInfoJournalFrame"] = { area = "left", pushable = 0, whileDead = 1, width = 830};
 end
 
 function FollowerLocationInfoJournalPortraitMixin:OnShow()

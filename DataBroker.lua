@@ -1,11 +1,12 @@
 
 local addon, ns = ...;
-local D = FollowerLocationInfoData;
-local L = D.Locale;
+local D = ns.Data;
+local L = ns.L;
 local LDB  = LibStub("LibDataBroker-1.1");
 local LDBi = LibStub("LibDBIcon-1.0");
+local C = LibStub("LibColors-1.0").color;
 local LDB_UpdateShort, LDB_UpdateLong = 0.2, 10;
-local LDB_Object,Ticker,C;
+local LDB_Object,Ticker;
 
 local function pairsByFields(t, f1, ...)
 	local i,a = 0,{};
@@ -108,8 +109,6 @@ end
 function ns.LDB_Init()
 	if not (LDB and LDBi) then return end
 	if LDB_Object~=nil then return end
-
-	C = FollowerLocationInfo.LibColors.color;
 
 	LDB_Object = LDB:NewDataObject(addon, {
 		type = "data source",
