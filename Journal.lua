@@ -1040,38 +1040,20 @@ function AddDescription.Quests(Desc)
 		local quest,v,coord,index,zone,npc = {},Desc[i],"","","","";
 		Loading(true,L["Query data (questId: %d)..."]:format(v[1]));
 		if(type(v[1])=="number")then
-			-- true=completed, number=inQuestLog, nil=open/notInLog
 			index = (GetQuestLogIndexByID or C_QuestLog.GetLogIndexForQuestID)(v[1]);
-			--if(index and index>0)then
-			--	D.QuestName[v[1]] = (GetQuestLogTitle or C_QuestLog.GetTitleForLogIndex)(index);
-			--end
-
-			if rawget(L,"quest_"..v[1]) then
-				tinsert(quest,lnk:format("ffffcc00", ("quest:%d:%d"):format(v[1],v[2]), L["quest_"..v[1]]));
-			--elseif(type(D.QuestName[v[1]])=="string")then
-			--	tinsert(quest,lnk:format("ffffcc00", ("quest:%d:%d"):format(v[1],v[2]), D.QuestName[v[1]]));
-			else
-				doRetry = true;
-			end
+			tinsert(quest,lnk:format("ffffcc00", ("quest:%d:%d"):format(v[1],v[2]), L["quest_"..v[1]]));
 		end
 		if(not doRetry and type(v[3])=="number")then
-			if(v[3]<1)then
+			if v[3]<1 then
 				local objId = gsub(tostring(v[3]),"^0%.","");
-				if(rawget(L,"object_"..objId))then
-					tinsert(quest,L["object_"..objId]);
-				end
+				v[3] = L["object_"..objId];
 			elseif(v[3]>=1)then
-				if rawget(L,"npc_"..v[3]) then
-					tinsert(quest,L["npc_"..v[3]]);
-				elseif(type(D.NpcName[v[3]])=="string")then
-					tinsert(quest,D.NpcName[v[3]]);
-				else
-					doRetry = true;
-				end
+				v[3] = L["npc_"..v[3]];
 			end
+			tinsert(quest,v[3]);
 		end
 		if(not doRetry)then
-			local location, tomtom = SharedElements.Location(v[4],v[5],v[6],(type(v[5])=="table" or type(v[5])=="string") and v[5] or nil, (v[3] and D.NpcName[v[3]] or nil))
+			local location, tomtom = SharedElements.Location(v[4],v[5],v[6],(type(v[5])=="table" or type(v[5])=="string") and v[5] or nil, (v[3] and v[3] or nil))
 			tinsert(quest,location);
 			if tomtom then
 				tinsert(quest,tomtom);
