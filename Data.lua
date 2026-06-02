@@ -230,25 +230,19 @@ D.basics = setmetatable({},{
 
 do
 	D.Outpost = {};
-	-- zone name and id's (new = uiMapID since BfA)
-	-- new: 535, old: 946, name: Talador
-	-- new: 542, old: 948, name: Spikes of Arak
-	-- new: 543, old: 949, name: Gorgrond
-	-- new: 550, old: 950, name: Nagrand
-
-	-- ["<zoneID>.<optionNum>"] = {"<optionName>",<coordX>,<coordY>}
+	-- [<zoneID>] = { <outpost1_posX>, <outpost1_posY>,  <outpost2_posX>, <outpost2_posY> }
 	if D.faction then
 		-- alliance outposts
-		D.Outpost[535] = {{"outpost_535_1",70,20.3},     {"outpost_535_2",70,20.3}};
-		D.Outpost[542] = {{"outpost_542_1",39.63,61.20}, {"outpost_542_2",39.63,61.20}};
-		D.Outpost[543] = {{"outpost_543_1",53.01,59.57}, {"outpost_543_2",53.01,59.57}};
-		D.Outpost[550] = {{"outpost_550_1",63.03,62.18}, {"outpost_550_2",63.03,62.18}};
+		D.Outpost[535] = {70.00,20.30,  70.00,20.30};
+		D.Outpost[542] = {39.63,61.20,  39.63,61.20};
+		D.Outpost[543] = {53.01,59.57,  53.01,59.57};
+		D.Outpost[550] = {63.03,62.18,  63.03,62.18};
 	else
 		-- horde outposts
-		D.Outpost[535] = {{"outpost_535_1",70,95,30.37}, {"outpost_535_2",70,95,30.37}};
-		D.Outpost[542] = {{"outpost_542_1",40.05,43.06}, {"outpost_542_2",40.05,43.06}};
-		D.Outpost[543] = {{"outpost_543_1",46.28,69.46}, {"outpost_543_2",46.28,69.46}};
-		D.Outpost[550] = {{"outpost_550_1",83.14,43.78}, {"outpost_550_2",83.14,43.78}};
+		D.Outpost[535] = {70,95,30.37,  70,95,30.37};
+		D.Outpost[542] = {40.05,43.06,  40.05,43.06};
+		D.Outpost[543] = {46.28,69.46,  46.28,69.46};
+		D.Outpost[550] = {83.14,43.78,  83.14,43.78};
 	end
 end
 
@@ -307,6 +301,4 @@ do
 		end
 	});
 end
-
-D.NpcTitle = {};
 

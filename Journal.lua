@@ -985,11 +985,14 @@ SharedElements.Location=function(zoneId,coordX,coordY,customStr,tomtomLabel)
 end;
 
 SharedElements.Outpost=function(_,zone,option)
-	local op,outpost = {},D.Outpost[zone][option];
+	local op,outpost = {},D.Outpost[zone];
+	local X,Y = 1,2;
+	if option==2 then X,Y = 3,4; end
 
-	tinsert(op,L[outpost[1]]);
+	local name = L["outpost_"..zone.."_"..option]
+	tinsert(op,name);
 
-	local location,tomtom = SharedElements.Location(zone,outpost[2],outpost[3],nil,L[outpost[1]]);
+	local location,tomtom = SharedElements.Location(zone,outpost[X],outpost[Y],nil,name);
 	tinsert(op,location);
 	if tomtom then
 		tinsert(op,tomtom);
@@ -1168,10 +1171,6 @@ function AddDescription.Npc(Desc)
 	if(name)then
 		npc = {};
 		tinsert(npc,name);
-		if(D.NpcTitle[Desc[2]])then
-			--title = D.NpcTitle[Desc[2]];
-			tinsert(npc,UNIT_NAME_PLAYER_TITLE..CHAT_HEADER_SUFFIX..D.NpcTitle[Desc[2]]);
-		end
 
 		local location, tomtom = SharedElements.Location(Desc[3],Desc[4],Desc[5],(type(Desc[4])=="table" or type(Desc[4])=="string") and Desc[4] or nil,name);
 		tinsert(npc,location);
