@@ -1,7 +1,7 @@
 
 local addon,ns=...;
 local L=ns.L;
-local function _(a,h) return ns.isAlliance and a or h; end
+local function _(a,h) return (ns.isAlliance and a) or h; end
 
 --[=[ addon ]=]
 L["alternativeInfo_outpost"] = "Did you choose the other outpost building?|nYou have two alternatives.|n1. Reset your outpost building.|n &#xA0; &#xA0; &#xA0; (Talk with a NPC in the outpost)|n2. Buy a contract from a vendor in your garrison.";

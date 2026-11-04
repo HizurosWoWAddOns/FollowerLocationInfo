@@ -14,6 +14,20 @@ local LDDM = LibStub("LibDropDownMenu");
 local LC = LibStub("LibColors-1.0");
 local ST = LibStub("SecureTabs-2.0");
 
+local supporter = {
+	-- {<color>,<name>}, <localizations>, <donations>, <otherSupportTypes>, <special text>,
+	{"battlenet","pas06",false,"/", "curseforge","Bullseiify"},{"deDE"},false,false,false,
+	{"curseforge","Ananhaid"},		{"zhCN"},false,false,false,
+	{"curseforge","Canettieri"},	{"ptBR"},false,false,false,
+	{"curseforge","Dabeuliou"},		{"frFR"},false,false,false,
+	{"curseforge","dropdb"},		{"ruRU"},false,false,false,
+	{"curseforge","Felli64"},		{"deDE"},false,false,false,
+	{"curseforge","Igara86"},		{"ruRU"},false,false,false,
+	{"curseforge","Tumbleweed_DSA"},{"deDE"},false,false,false,
+	{"curseforge","unrealcrom96"},	{"koKR"},false,false,false,
+	{"curseforge","Canettieri"},	{"ptBR"},false,false,false,
+}
+
 FollowerLocationInfoJournalMixin = {};
 FollowerLocationInfoJournalFilterMixin = {};
 FollowerLocationInfoJournalHtmlMixin = {};
@@ -1494,18 +1508,12 @@ function FollowerLocationInfoJournalMixin:FollowerDesc_Update()
 				D.Version.Data
 			),
 			--section:format(L["Chat commands"],"/fli "..L["or"] .. "/followerlocationinfo"),
-			--[[
-			section:format(L["Thanks"],
-				"ditex2009 ruRU locales (horde)|n"..
-				"Shooshpan ruRU locales (horde)|n"..
-				"michaelselehov ruRU locales (alliance)|n"..
-				"jerry99spkk zhTW locales (alliance)|n"..
-				"BNSSNB zhTW locales (alliance)|n"..
-				"ananhaid zhCN locales (alliance &amp; horde)|n"..
-				"and the nice community :)"
-			)
-			--]]
 		};
+		local HST = LibStub("HizurosSharedTools")
+		local supps = (HST.CreditsToHTML and HST.CreditsToHTML(addon,{supporter=supporter,sectionHeader=h2:format("%s","green"),sectionName=h3})) or ""
+		if supps~="" then
+			tinsert(html,h2:format("Credits","blue")..supps..br)
+		end
 	end
 
 	if doRetry then
