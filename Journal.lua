@@ -72,26 +72,26 @@ local function pairsByFields(t, f1, ...)
 	end;
 end
 
-local function Loading(active,appendMsg,opt)
-	local f=FollowerLocationInfoJournal.FollowerDesc.Loading;
-	if(active)then
-		f:Show();
-		if(type(appendMsg)=="string")then
-			local tbl,str = {}, (opt~="new" and f.Info:GetText() or "");
-			if(opt~="nobr" and strlen(str)>0)then
-				tinsert(tbl,str);
-			end
-			if(opt=="nobr")then
-				tinsert(tbl,str..appendMsg);
-			else
-				tinsert(tbl,appendMsg);
-			end
-			f.Info:SetText(tconcat(tbl,"|n"));
-		end
-	else
-		f:Hide();
-	end
-end
+-- local function Loading(active,appendMsg,opt)
+-- 	local f=FollowerLocationInfoJournal.FollowerDesc.Loading;
+-- 	if(active)then
+-- 		f:Show();
+-- 		if(type(appendMsg)=="string")then
+-- 			local tbl,str = {}, (opt~="new" and f.Info:GetText() or "");
+-- 			if(opt~="nobr" and strlen(str)>0)then
+-- 				tinsert(tbl,str);
+-- 			end
+-- 			if(opt=="nobr")then
+-- 				tinsert(tbl,str..appendMsg);
+-- 			else
+-- 				tinsert(tbl,appendMsg);
+-- 			end
+-- 			f.Info:SetText(tconcat(tbl,"|n"));
+-- 		end
+-- 	else
+-- 		f:Hide();
+-- 	end
+-- end
 
 local function CreateExternalURL(Type,Id)
 	local url,Target = nil,Type=="player" and "BattleNet" or FollowerLocationInfoDB.ExternalURL;
@@ -887,7 +887,7 @@ function FollowerLocationInfoJournalMixin:FollowerCard_Update()
 	end
 end
 
-local h1,h2,h3,lnk,a = "<h1>%s</h1><p>|TInterface\\AddOns\\FollowerLocationInfo\\media\\%s:9:356:0:8:128:16:0:24:0:16|t</p>","<h2>%s</h2><p>|TInterface\\AddOns\\FollowerLocationInfo\\media\\%s:9:256:0:8:128:16:24:64:0:16|t</p>","<h3>%s</h3>","|c%s|H%s|h[%s]|h|r","<a href='%s'>%s</a>";
+local h1,h2,h3,lnk,a = "<h1>%s</h1><p>|TInterface\\AddOns\\FollowerLocationInfo\\media\\%s:9:356:0:8:128:16:0:24:0:16|t</p>","<h2>%s</h2><p>|TInterface\\AddOns\\FollowerLocationInfo\\media\\%s:9:256:0:8:128:16:24:64:0:16|t</p>","<h3>|cffffffff%s|r</h3>","|c%s|H%s|h[%s]|h|r","<a href='%s'>%s</a>";
 local p,pl,pr,br,img = "<p>%s</p>","<p align='left'>%s</p>","<p align='right'>%s</p>","<br/>","|cFF33aaff|Himage:%1$s:%2$s|h[Image? %2$d]|h|r";
 local checked = " |TInterface\\Buttons\\UI-CheckBox-Check:14:14:0:0:32:32:3:29:3:29|t";
 local stateColor = {[0]="ff0000","ff9900","04ff07","ffffff"};
@@ -1051,55 +1051,59 @@ function AddDescription.Location(Desc)
 end
 
 function AddDescription.Quests(Desc)
-	Loading(true,L["Collecting quest data... (%d entries)"]:format(#Desc-1),"new");
-	local quests,doRetry = {},false;
+	local quests = {}
 	for i=2, #Desc do
-		local quest,v,coord,index,zone,npc = {},Desc[i],"","","","";
-		Loading(true,L["Query data (questId: %d)..."]:format(v[1]));
-		if(type(v[1])=="number")then
-			index = (GetQuestLogIndexByID or C_QuestLog.GetLogIndexForQuestID)(v[1]);
-			tinsert(quest,lnk:format("ffffcc00", ("quest:%d:%d"):format(v[1],v[2]), L["quest_"..v[1]]));
+		local questID, questLvl, npcOrObjectID, uiMapID, uiMapPosX, uiMapPosY = unpack(Desc[i])
+		local questLogIndex = nil
+		local quest = {}
+
+		if tonumber(questID) then
+			questLogIndex = C_QuestLog.GetLogIndexForQuestID(questID)
+			tinsert(quest, lnk:format("ffffcc00", ("quest:%d:%d"):format(questID,questLvl), L["quest_"..questID]))
 		end
-		if(not doRetry and type(v[3])=="number")then
-			if v[3]<1 then
-				local objId = gsub(tostring(v[3]),"^0%.","");
-				v[3] = L["object_"..objId];
-			elseif(v[3]>=1)then
-				v[3] = L["npc_"..v[3]];
+
+		local tarName
+		if tonumber(npcOrObjectID) then
+			tarName = UNKNOWN.."-"..npcOrObjectID
+			if npcOrObjectID<1 then
+				local objId = gsub(tostring(npcOrObjectID),"^0%.","");
+				tarName = L["object_"..objId]
+			elseif npcOrObjectID>=1 then
+				tarName = L["npc_"..npcOrObjectID]
 			end
-			tinsert(quest,v[3]);
+			tinsert(quest,tarName)
 		end
-		if(not doRetry)then
-			local location, tomtom = SharedElements.Location(v[4],v[5],v[6],(type(v[5])=="table" or type(v[5])=="string") and v[5] or nil, (v[3] and v[3] or nil))
-			tinsert(quest,location);
-			if tomtom then
-				tinsert(quest,tomtom);
-			end
 
-			local link = CreateExternalURL("q",v[1]);
-			if link then tinsert(quest,link); end
-
-			if(type(v.Images)=="table")then
-				tinsert(quest,SharedElements.Images(CurrentFollower,v.Images," "));
-			end
-
-			local status = STATUS..CHAT_HEADER_SUFFIX.."|cff%s%s|r";
-			if(index and index>0)then
-				tinsert(quest,status:format("ffee00",L["In your Questlog"]));
-			elseif C_QuestLog.IsQuestFlaggedCompleted(v[1]) then
-				tinsert(quest,status:format("00aa00",AUCTION_TIME_LEFT0)..checked);
-			else
-				tinsert(quest,status:format("04ff07",L["Open"]));
-			end
-
-			tinsert(quests,tconcat(quest,"|n"..listPrefix));
-			Loading(true,checked,"nobr");
+		local tDesc5 = type(uiMapPosX)
+		local location, tomtom = SharedElements.Location(uiMapID,uiMapPosX,uiMapPosY, (tDesc5=="table" or tDesc5=="string") and uiMapPosX or nil, tarName )
+		tinsert(quest, location)
+		if tomtom then
+			tinsert(quest, tomtom)
 		end
+
+		local link = CreateExternalURL("q",questID)
+		if link then
+			tinsert(quest, link)
+		end
+
+		if type(Desc[i].Images)=="table" then
+			tinsert(quest, SharedElements.Images(CurrentFollower,Desc[i].Images," "))
+		end
+
+		local status = STATUS..CHAT_HEADER_SUFFIX.."|cff%s%s|r"
+		if questLogIndex and questLogIndex>0 then
+			tinsert(quest, status:format("ffee00", L["In your Questlog"]))
+		elseif tonumber(questID) and C_QuestLog.IsQuestFlaggedCompleted(questID) then
+			tinsert(quest, status:format("00aa00", AUCTION_TIME_LEFT0)..checked)
+		else
+			tinsert(quest, status:format("04ff07", L["Open"]))
+		end
+
+		tinsert(quests,tconcat(quest,"|n"..listPrefix))
 	end
 	if #quests>0 then
-		return p:format(tconcat(quests,"|n|n")), Desc[1]=="Events" and EVENTS_LABEL or QUESTS_LABEL,doRetry;
+		return p:format(tconcat(quests,"|n|n")), Desc[1]=="Events" and EVENTS_LABEL or QUESTS_LABEL, false;
 	end
-	return nil,nil,doRetry;
 end
 AddDescription.Events = AddDescription.Quests;
 
@@ -1149,10 +1153,8 @@ function AddDescription.Images(Desc)
 end
 
 function AddDescription.Merchant(Desc)
-	Loading(true,L["Collection vendor data..."],"new");
 	local merchants,doRetry = {},false;
 	for i=2, #Desc do
-		Loading(true,L["Query data (npcID: %d)..."]:format(Desc[i][1]));
 		local merchant = {};
 		if not rawget(L,"npc_"..Desc[i][1]) then
 			ns:debug("npc",Desc[i][1])
@@ -1168,7 +1170,6 @@ function AddDescription.Merchant(Desc)
 			local link = CreateExternalURL("n",Desc[i][1]);
 			if link then tinsert(merchant,link); end
 			tinsert(merchants,tconcat(merchant,"|n"..listPrefix));
-			Loading(true,checked,"nobr");
 		else
 			doRetry = true;
 		end
@@ -1180,7 +1181,6 @@ function AddDescription.Merchant(Desc)
 end
 
 function AddDescription.Npc(Desc)
-	Loading(true,L["Query data (npcID: %d)..."]:format(Desc[2]));
 	local name,npc,doRetry = L["npc_"..Desc[2]],nil;
 	if(name)then
 		npc = {};
@@ -1195,7 +1195,6 @@ function AddDescription.Npc(Desc)
 		local link = CreateExternalURL("n",Desc[1]);
 		if link then tinsert(npc,link); end
 
-		Loading(true,checked,"nobr");
 	else
 		doRetry = true;
 	end
@@ -1399,9 +1398,6 @@ function FollowerLocationInfoJournalMixin:FollowerDesc_Update()
 	local P = FollowerLocationInfoJournal.FollowerDesc;
 	if not P:IsVisible() then return end
 
-	Loading(true,L["Init description generator..."],"new");
-	P.html:Hide();
-
 	local id,html,doRetry,title = CurrentFollower,{},false;
 	local Desc = false;
 
@@ -1516,19 +1512,7 @@ function FollowerLocationInfoJournalMixin:FollowerDesc_Update()
 		end
 	end
 
-	if doRetry then
-		C_Timer.After(1.4,FollowerLocationInfoJournal.FollowerDesc_Update);
-		return;
-	else
-		P.html:SetText("<html><body>"..tconcat(html,"").."<br /></body></html>");
-		Loading(false);
-		P.html:Show();
-	end
-
-	if not CurrentFollower_reloaded then
-		CurrentFollower_reloaded = true;
-		C_Timer.After(0.2,FollowerLocationInfoJournal.FollowerDesc_Update);
-	end
+	P.html:SetText("<html><body>"..table.concat(html,"").."<br /></body></html>");
 end
 
 
