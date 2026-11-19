@@ -851,7 +851,7 @@ function FollowerLocationInfoJournalMixin:FollowerCard_Update()
 
 		local quality = 6;
 		local _,class,classID = UnitClass("player"); -- 6
-		local classSpec = (C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or GetSpecialization)(); -- 2
+		local classSpec = C_SpecializationInfo.GetSpecialization()
 		if classID and classSpec and D.playerSpec[classID] and D.playerSpec[classID][classSpec] and D.classSpec[D.playerSpec[classID][classSpec]] then
 			classSpec = D.classSpec[D.playerSpec[classID][classSpec]][1];
 		else
@@ -1206,10 +1206,7 @@ end
 
 function AddDescription.Spell(Desc)
 	local hlink = CreateExternalURL("s",Desc[2]);
-	return p:format(
-		"|T"..(C_Spell and C_Spell.GetSpellTexture or GetSpellTexture)(Desc[2])..":14:14:0:0|t "..(C_Spell and C_Spell.GetSpellLink or GetSpellLink)(Desc[2])..
-		(hlink~=nil and "|n"..listPrefix..hlink or "")
-	), SPELLS;
+	return p:format("|T"..(C_Spell.GetSpellTexture(Desc[2]) or 134400)..":14:14:0:0|t "..(C_Spell.GetSpellLink(Desc[2]) or UNKNOWN)..(hlink~=nil and "|n"..listPrefix..hlink or "")), SPELLS;
 end
 
 function AddDescription.Items(Desc)
